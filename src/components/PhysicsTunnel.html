@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Không gian Nội thất Trạm ISS (Siêu Chi tiết)</title>
+    <!-- Tải thư viện Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        font-family: "Inter", sans-serif;
+        background-color: #0a0a0a;
+        color: #ffffff;
+        cursor: default;
+      }
+      #scene-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+      }
+      #overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 10;
+        pointer-events: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="scene-container"></div>
+
+    <script type="module">
+      // --- CÀI ĐẶT CƠ BẢN CỦA THREE.JS ---
+      const container = document.getElementById("scene-container");
+      let scene, camera, renderer;
+      const clock = new THREE.Clock();
+
+      // Kích thước module (Dài và hơi hẹp)
+      const moduleWidth = 8;
+      const moduleHeight = 7;
+      const moduleDepth = 18; // Module dài hơn để tạo cảm giác đường hầm
+
+      // Cài đặt Vật lý
+      const movementSpeed = 0.015;
+      const dragFactor = 0.985;
+      const cameraRadius = 0.5;
+      const boundaryX = moduleWidth / 2 - 0.5;
+      const boundaryY = moduleHeight / 2 - 0.5;
+      const boundaryZ = moduleDepth / 2 - 0.5;
+
+      let velocity = new THREE.Vector3();
+
+      let moveState = {
+        forward: false,
+        backward: false,
+        left: false,
+        right: false,
+        up: false,
+        down: false,
+      };
+      let isMouseDown = false;
+      let previousMousePosition = { x: 0, y: 0 };
+      const rotationSpeed = 0.002;
+
+      function init() {
+        // 1. Scene
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1a1a1a);
+
+        // 2. Camera
+        const aspect = container.clientWidth / container.clientHeight;
+        camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
+        camera.position.set(0, 0, 5);
+
+        // 3. Renderer
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Bóng đổ mềm nhẹ
+        renderer.toneMapping = THREE.ACESFilmicToneMapping; // Giúp kiểm soát độ sáng cao tốt hơn
+        renderer.toneMappingExposure = 1.0;
+        container.appendChild(renderer.domElement);
+
+        // 4. Ánh sáng
+        setupLighting();
+
+        // 5. Môi trường ISS
+        createISSModuleGeometry();
+
+        window.addEventListener("resize", onWindowResize, false);
+        document.addEventListener("keydown", onKeyDown, false);
+        document.addEventListener("keyup", onKeyUp, false);
+        document.addEventListener("mousemove", onMouseMove, false);
+        document.addEventListener("mousedown", onMouseDown, false);
+        document.addEventListener("mouseup", onMouseUp, false);
+        document.addEventListener(
+          "contextmenu",
+          (e) => e.preventDefault(),
+          false
+        );
+      }
+
+      function setupLighting() {
+        // Ambient Light (Ánh sáng môi trường rất thấp, để chỉ Point/Spot Light chi phối)
+        const ambientLight = new THREE.AmbientLight(0xccddff, 0.1);
+        scene.add(ambientLight);
+
+        // Đèn LED chính (Mô phỏng dải đèn trên trần)
+        const lightColor = 0xffffff;
+        const lightIntensity = 5; // Cường độ cực mạnh để tạo bóng đổ sắc nét
+
+        // Đèn Spot 1 (Phía trước module)
+        const spotLight1 = new THREE.SpotLight(lightColor, lightIntensity);
+        spotLight1.position.set(-2, moduleHeight / 2 - 0.1, -4);
+        spotLight1.angle = Math.PI / 3;
+        spotLight1.penumbra = 0.1;
+        spotLight1.decay = 1.0;
+        spotLight1.distance = 15;
+        spotLight1.target.position.set(0, 0, -4); // Chiếu xuống trung tâm
+        spotLight1.castShadow = true;
+        spotLight1.shadow.mapSize.width = 1024;
+        spotLight1.shadow.mapSize.height = 1024;
+        scene.add(spotLight1);
+        scene.add(spotLight1.target);
+
+        // Đèn Spot 2 (Phía sau module)
+        const spotLight2 = new THREE.SpotLight(lightColor, lightIntensity);
+        spotLight2.position.set(2, moduleHeight / 2 - 0.1, 4);
+        spotLight2.angle = Math.PI / 3;
+        spotLight2.penumbra = 0.1;
+        spotLight2.decay = 1.0;
+        spotLight2.distance = 15;
+        spotLight2.target.position.set(0, 0, 4); // Chiếu xuống trung tâm
+        spotLight2.castShadow = true;
+        spotLight2.shadow.mapSize.width = 1024;
+        spotLight2.shadow.mapSize.height = 1024;
+        scene.add(spotLight2);
+        scene.add(spotLight2.target);
+
+        // Đèn phụ nhẹ nhàng hơn (Fill Light)
+        const fillLight = new THREE.PointLight(0xffffff, 0.5, 30);
+        fillLight.position.set(0, 1, 0);
+        scene.add(fillLight);
+      }
+
+      function createMaterial(
+        color,
+        roughness,
+        metalness,
+        side = THREE.BackSide,
+        castShadow = true,
+        receiveShadow = true
+      ) {
+        const material = new THREE.MeshStandardMaterial({
+          color,
+          metalness,
+          roughness,
+          side,
+          castShadow,
+          receiveShadow,
+        });
+        return material;
+      }
+
+      function createISSModuleGeometry() {
+        // Vật liệu chính
+        const wallMaterial = createMaterial(
+          0xcccccc,
+          0.8,
+          0.1,
+          THREE.BackSide,
+          false,
+          true
+        );
+        // Panel thiết bị (Tạo và nhận bóng)
+        const blueLockerMaterial = createMaterial(
+          0x0077ff,
+          0.4,
+          0.5,
+          THREE.FrontSide,
+          true,
+          true
+        );
+        const orangeCableMaterial = createMaterial(
+          0xff6600,
+          0.9,
+          0.1,
+          THREE.FrontSide,
+          true,
+          false
+        );
+        const metalDetailMaterial = createMaterial(
+          0x555555,
+          0.2,
+          0.9,
+          THREE.FrontSide,
+          true,
+          true
+        );
+
+        const moduleGroup = new THREE.Group();
+
+        // 1. Vỏ Module Cơ bản (Chủ yếu là nền)
+        const floor = new THREE.Mesh(
+          new THREE.PlaneGeometry(moduleWidth, moduleDepth),
+          wallMaterial
+        );
+        floor.rotation.x = Math.PI / 2;
+        floor.position.y = -moduleHeight / 2;
+        moduleGroup.add(floor);
+
+        const ceiling = new THREE.Mesh(
+          new THREE.PlaneGeometry(moduleWidth, moduleDepth),
+          wallMaterial
+        );
+        ceiling.rotation.x = Math.PI / 2;
+        ceiling.position.y = moduleHeight / 2;
+        moduleGroup.add(ceiling);
+
+        // Tường chính
+        const backWallMaterial = createMaterial(
+          0x888888,
+          0.9,
+          0.1,
+          THREE.BackSide,
+          false,
+          true
+        );
+        const wallGeometry = new THREE.PlaneGeometry(moduleWidth, moduleHeight);
+
+        const wallLeft = new THREE.Mesh(wallGeometry, backWallMaterial);
+        wallLeft.rotation.y = Math.PI / 2;
+        wallLeft.position.x = -moduleWidth / 2;
+        moduleGroup.add(wallLeft);
+
+        const wallRight = new THREE.Mesh(wallGeometry, backWallMaterial);
+        wallRight.rotation.y = -Math.PI / 2;
+        wallRight.position.x = moduleWidth / 2;
+        moduleGroup.add(wallRight);
+
+        const endWallGeometry = new THREE.PlaneGeometry(
+          moduleWidth,
+          moduleHeight
+        );
+        const wallFront = new THREE.Mesh(endWallGeometry, backWallMaterial);
+        wallFront.position.z = moduleDepth / 2;
+        moduleGroup.add(wallFront);
+
+        scene.add(moduleGroup);
+
+        // 2. TẠO CLUTTER VÀ CHI TIẾT CẤU TRÚC (HIGH DETAIL)
+
+        // --- Chi tiết Ribs (Gân chịu lực) trên tường ---
+        const ribGeometry = new THREE.BoxGeometry(0.05, moduleHeight, 0.05);
+        const ribMaterial = createMaterial(
+          0x666666,
+          0.1,
+          0.9,
+          THREE.FrontSide,
+          true,
+          false
+        ); // Kim loại bóng nhẹ
+
+        for (let z = -moduleDepth / 2 + 1; z < moduleDepth / 2; z += 2) {
+          // Ribs bên trái
+          const ribL = new THREE.Mesh(ribGeometry, ribMaterial);
+          ribL.position.set(-moduleWidth / 2 + 0.1, 0, z);
+          moduleGroup.add(ribL);
+
+          // Ribs bên phải
+          const ribR = new THREE.Mesh(ribGeometry, ribMaterial);
+          ribR.position.set(moduleWidth / 2 - 0.1, 0, z);
+          moduleGroup.add(ribR);
+        }
+
+        // --- Tủ Đồ (Lockers - Blue) và Panel ---
+        const lockerBaseZ = -moduleDepth / 2 + 3;
+        for (let i = 0; i < 4; i++) {
+          // Locker
+          const locker = new THREE.Mesh(
+            new THREE.BoxGeometry(0.8, 1.2, 0.5),
+            blueLockerMaterial
+          );
+          locker.position.set(
+            -moduleWidth / 2 + 0.4,
+            2.5 - i * 1.5,
+            lockerBaseZ + (i % 2) * 2
+          );
+          locker.castShadow = true;
+          moduleGroup.add(locker);
+        }
+      }
+
+      // --- XỬ LÝ CHUYỂN ĐỘNG VÀ SỰ KIỆN ---
+
+      function onWindowResize() {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+      }
+
+      function onKeyDown(event) {
+        switch (event.code) {
+          case "KeyW":
+            moveState.forward = true;
+            break;
+          case "KeyS":
+            moveState.backward = true;
+            break;
+          case "KeyA":
+            moveState.left = true;
+            break;
+          case "KeyD":
+            moveState.right = true;
+            break;
+          case "KeyQ":
+            moveState.up = true;
+            break;
+          case "KeyE":
+            moveState.down = true;
+            break;
+        }
+      }
+
+      function onKeyUp(event) {
+        switch (event.code) {
+          case "KeyW":
+            moveState.forward = false;
+            break;
+          case "KeyS":
+            moveState.backward = false;
+            break;
+          case "KeyA":
+            moveState.left = false;
+            break;
+          case "KeyD":
+            moveState.right = false;
+            break;
+          case "KeyQ":
+            moveState.up = false;
+            break;
+          case "KeyE":
+            moveState.down = false;
+            break;
+        }
+      }
+
+      function onMouseDown(event) {
+        isMouseDown = true;
+        previousMousePosition.x = event.clientX;
+        previousMousePosition.y = event.clientY;
+        document.body.style.cursor = "grabbing";
+      }
+
+      function onMouseUp(event) {
+        isMouseDown = false;
+        document.body.style.cursor = "default";
+      }
+
+      function onMouseMove(event) {
+        if (!isMouseDown) return;
+
+        const deltaX = event.clientX - previousMousePosition.x;
+        const deltaY = event.clientY - previousMousePosition.y;
+
+        camera.rotation.y -= deltaX * rotationSpeed;
+        camera.rotation.x -= deltaY * rotationSpeed;
+
+        camera.rotation.x = THREE.MathUtils.clamp(
+          camera.rotation.x,
+          -Math.PI / 2,
+          Math.PI / 2
+        );
+
+        previousMousePosition.x = event.clientX;
+        previousMousePosition.y = event.clientY;
+      }
+
+      function updateMovement(delta) {
+        let acceleration = new THREE.Vector3();
+        const direction = new THREE.Vector3(0, 0, -1).applyQuaternion(
+          camera.quaternion
+        );
+        const rightVector = new THREE.Vector3(1, 0, 0).applyQuaternion(
+          camera.quaternion
+        );
+
+        const accelFactor = movementSpeed * delta * 50;
+
+        if (moveState.forward)
+          acceleration.add(direction.clone().multiplyScalar(accelFactor));
+        if (moveState.backward)
+          acceleration.add(direction.clone().multiplyScalar(-accelFactor));
+        if (moveState.right)
+          acceleration.add(rightVector.clone().multiplyScalar(accelFactor));
+        if (moveState.left)
+          acceleration.add(rightVector.clone().multiplyScalar(-accelFactor));
+        if (moveState.up) acceleration.y += accelFactor;
+        if (moveState.down) acceleration.y -= accelFactor;
+
+        velocity.add(acceleration);
+        velocity.multiplyScalar(dragFactor);
+
+        const maxSpeed = 0.3;
+        if (velocity.length() > maxSpeed) {
+          velocity.setLength(maxSpeed);
+        }
+
+        camera.position.add(velocity);
+
+        // Giới hạn va chạm
+        if (camera.position.x > boundaryX || camera.position.x < -boundaryX) {
+          velocity.x *= -0.5;
+          camera.position.x = THREE.MathUtils.clamp(
+            camera.position.x,
+            -boundaryX,
+            boundaryX
+          );
+        }
+        if (camera.position.y > boundaryY || camera.position.y < -boundaryY) {
+          velocity.y *= -0.5;
+          camera.position.y = THREE.MathUtils.clamp(
+            camera.position.y,
+            -boundaryY,
+            boundaryY
+          );
+        }
+        if (camera.position.z > boundaryZ || camera.position.z < -boundaryZ) {
+          velocity.z *= -0.5;
+          camera.position.z = THREE.MathUtils.clamp(
+            camera.position.z,
+            -boundaryZ,
+            boundaryZ
+          );
+        }
+
+        const speedMagnitude = velocity.length() * 100;
+      }
+
+      // --- VÒNG LẶP CHÍNH CỦA SIM ---
+
+      function animate() {
+        requestAnimationFrame(animate);
+
+        const delta = clock.getDelta();
+
+        updateMovement(delta);
+
+        renderer.render(scene, camera);
+      }
+
+      // --- KHỞI CHẠY ---
+      init();
+      animate();
+    </script>
+  </body>
+</html>
