@@ -1,138 +1,15 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Canvas, useThree, useFrame } from "@react-three/fiber";
+import React, { useState, useEffect } from "react";
+import { Canvas, useThree } from "@react-three/fiber";
 import CupolaModel from "./CupolaModel";
 import EarthModel from "./EarthModel";
+import ISSTunnelModel from "./ISSTunnelModel";
+import ZeroGravityPhysics from "./ZeroGravityPhysics";
 import { type DisasterEvent } from "../data/mockDisasterData";
 
 interface ISSViewProps {
   selectedMission: DisasterEvent | null;
   onMissionTargetClick: (mission: DisasterEvent) => void;
 }
-
-// Camera controls component for combined first-person and orbital movement
-const CameraControls: React.FC = () => {
-  const { camera } = useThree();
-  const controlsRef = useRef({
-    // First-person head movement
-    yaw: 0, // Y-axis rotation (left/right)
-    pitch: 0, // X-axis rotation (up/down)
-    roll: 0, // Z-axis rotation (tilt left/right)
-    targetYaw: 0,
-    targetPitch: 0,
-    targetRoll: 0,
-
-    // ISS orbital movement
-    orbitAngle: 0,
-    orbitHeight: 0,
-    orbitRadius: 12, // Increased base radius
-    targetOrbitAngle: 0,
-    targetOrbitHeight: 0,
-    targetOrbitRadius: 12,
-  });
-
-  // Keyboard controls
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      const controls = controlsRef.current;
-      const headSpeed = 0.05;
-      const orbitSpeed = 0.1;
-
-      switch (event.key) {
-        // First-person head movement (Arrow keys)
-        case "ArrowLeft":
-          controls.targetYaw += headSpeed;
-          break;
-        case "ArrowRight":
-          controls.targetYaw -= headSpeed;
-          break;
-        case "ArrowUp":
-          controls.targetPitch += headSpeed;
-          break;
-        case "ArrowDown":
-          controls.targetPitch -= headSpeed;
-          break;
-
-        // ISS orbital movement (WASD keys)
-        case "a":
-          controls.targetOrbitAngle += orbitSpeed;
-          break;
-        case "d":
-          controls.targetOrbitAngle -= orbitSpeed;
-          break;
-        case "w":
-          controls.targetOrbitHeight += orbitSpeed;
-          break;
-        case "s":
-          controls.targetOrbitHeight -= orbitSpeed;
-          break;
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
-
-  // Mouse wheel controls for orbital radius (zoom)
-  useEffect(() => {
-    const handleWheel = (event: WheelEvent) => {
-      event.preventDefault();
-      const controls = controlsRef.current;
-      const zoomSpeed = 0.5;
-
-      if (event.deltaY > 0) {
-        // Zoom out (increase orbital radius)
-        controls.targetOrbitRadius = Math.min(
-          controls.targetOrbitRadius + zoomSpeed,
-          20
-        );
-      } else {
-        // Zoom in (decrease orbital radius)
-        controls.targetOrbitRadius = Math.max(
-          controls.targetOrbitRadius - zoomSpeed,
-          8 // Minimum safe distance from Earth
-        );
-      }
-    };
-
-    window.addEventListener("wheel", handleWheel, { passive: false });
-    return () => window.removeEventListener("wheel", handleWheel);
-  }, []);
-
-  // Smooth camera movement
-  useFrame(() => {
-    const controls = controlsRef.current;
-
-    // Smooth interpolation for head movement
-    controls.yaw += (controls.targetYaw - controls.yaw) * 0.1;
-    controls.pitch += (controls.targetPitch - controls.pitch) * 0.1;
-    controls.roll += (controls.targetRoll - controls.roll) * 0.1;
-
-    // Smooth interpolation for orbital movement
-    controls.orbitAngle +=
-      (controls.targetOrbitAngle - controls.orbitAngle) * 0.05;
-    controls.orbitHeight +=
-      (controls.targetOrbitHeight - controls.orbitHeight) * 0.05;
-    controls.orbitRadius +=
-      (controls.targetOrbitRadius - controls.orbitRadius) * 0.05;
-
-    // Calculate ISS orbital position around Earth
-    // Earth is at [0, 0, -12], so we need to account for this offset
-    const earthPosition = [0, 0, -12];
-    const orbitX =
-      Math.cos(controls.orbitAngle) * controls.orbitRadius + earthPosition[0];
-    const orbitZ =
-      Math.sin(controls.orbitAngle) * controls.orbitRadius + earthPosition[2];
-    const orbitY = controls.orbitHeight + earthPosition[1];
-
-    // Set camera position inside the Cupola (at the orbital position)
-    camera.position.set(orbitX, orbitY, orbitZ);
-
-    // Apply head rotation in the correct order
-    camera.rotation.set(controls.pitch, controls.yaw, controls.roll, "YXZ");
-  });
-
-  return null;
-};
 
 // Camera controller component for mission transitions
 const CameraController: React.FC<{ selectedMission: DisasterEvent | null }> = ({
@@ -199,7 +76,7 @@ const CameraController: React.FC<{ selectedMission: DisasterEvent | null }> = ({
           (targetOrbitRadius - startOrbitRadius) * easedProgress;
 
         // Calculate new camera position around Earth
-        const earthPosition = [0, 0, -12];
+        const earthPosition = [0, 0, -25];
         const orbitX =
           Math.cos(currentOrbitAngle) * currentOrbitRadius + earthPosition[0];
         const orbitZ =
@@ -231,27 +108,12 @@ const CameraController: React.FC<{ selectedMission: DisasterEvent | null }> = ({
   return null;
 };
 
-// Cupola position tracker component
-const CupolaTracker: React.FC<{
-  onPositionUpdate: (position: [number, number, number]) => void;
-}> = ({ onPositionUpdate }) => {
-  const { camera } = useThree();
-
-  useFrame(() => {
-    // Update Cupola position to match camera position
-    onPositionUpdate([camera.position.x, camera.position.y, camera.position.z]);
-  });
-
-  return null;
-};
-
 // Scene component
 const Scene: React.FC<ISSViewProps> = ({
   selectedMission,
   onMissionTargetClick,
 }) => {
   const [missionTargetActive, setMissionTargetActive] = useState(false);
-  const [cupolaPosition, setCupolaPosition] = useState([0, 0, 0]);
 
   useEffect(() => {
     if (selectedMission) {
@@ -274,18 +136,22 @@ const Scene: React.FC<ISSViewProps> = ({
 
   return (
     <>
-      {/* Lighting - Tối ưu cho trải nghiệm trong Cupola */}
-      <ambientLight intensity={0.2} />
-      <directionalLight position={[0, 0, 10]} intensity={0.8} color="#FFFFFF" />
+      {/* Enhanced Lighting for both tunnel and space */}
+      <ambientLight intensity={0.1} />
+      <directionalLight position={[0, 0, 10]} intensity={0.6} color="#FFFFFF" />
       <pointLight position={[0, 0, -5]} intensity={0.3} color="#87CEEB" />
       <pointLight position={[0, 0, 0]} intensity={0.1} color="#4A90E2" />
 
-      <CupolaModel position={cupolaPosition as [number, number, number]} />
+      {/* ISS Tunnel Model */}
+      <ISSTunnelModel position={[0, 0, 0]} />
 
-      {/* Earth */}
+      {/* Cupola Model - positioned at the end of the tunnel */}
+      <CupolaModel position={[0, 0, -9]} />
+
+      {/* Earth - floating in space, visible through Cupola windows */}
       <EarthModel
-        position={[0, 0, -12]}
-        scale={[3, 3, 3]}
+        position={[0, 0, -25]}
+        scale={[4, 4, 4]}
         onMissionTarget={
           selectedMission
             ? {
@@ -300,7 +166,7 @@ const Scene: React.FC<ISSViewProps> = ({
       {/* Mission target clickable area */}
       {selectedMission && missionTargetActive && (
         <mesh
-          position={[0, 0, -12]}
+          position={[0, 0, -25]}
           onClick={handleMissionTargetClick}
           onPointerOver={() => {
             document.body.style.cursor = "pointer";
@@ -309,16 +175,15 @@ const Scene: React.FC<ISSViewProps> = ({
             document.body.style.cursor = "auto";
           }}
         >
-          <sphereGeometry args={[6, 32, 16]} />
+          <sphereGeometry args={[8, 32, 16]} />
           <meshBasicMaterial transparent={true} opacity={0} />
         </mesh>
       )}
 
-      {/* Cupola position tracker */}
-      <CupolaTracker onPositionUpdate={setCupolaPosition} />
-
-      {/* Camera controls */}
-      <CameraControls />
+      {/* Zero Gravity Physics System */}
+      <ZeroGravityPhysics
+        boundaries={{ x: 4, y: 3.5, z: 9 }}
+      />
 
       {/* Camera controller for mission transitions */}
       <CameraController selectedMission={selectedMission} />
@@ -328,10 +193,17 @@ const Scene: React.FC<ISSViewProps> = ({
 
 const ISSView: React.FC<ISSViewProps> = (props) => {
   return (
-    <div style={{ width: "100%", height: "100vh", background: "#000011" }}>
+    <div
+      style={{
+        width: "100%",
+        height: "100vh",
+        background: "#000011",
+        position: "relative",
+      }}
+    >
       <Canvas
         camera={{
-          position: [12, 0, -12], // Start in orbital position around Earth
+          position: [0, 0, 5], // Start in tunnel
           fov: 75, // Good FOV for both views
           near: 0.01,
           far: 1000,
