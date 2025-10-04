@@ -21,11 +21,11 @@ const ISSTunnelModel: React.FC<ISSTunnelModelProps> = ({
   // Load cupola texture
   const cupolaTexture = useMemo(() => new TextureLoader().load(cupolaImage), []);
 
-  // Main tunnel structure - transparent cylinder
+  // Main tunnel structure
   const tunnelGeometry = useMemo(() => {
     const group = new THREE.Group();
 
-    // Transparent cylinder (without top and bottom lids)
+    // Main cylinder body - metallic white/grey
     const cylinderGeometry = new THREE.CylinderGeometry(
       radius,
       radius,
@@ -36,22 +36,55 @@ const ISSTunnelModel: React.FC<ISSTunnelModelProps> = ({
     );
 
     const cylinderMaterial = new THREE.MeshStandardMaterial({
-      color: 0x1a1a2e, // Dark blue-grey
-      metalness: 0.8,
-      roughness: 0.3,
-      transparent: true,
-      opacity: 0.7,
+      color: 0xe8e8e8, // Light metallic grey
+      metalness: 0.85,
+      roughness: 0.25,
       side: THREE.DoubleSide,
-      emissive: 0x0f3460, // Subtle blue glow
-      emissiveIntensity: 0.2,
     });
 
     const cylinder = new THREE.Mesh(cylinderGeometry, cylinderMaterial);
-    // No rotation needed - cylinder extends along Y-axis by default, we want it along Z-axis
-    cylinder.rotation.x = Math.PI / 2; // Rotate to extend along Z-axis (towards earth)
+    cylinder.rotation.x = Math.PI / 2; // Rotate to extend along Z-axis
     group.add(cylinder);
 
-    // Flat cupola window at the end (circular plane)
+    // Add structural ring ribs along the tunnel
+    const numRibs = 5;
+    const ribMaterial = new THREE.MeshStandardMaterial({
+      color: 0xd0d0d0,
+      metalness: 0.9,
+      roughness: 0.15,
+    });
+
+    for (let i = 0; i < numRibs; i++) {
+      const z = -length / 2 + (i / (numRibs - 1)) * length;
+
+      // Outer rib ring
+      const ribGeometry = new THREE.TorusGeometry(radius + 0.1, 0.15, 8, 32);
+      const rib = new THREE.Mesh(ribGeometry, ribMaterial);
+      rib.position.z = z;
+      group.add(rib);
+    }
+
+    // Add handrails/support beams along the length
+    const numBeams = 4;
+    const beamMaterial = new THREE.MeshStandardMaterial({
+      color: 0xc0c0c0,
+      metalness: 0.95,
+      roughness: 0.1,
+    });
+
+    for (let i = 0; i < numBeams; i++) {
+      const angle = (i / numBeams) * Math.PI * 2;
+      const x = Math.cos(angle) * (radius - 0.2);
+      const y = Math.sin(angle) * (radius - 0.2);
+
+      const beamGeometry = new THREE.CylinderGeometry(0.08, 0.08, length, 8);
+      const beam = new THREE.Mesh(beamGeometry, beamMaterial);
+      beam.position.set(x, y, 0);
+      beam.rotation.x = Math.PI / 2;
+      group.add(beam);
+    }
+
+    // Cupola window at the end (using the image)
     const cupola = new THREE.Mesh(
       new THREE.CircleGeometry(radius, 32),
       new THREE.MeshBasicMaterial({
@@ -60,7 +93,7 @@ const ISSTunnelModel: React.FC<ISSTunnelModelProps> = ({
         side: THREE.DoubleSide,
       })
     );
-    cupola.position.z = -length / 2; // Position at the end of cylinder (towards earth)
+    cupola.position.z = -length / 2;
     group.add(cupola);
 
     return group;
