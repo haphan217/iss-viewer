@@ -986,14 +986,6 @@ const ExploreMode = () => {
             <span className="info-label">Earth radius:</span>
             <span className="info-value">6,371 km</span>
           </div>
-          <div className="info-row">
-            <span className="info-label">Current position:</span>
-            <span className="info-value" id="iss-location">Loading...</span>
-          </div>
-          <div className="info-row">
-            <span className="info-label">Coordinates:</span>
-            <span className="info-value" id="iss-coords">--, --</span>
-          </div>
           <div className="scale-note">
             ⚠️ Note:
             <br /> ISS is magnified ~11,500x for easier observation.
