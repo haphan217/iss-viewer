@@ -43,17 +43,8 @@ export interface Mission3DRef {
 }
 
 const Mission3D = forwardRef<Mission3DRef, Mission3DProps>(
-  (
-    {
-      earthRef,
-      missionState,
-      onMissionStateChange,
-      onTargetHit,
-      selectedMission,
-    },
-    ref
-  ) => {
-    const { camera, raycaster } = useThree();
+  ({ earthRef, missionState, onMissionStateChange, onTargetHit, selectedMission }, ref) => {
+    const { camera } = useThree();
 
     const targetRef = useRef<THREE.Mesh>(null);
     const orbitSpeedRef = useRef(0.02); // Base orbit speed
@@ -188,42 +179,27 @@ const Mission3D = forwardRef<Mission3DRef, Mission3DProps>(
       const newState = { ...missionState, isCapturing: true };
       onMissionStateChange(newState);
 
-      // Set up raycaster to check if target is in center area (40% of screen)
-      // Create multiple raycasters to check a 40% area around the center
-      const centerArea = 0.4; // 40% of screen area
-      const samplePoints = [
-        new THREE.Vector2(0, 0), // Center
-        new THREE.Vector2(-centerArea, 0), // Left
-        new THREE.Vector2(centerArea, 0), // Right
-        new THREE.Vector2(0, -centerArea), // Top
-        new THREE.Vector2(0, centerArea), // Bottom
-        new THREE.Vector2(-centerArea * 0.7, -centerArea * 0.7), // Top-left
-        new THREE.Vector2(centerArea * 0.7, -centerArea * 0.7), // Top-right
-        new THREE.Vector2(-centerArea * 0.7, centerArea * 0.7), // Bottom-left
-        new THREE.Vector2(centerArea * 0.7, centerArea * 0.7), // Bottom-right
-      ];
+      // Get target position in world coordinates
+      const targetWorldPos = new THREE.Vector3();
+      targetRef.current.getWorldPosition(targetWorldPos);
 
-      // Get all children of earth (including the target marker)
-      const earthChildren = earthRef.current?.children || [];
+      // Get camera direction
+      const cameraDirection = new THREE.Vector3();
+      camera.getWorldDirection(cameraDirection);
 
-      // Check if target is hit anywhere in the center area
-      let targetHit = false;
-      for (const pointer of samplePoints) {
-        raycaster.setFromCamera(pointer, camera);
-        const intersects = raycaster.intersectObjects(earthChildren, true);
+      // Get direction from camera to target
+      const cameraPosition = camera.position.clone();
+      const directionToTarget = targetWorldPos.clone().sub(cameraPosition).normalize();
 
-        for (const intersect of intersects) {
-          if (
-            intersect.object === targetRef.current ||
-            intersect.object.userData.isMissionTarget
-          ) {
-            targetHit = true;
-            break;
-          }
-        }
+      // Calculate angle between camera direction and target direction
+      const angle = cameraDirection.angleTo(directionToTarget);
 
-        if (targetHit) break;
-      }
+      // Convert angle to degrees
+      const angleDegrees = THREE.MathUtils.radToDeg(angle);
+
+      // Success if target is within 12 degrees of center (expanded capture area)
+      const toleranceDegrees = 12;
+      const targetHit = angleDegrees <= toleranceDegrees;
 
       setTimeout(() => {
         onTargetHit(targetHit, missionState.target || undefined);
@@ -233,7 +209,6 @@ const Mission3D = forwardRef<Mission3DRef, Mission3DProps>(
       }, 100);
     }, [
       camera,
-      raycaster,
       earthRef,
       onTargetHit,
       onMissionStateChange,

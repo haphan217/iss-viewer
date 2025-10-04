@@ -1,10 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import './ExploreMode.css';
 import eventsData from '../data/events.json';
 import { speak } from '../utils/textToSpeech';
+import InfoPanel from './InfoPanel';
 
 // Global flag to ensure welcome message plays only once per session
 let hasPlayedWelcomeGlobal = false;
@@ -25,8 +26,25 @@ interface EventsByYear {
 
 const ExploreMode = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const infoPanelRef = useRef<HTMLDivElement>(null);
   const eventMenuRef = useRef<HTMLDivElement>(null);
+
+  const [infoPanelData, setInfoPanelData] = useState<{
+    isVisible: boolean;
+    title: string;
+    description: string;
+    image: string;
+    highlights: string[];
+  }>({
+    isVisible: false,
+    title: '',
+    description: '',
+    image: '',
+    highlights: [],
+  });
+
+  const handleCloseInfoPanel = () => {
+    setInfoPanelData({ ...infoPanelData, isVisible: false });
+  };
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -662,25 +680,6 @@ const ExploreMode = () => {
 
         this.renderer.domElement.addEventListener('click', (event) => this.onMouseClick(event));
 
-        const closePanel = document.getElementById('close-panel');
-        if (closePanel) {
-          closePanel.addEventListener('click', () => {
-            this.closeInfoPanel();
-          });
-        }
-
-        // Close panel when clicking outside
-        document.addEventListener('click', (event) => {
-          const infoPanel = document.getElementById('info-panel');
-          if (infoPanel && infoPanel.classList.contains('visible')) {
-            const target = event.target as HTMLElement;
-            // Check if click is outside the panel and not on a pin marker
-            if (!infoPanel.contains(target) && !target.closest('.pin-marker')) {
-              this.closeInfoPanel();
-            }
-          }
-        });
-
         const viewModeButtons = document.querySelectorAll('.view-mode-btn');
         viewModeButtons.forEach(btn => {
           btn.addEventListener('click', () => {
@@ -720,43 +719,17 @@ const ExploreMode = () => {
       }
 
       showInfoPanel(data: any) {
-        const panel = document.getElementById('info-panel');
-        const infoTitle = document.getElementById('info-title');
-        const infoContent = document.getElementById('info-content');
-        const infoImage = document.getElementById('info-image') as HTMLImageElement;
-
-        if (!panel || !infoTitle || !infoContent || !infoImage) return;
-
-        infoTitle.textContent = data.title;
-
-        // Set the ISS image
-        if (data.issImage) {
-          infoImage.src = data.issImage;
-          infoImage.alt = data.title;
-        } else {
-          infoImage.src = 'https://via.placeholder.com/640x360/1a2a40/00ffc8?text=No+Image+Available';
-          infoImage.alt = 'No image available';
-        }
-
-        // Create content with description and highlights
-        let contentHTML = `<p>${data.description}</p>`;
-        if (data.highlights && data.highlights.length > 0) {
-          contentHTML += '<ul class="highlights">';
-          data.highlights.forEach((highlight: string) => {
-            contentHTML += `<li>${highlight}</li>`;
-          });
-          contentHTML += '</ul>';
-        }
-        infoContent.innerHTML = contentHTML;
-
-        panel.classList.add('visible');
+        setInfoPanelData({
+          isVisible: true,
+          title: data.title,
+          description: data.description,
+          image: data.issImage || 'https://via.placeholder.com/640x360/1a2a40/00ffc8?text=No+Image+Available',
+          highlights: data.highlights || [],
+        });
       }
 
       closeInfoPanel() {
-        const panel = document.getElementById('info-panel');
-        if (panel) {
-          panel.classList.remove('visible');
-        }
+        setInfoPanelData(prev => ({ ...prev, isVisible: false }));
       }
 
       switchViewMode(mode: string) {
@@ -946,11 +919,22 @@ const ExploreMode = () => {
       app.cleanup();
       containerRef.current?.removeChild(app.renderer.domElement);
     };
-  }, []);
+  }, [setInfoPanelData]);
 
   return (
     <>
       <div ref={containerRef} className="canvas-container"></div>
+
+      {/* Reusable Info Panel */}
+      <InfoPanel
+        isVisible={infoPanelData.isVisible}
+        title={infoPanelData.title}
+        description={infoPanelData.description}
+        image={infoPanelData.image}
+        highlights={infoPanelData.highlights}
+        onClose={handleCloseInfoPanel}
+        buttonText="Close"
+      />
 
       <div className="ui-overlay">
         <div className="top-right-controls">
@@ -1007,15 +991,6 @@ const ExploreMode = () => {
           </div>
         </div>
 
-        <div id="info-panel" ref={infoPanelRef}>
-          <h2 id="info-title">Event title</h2>
-          <div className="viewfinder-wrapper">
-            <img id="info-image" className="viewfinder-image" src="" alt="" />
-            <div className="overlay-hud"></div>
-          </div>
-          <div id="info-content">Event information will be displayed here.</div>
-          <button id="close-panel">Close</button>
-        </div>
 
         <div id="event-menu" ref={eventMenuRef}>
           <h3 id="event-menu-title">Events</h3>

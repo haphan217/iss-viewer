@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
 import missionsData from "../data/missions.json";
+import InfoPanel from "./InfoPanel";
 
 export interface MissionData {
   id: string;
@@ -46,6 +47,7 @@ const Mission: React.FC<MissionProps> = ({
   const [showBriefing, setShowBriefing] = useState(false);
   const [showWasted, setShowWasted] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
 
   const missions = missionsData as MissionData[];
 
@@ -53,9 +55,19 @@ const Mission: React.FC<MissionProps> = ({
   useEffect(() => {
     if (missionResult) {
       if (missionResult.success) {
-        setShowSuccess(true);
+        // Show success animation first
+        setShowSuccessAnimation(true);
+        setShowWasted(false);
+
+        // After 1.5 seconds, hide animation and show info panel
+        setTimeout(() => {
+          setShowSuccessAnimation(false);
+          setShowSuccess(true);
+        }, 1500);
       } else {
         setShowWasted(true);
+        setShowSuccess(false);
+        setShowSuccessAnimation(false);
       }
     }
   }, [missionResult]);
@@ -221,6 +233,22 @@ const Mission: React.FC<MissionProps> = ({
         </div>
       )}
 
+      {/* Targeting Reticle */}
+      {missionState.isActive && (
+        <div className="fixed inset-0 pointer-events-none z-30 flex items-center justify-center">
+          <div className="relative">
+            {/* Center crosshair */}
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              <div className="w-8 h-8 border-2 border-cyan-400 rounded-full opacity-60"></div>
+              <div className="absolute top-1/2 left-0 w-full h-0.5 bg-cyan-400 opacity-60"></div>
+              <div className="absolute top-0 left-1/2 w-0.5 h-full bg-cyan-400 opacity-60"></div>
+            </div>
+            {/* Capture zone indicator */}
+            <div className="w-32 h-32 border-2 border-yellow-400 border-dashed rounded-full opacity-40 animate-pulse"></div>
+          </div>
+        </div>
+      )}
+
       {/* Mission Control Panel */}
       {missionState.isActive && (
         <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-40">
@@ -253,64 +281,32 @@ const Mission: React.FC<MissionProps> = ({
         </div>
       )}
 
-      {/* Mission Success Screen */}
-      {showSuccess && missionResult?.mission && (
-        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
-          <div className="mission-success-panel rounded-xl p-8 max-w-5xl mx-4 fade-in">
-            <div className="text-center mb-8">
-              <h1 className="text-8xl font-bold text-green-400 mb-4 text-shadow-glow-success">
-                SUCCESS!{" "}
-              </h1>
-              <div className="w-32 h-1 bg-gradient-to-r from-transparent via-green-400 to-transparent mx-auto"></div>
+      {/* Success Animation */}
+      {showSuccessAnimation && (
+        <div className="fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-50">
+          <div className="text-center animate-pulse">
+            <h1 className="text-8xl font-bold text-green-400 mb-4 animate-bounce">
+              ✓ SUCCESS!
+            </h1>
+            <p className="text-2xl text-cyan-400 font-mono">Mission Accomplished</p>
+            <div className="mt-8">
+              <div className="w-16 h-16 border-4 border-green-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
             </div>
-
-            <div className="bg-slate-900 bg-opacity-80 rounded-lg p-8 mb-8 border border-green-400 border-opacity-40">
-              <h2 className="text-4xl font-bold text-cyan-400 mb-6 text-center font-mono">
-                {missionResult.mission.title}
-              </h2>
-
-              <div className="mb-6">
-                <img
-                  src={missionResult.mission.issImage}
-                  alt={missionResult.mission.title}
-                  className="w-full rounded-lg mb-4 border border-cyan-400 border-opacity-30"
-                  onError={(e) => {
-                    e.currentTarget.src =
-                      "https://via.placeholder.com/640x360/1a2a40/00ffc8?text=ISS+Image";
-                  }}
-                />
-              </div>
-
-              <p className="text-lg text-cyan-100 mb-6 leading-relaxed font-mono">
-                {missionResult.mission.description}
-              </p>
-
-              <div className="bg-slate-800 bg-opacity-60 rounded-lg p-6 border border-cyan-400 border-opacity-20">
-                <h3 className="text-2xl font-bold text-cyan-300 mb-4 font-mono">
-                  Highlights:
-                </h3>
-                <ul className="space-y-3">
-                  {missionResult.mission.highlights.map((highlight, index) => (
-                    <li
-                      key={index}
-                      className="text-cyan-100 flex items-start font-mono"
-                    >
-                      <span className="text-green-400 mr-3 text-xl">✓</span>
-                      <span className="leading-relaxed">{highlight}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            <button
-              onClick={handleSuccessContinue}
-              className="w-full mode-button active"
-            >
-              CONTINUE
-            </button>
           </div>
         </div>
+      )}
+
+      {/* Mission Success Screen */}
+      {showSuccess && missionResult?.mission && (
+        <InfoPanel
+          isVisible={showSuccess}
+          title={missionResult.mission.title}
+          description={missionResult.mission.description}
+          image={missionResult.mission.issImage}
+          highlights={missionResult.mission.highlights}
+          onClose={handleSuccessContinue}
+          buttonText="CONTINUE"
+        />
       )}
 
       {/* Wasted Screen */}
