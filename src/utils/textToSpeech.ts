@@ -6,8 +6,25 @@ export const speak = (text: string, options?: Partial<SpeechSynthesisUtterance>)
     return;
   }
 
-  // Cancel any ongoing speech
-  window.speechSynthesis.cancel();
+  // If speech is already in progress, queue this message instead of canceling
+  const isSpeaking = window.speechSynthesis.speaking;
+  if (isSpeaking) {
+    console.log('Speech already in progress, queueing message');
+    // Don't cancel, let it queue naturally
+  }
+
+  const getBestVoice = (preferredNames: string[] = ['Google US English', 'Microsoft Zira', 'Karen',  'Samantha']) => {
+    const voices = speechSynthesis.getVoices();
+    
+    // Try preferred voices first
+    for (const name of preferredNames) {
+      const voice = voices.find(v => v.name.includes(name));
+      if (voice) return voice;
+    }
+    
+    // Fallback to first en-US voice
+    return voices.find(v => v.lang === 'en-US') || voices[0];
+  };
 
   // Wait for voices to be loaded
   const speakText = () => {
@@ -22,16 +39,10 @@ export const speak = (text: string, options?: Partial<SpeechSynthesisUtterance>)
       Object.assign(utterance, options);
     }
 
-    // Get available voices
-    const voices = window.speechSynthesis.getVoices();
-    console.log('Available voices:', voices.length);
-
-    if (voices.length > 0) {
-      // Use the first English voice if available
-      const englishVoice = voices.find(voice => voice.lang.startsWith('en')) || voices[0];
-      utterance.voice = englishVoice;
-      console.log('Using voice:', englishVoice.name);
-    }
+    // Use the first English voice if available
+    const englishVoice = getBestVoice()
+    utterance.voice = englishVoice;
+    console.log('Using voice:', englishVoice.name);
 
     utterance.onstart = () => console.log('Speech started');
     utterance.onend = () => console.log('Speech ended');

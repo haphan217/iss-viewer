@@ -4,6 +4,10 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import './ExploreMode.css';
 import eventsData from '../data/events.json';
+import { speak } from '../utils/textToSpeech';
+
+// Global flag to ensure welcome message plays only once per session
+let hasPlayedWelcomeGlobal = false;
 
 interface Event {
   year: number;
@@ -58,6 +62,8 @@ const ExploreMode = () => {
       issTrail: THREE.Line;
       stars: THREE.Points;
       issGlow?: THREE.Mesh;
+      voiceEnabled: boolean;
+      hasPlayedWelcome: boolean;
 
       constructor() {
         this.scene = new THREE.Scene();
@@ -109,6 +115,8 @@ const ExploreMode = () => {
         this.isTransitioning = false;
         this.trailPositions = [];
         this.maxTrailLength = 50;
+        this.voiceEnabled = true;
+        this.hasPlayedWelcome = false;
 
         this.renderer = null as any;
         this.camera = null as any;
@@ -123,6 +131,24 @@ const ExploreMode = () => {
         this.init();
         this.setupEventListeners();
         this.animate();
+        this.playWelcomeMessage();
+      }
+
+      playWelcomeMessage() {
+        if (!hasPlayedWelcomeGlobal && this.voiceEnabled && 'speechSynthesis' in window) {
+          // Mark as played immediately to prevent duplicate calls
+          hasPlayedWelcomeGlobal = true;
+          this.hasPlayedWelcome = true;
+
+          // Wait longer to avoid interrupting the initial "Happy 25th anniversary" message
+          // and to let the scene fully load
+          setTimeout(() => {
+            speak(
+              "Welcome to ISS Viewer. You're viewing Earth from space. Select a year from the timeline to see historical events captured by the ISS.",
+              { rate: 0.9, pitch: 1.0, volume: 0.8 }
+            );
+          }, 1000);
+        }
       }
 
       init() {
@@ -330,29 +356,29 @@ const ExploreMode = () => {
       }
 
       getLocationName(lat: number, lon: number) {
-        if (lat > 66) return 'Bắc Cực';
-        if (lat < -66) return 'Nam Cực';
+        if (lat > 66) return 'Arctic';
+        if (lat < -66) return 'Antarctic';
 
         if (lon >= -170 && lon <= -30) {
-          if (lat >= 15 && lat <= 72) return 'Bắc Mỹ';
-          if (lat >= -56 && lat < 15) return 'Nam Mỹ';
+          if (lat >= 15 && lat <= 72) return 'North America';
+          if (lat >= -56 && lat < 15) return 'South America';
         }
         if (lon >= -30 && lon <= 60) {
-          if (lat >= 35 && lat <= 71) return 'Châu Âu';
-          if (lat >= -35 && lat < 35) return 'Châu Phi';
+          if (lat >= 35 && lat <= 71) return 'Europe';
+          if (lat >= -35 && lat < 35) return 'Africa';
         }
         if (lon >= 60 && lon <= 150) {
-          if (lat >= 8 && lat <= 75) return 'Châu Á';
-          if (lat >= -50 && lat < 8) return 'Châu Đại Dương';
+          if (lat >= 8 && lat <= 75) return 'Asia';
+          if (lat >= -50 && lat < 8) return 'Oceania';
         }
 
         if (lat >= -60 && lat <= 60) {
-          if (lon >= -170 && lon <= -70) return 'Thái Bình Dương';
-          if (lon >= -70 && lon <= 20) return 'Đại Tây Dương';
-          if (lon >= 20 && lon <= 120) return 'Ấn Độ Dương';
+          if (lon >= -170 && lon <= -70) return 'Pacific Ocean';
+          if (lon >= -70 && lon <= 20) return 'Atlantic Ocean';
+          if (lon >= 20 && lon <= 120) return 'Indian Ocean';
         }
 
-        return 'Đại Dương';
+        return 'Ocean';
       }
 
       updateISSInfo(position: THREE.Vector3) {
@@ -916,7 +942,7 @@ const ExploreMode = () => {
         <div className="top-right-controls">
           <div className="instructions-container">
             <div className="instructions-panel">
-              🖱️ Nhấn giữ chuột trái + kéo để xoay • Cuộn chuột để phóng to/thu nhỏ • Nhấn giữ chuột phải + kéo để di chuyển • Nhấp vào ghim để xem sự kiện
+              🖱️ Hold left mouse + drag to rotate • Scroll to zoom in/out • Hold right mouse + drag to move • Click on pins to view events
             </div>
             <div className="instructions-toggle">
               ❓
@@ -925,7 +951,7 @@ const ExploreMode = () => {
           <div className="view-mode-toggle">
             <button className="view-mode-btn active" data-mode="earth">
               <span>🌍</span>
-              <span>Trái Đất</span>
+              <span>Earth</span>
             </button>
             <button className="view-mode-btn" data-mode="iss">
               <span>🛰️</span>
@@ -935,54 +961,54 @@ const ExploreMode = () => {
         </div>
 
         <div id="iss-info" style={{ display: 'none' }}>
-          <h3>🛰️ Quỹ Đạo ISS</h3>
+          <h3>🛰️ ISS Orbit</h3>
           <div className="info-row">
-            <span className="info-label">Tốc độ:</span>
-            <span className="info-value">27.600 km/h</span>
+            <span className="info-label">Speed:</span>
+            <span className="info-value">27,600 km/h</span>
           </div>
           <div className="info-row">
-            <span className="info-label">Độ cao:</span>
+            <span className="info-label">Altitude:</span>
             <span className="info-value">~408 km</span>
           </div>
           <div className="info-row">
-            <span className="info-label">Chu kỳ quỹ đạo:</span>
-            <span className="info-value">~92,7 phút</span>
+            <span className="info-label">Orbital period:</span>
+            <span className="info-value">~92.7 minutes</span>
           </div>
           <div className="info-row">
-            <span className="info-label">Góc nghiêng:</span>
-            <span className="info-value">51,6°</span>
+            <span className="info-label">Inclination:</span>
+            <span className="info-value">51.6°</span>
           </div>
           <div className="info-row">
-            <span className="info-label">Số vòng/ngày:</span>
-            <span className="info-value">~15,5 lần</span>
+            <span className="info-label">Orbits/day:</span>
+            <span className="info-value">~15.5 times</span>
           </div>
           <div className="info-row">
-            <span className="info-label">Bán kính Trái Đất:</span>
-            <span className="info-value">6.371 km</span>
+            <span className="info-label">Earth radius:</span>
+            <span className="info-value">6,371 km</span>
           </div>
           <div className="info-row">
-            <span className="info-label">Vị trí hiện tại:</span>
-            <span className="info-value" id="iss-location">Đang tải...</span>
+            <span className="info-label">Current position:</span>
+            <span className="info-value" id="iss-location">Loading...</span>
           </div>
           <div className="info-row">
-            <span className="info-label">Tọa độ:</span>
+            <span className="info-label">Coordinates:</span>
             <span className="info-value" id="iss-coords">--, --</span>
           </div>
           <div className="scale-note">
-            ⚠️ Lưu ý:
-            <br /> ISS được phóng to ~11.500 lần để dễ quan sát.
-            <br /> Thực tế, ISS chỉ dài 109m, vô cùng nhỏ so với Trái Đất.
+            ⚠️ Note:
+            <br /> ISS is magnified ~11,500x for easier observation.
+            <br /> In reality, ISS is only 109m long, extremely small compared to Earth.
           </div>
         </div>
 
         <div id="info-panel" ref={infoPanelRef}>
-          <h2 id="info-title">Tiêu đề sự kiện</h2>
+          <h2 id="info-title">Event title</h2>
           <div className="viewfinder-wrapper">
             <img id="info-image" className="viewfinder-image" src="" alt="" />
             <div className="overlay-hud"></div>
           </div>
-          <div id="info-content">Thông tin sự kiện sẽ hiển thị ở đây.</div>
-          <button id="close-panel">Đóng</button>
+          <div id="info-content">Event information will be displayed here.</div>
+          <button id="close-panel">Close</button>
         </div>
 
         <div id="event-menu" ref={eventMenuRef}>
@@ -991,7 +1017,7 @@ const ExploreMode = () => {
         </div>
 
         <div id="timeline-container">
-          <h3>🌍 ISS Timeline (2000-2025)</h3>
+          <h3>🌍 25 years of ISS (2000-2025)</h3>
           <div id="timeline"></div>
         </div>
       </div>

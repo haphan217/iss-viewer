@@ -112,10 +112,10 @@ const Mission: React.FC<MissionProps> = ({
         <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
           <div className="mission-panel rounded-xl p-8 max-w-4xl mx-4 fade-in">
             <h2 className="text-4xl font-bold text-yellow-400 text-center mb-6 uppercase tracking-wider border-b-2 border-yellow-400 pb-2">
-              CHỌN NHIỆM VỤ
+              SELECT MISSION
             </h2>
             <p className="text-lg text-gray-200 leading-relaxed mb-6 text-center">
-              Chọn một nhiệm vụ để bắt đầu chụp ảnh từ ISS Cupola
+              Select a mission to start taking photos from ISS Cupola
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {missions.map((mission) => (
@@ -165,7 +165,7 @@ const Mission: React.FC<MissionProps> = ({
               {selectedMission.briefing}
             </p>
             <div className="bg-gray-800 bg-opacity-50 rounded-lg p-4 mb-6">
-              <h3 className="text-xl font-bold text-blue-400 mb-2">Mô tả:</h3>
+              <h3 className="text-xl font-bold text-blue-400 mb-2">Description:</h3>
               <p className="text-gray-300">{selectedMission.description}</p>
             </div>
             <div className="flex gap-4">
@@ -176,13 +176,13 @@ const Mission: React.FC<MissionProps> = ({
                 }}
                 className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-lg text-xl transition-all duration-200"
               >
-                TRỞ LẠI
+                BACK
               </button>
               <button
                 onClick={startMission}
                 className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-xl transition-all duration-200 transform hover:scale-105"
               >
-                BẮT ĐẦU
+                START
               </button>
             </div>
           </div>
@@ -196,7 +196,7 @@ const Mission: React.FC<MissionProps> = ({
             onClick={capturePhoto}
             disabled={missionState.isCapturing}
             className="capture-button w-20 h-20 bg-red-600 hover:bg-red-700 border-2 border-white rounded-full flex items-center justify-center disabled:opacity-50"
-            title="Chụp ảnh mục tiêu"
+            title="Capture target photo"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -226,7 +226,7 @@ const Mission: React.FC<MissionProps> = ({
         <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
           <div className="mission-panel rounded-xl p-8 max-w-3xl mx-4 fade-in">
             <h1 className="text-6xl font-bold text-green-400 text-center mb-6">
-              THÀNH CÔNG!
+              SUCCESS!
             </h1>
             <div className="bg-gray-800 bg-opacity-70 rounded-lg p-6 mb-6">
               <h2 className="text-3xl font-bold text-yellow-400 mb-4 text-center">
@@ -246,7 +246,7 @@ const Mission: React.FC<MissionProps> = ({
                 {missionResult.mission.description}
               </p>
               <div className="bg-gray-900 bg-opacity-50 rounded-lg p-4">
-                <h3 className="text-xl font-bold text-blue-400 mb-3">Thông tin nổi bật:</h3>
+                <h3 className="text-xl font-bold text-blue-400 mb-3">Highlights:</h3>
                 <ul className="space-y-2">
                   {missionResult.mission.highlights.map((highlight, index) => (
                     <li key={index} className="text-gray-300 flex items-start">
@@ -261,7 +261,7 @@ const Mission: React.FC<MissionProps> = ({
               onClick={handleSuccessContinue}
               className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg text-xl transition-all duration-200"
             >
-              TIẾP TỤC
+              CONTINUE
             </button>
           </div>
         </div>
@@ -277,13 +277,13 @@ const Mission: React.FC<MissionProps> = ({
                 onClick={handleRetry}
                 className="bg-gray-300 hover:bg-white text-gray-800 px-8 py-3 rounded-lg text-xl font-bold transition-all duration-200"
               >
-                LÀM LẠI
+                RETRY
               </button>
               <button
                 onClick={handleExit}
                 className="bg-gray-300 hover:bg-white text-gray-800 px-8 py-3 rounded-lg text-xl font-bold transition-all duration-200"
               >
-                THOÁT
+                EXIT
               </button>
             </div>
           </div>
@@ -296,23 +296,23 @@ const Mission: React.FC<MissionProps> = ({
           <div className="fixed top-8 left-8 z-30">
             <div className="control-panel rounded-lg p-4 w-56 font-mono text-blue-300">
               <div className="font-bold text-white border-b border-gray-600 mb-2 pb-1">
-                HỆ THỐNG
+                SYSTEM
               </div>
               <div className="flex justify-between text-sm mb-1">
-                <span>Năng lượng:</span>
-                <span className="text-green-400">ỔN ĐỊNH</span>
+                <span>Power:</span>
+                <span className="text-green-400">STABLE</span>
               </div>
               <div className="flex justify-between text-sm mb-1">
-                <span>Oxy:</span>
+                <span>Oxygen:</span>
                 <span className="text-green-400">99.8%</span>
               </div>
               <div className="flex justify-between text-sm mb-1">
-                <span>Áp suất:</span>
+                <span>Pressure:</span>
                 <span className="text-green-400">101.2 kPa</span>
               </div>
               <div className="flex justify-between text-sm mb-1">
-                <span>Trạng thái:</span>
-                <span className="text-green-400">QUỸ ĐẠO</span>
+                <span>Status:</span>
+                <span className="text-green-400">ORBITAL</span>
               </div>
             </div>
           </div>
@@ -321,7 +321,7 @@ const Mission: React.FC<MissionProps> = ({
             <div className="control-panel rounded-lg p-4 w-56 font-mono text-blue-300">
               {selectedMission && (
                 <div className="mb-3 pb-3 border-b border-gray-600">
-                  <div className="font-bold text-white mb-1">NHIỆM VỤ HIỆN TẠI</div>
+                  <div className="font-bold text-white mb-1">CURRENT MISSION</div>
                   <div className="text-xs text-gray-300">{selectedMission.title}</div>
                 </div>
               )}
@@ -332,7 +332,7 @@ const Mission: React.FC<MissionProps> = ({
                 }}
                 className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors"
               >
-                CHỌN NHIỆM VỤ KHÁC
+                SELECT DIFFERENT MISSION
               </button>
             </div>
           </div>

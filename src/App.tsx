@@ -13,7 +13,6 @@ function App() {
 
   const handleStart = () => {
     setStarted(true);
-    speak("Welcome to the International Space Station");
   };
 
   const handleModeChange = (newMode: AppMode) => {
