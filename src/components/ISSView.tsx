@@ -1,32 +1,17 @@
-import { useMemo, useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback } from "react";
 import { Canvas } from "@react-three/fiber";
-import { TextureLoader } from "three";
 import { Mesh } from "three";
 import EarthModel, { type MissionTarget } from "./EarthModel";
 import ISSTunnelModel from "./ISSTunnelModel";
 import ZeroGravityPhysics from "./ZeroGravityPhysics";
 import Mission, { type MissionData } from "./Mission";
 import Mission3D, { type Mission3DRef } from "./Mission3D";
-import cupolaImage from "../assets/cupola2.png";
 
 interface MissionState {
   isActive: boolean;
   target: MissionData | null;
   isCapturing: boolean;
 }
-
-const CupolaPlane: React.FC<{ position: [number, number, number] }> = ({
-  position,
-}) => {
-  const texture = useMemo(() => new TextureLoader().load(cupolaImage), []);
-
-  return (
-    <mesh position={position}>
-      <planeGeometry args={[18, 18]} />
-      <meshBasicMaterial map={texture} transparent={true} />
-    </mesh>
-  );
-};
 
 // Scene component
 const Scene: React.FC<{
@@ -53,13 +38,10 @@ const Scene: React.FC<{
       <pointLight position={[0, 0, -5]} intensity={0.3} color="#87CEEB" />
       <pointLight position={[0, 0, 0]} intensity={0.1} color="#4A90E2" />
 
-      {/* ISS Tunnel Model */}
+      {/* ISS Tunnel Model - transparent cylinder with curved cupola window */}
       <ISSTunnelModel position={[0, 0, 0]} />
 
-      {/* Cupola Plane - displays the cupola image */}
-      <CupolaPlane position={[0, 3, -5]} />
-
-      {/* Earth - floating in space, visible through Cupola windows */}
+      {/* Earth - positioned at the end of the cylinder, visible through the curved cupola window */}
       <EarthModel
         earthRef={earthRef}
         enableMissionRotation={missionState.isActive}
@@ -68,7 +50,7 @@ const Scene: React.FC<{
       />
 
       {/* Zero Gravity Physics System */}
-      <ZeroGravityPhysics boundaries={{ x: 4, y: 3.5, z: 9 }} />
+      <ZeroGravityPhysics boundaries={{ x: 3, y: 3, z: 9 }} />
 
       {/* Mission 3D Logic */}
       <Mission3D
