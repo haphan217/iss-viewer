@@ -1,57 +1,59 @@
 [
   {
-    "id": "volcano-eruption",
-    "title": "Núi lửa Eyjafjallajökull phun trào",
-    "location": "Iceland",
-    "lat": 63.6314,
-    "lon": -19.6083,
-    "year": 2010,
-    "description": "Núi lửa Eyjafjallajökull ở Iceland phun trào, tạo ra đám mây tro bụi khổng lồ gây gián đoạn giao thông hàng không toàn cầu",
-    "issImage": "https://eol.jsc.nasa.gov/DatabaseImages/ESC/small/ISS023/ISS023-E-27385.JPG",
+    "id": "urban-night-photography",
+    "title": "Urban Night Photography",
+    "location": "Chicago, Illinois, USA",
+    "lat": 41.8320229,
+    "lon": -88.3557017,
+    "year": 2020,
+    "description": "Chicago, Illinois, is home to roughly three million people, but the wider metropolitan area includes nearly 10 million. By day, the cement-colored urban center blends into suburbs and farmland. By night, the region's ten million people cannot be missed. Study of urban growth, light pollution, and energy consumption.",
+    "issImage": "https://eol.jsc.nasa.gov/DatabaseImages/debriefing/highres/ISS007/ISS007-E-16525.JPG",
     "highlights": [
-      "Nguyên nhân: Magma nóng chảy từ bên dưới băng giá làm tan băng và gây phun trào bùng nổ",
-      "Kết quả: Hơn 100,000 chuyến bay bị hủy, 10 triệu hành khách bị ảnh hưởng trong 6 ngày",
-      "Ý nghĩa: Sự kiện gián đoạn hàng không lớn nhất kể từ Thế chiến II",
-      "Thực tế thú vị: Tro bụi phun lên cao tới 9km, ISS có thể quan sát đám mây tro từ không gian"
-    ],
-    "difficulty": "medium",
-    "briefing": "Nhiệm vụ của bạn là chụp ảnh núi lửa Eyjafjallajökull đang phun trào ở Iceland. Đám mây tro bụi sẽ được đánh dấu màu đỏ trên bề mặt Trái Đất."
-  },
-  {
-    "id": "city-night",
-    "title": "Thành phố Tokyo về đêm",
-    "location": "Tokyo, Japan",
-    "lat": 35.6762,
-    "lon": 139.6503,
-    "year": 2015,
-    "description": "Tokyo - một trong những đô thị sáng nhất thế giới khi nhìn từ không gian, với hệ thống đèn đường và tòa nhà rực rỡ",
-    "issImage": "https://eol.jsc.nasa.gov/DatabaseImages/ESC/small/ISS045/ISS045-E-27869.JPG",
-    "highlights": [
-      "Đặc điểm: Tokyo là vùng đô thị lớn nhất thế giới với hơn 37 triệu dân",
-      "Ánh sáng: Cường độ ánh sáng đêm ở Tokyo cao gấp 10 lần các thành phố thông thường",
-      "Ý nghĩa: Ảnh chụp từ ISS giúp nghiên cứu mức độ đô thị hóa và ô nhiễm ánh sáng",
-      "Thực tế thú vị: Phi hành gia ISS có thể dễ dàng nhận ra Tokyo nhờ hình dạng vịnh Tokyo đặc trưng"
+      "Purpose: Research urban growth patterns, light pollution levels, and energy consumption in densely populated areas",
+      "Event & Cause: Development of electrical grid networks and urbanization driven by population growth and economic concentration",
+      "Impact: Helps governments and planners assess lighting efficiency and resource management, reveals economic disparities through regional brightness",
+      "Timing: Continuous observations as part of Crew Earth Observations (CEO) missions, conducted over many years (post-2000)",
+      "Significance: ISS imagery provides unique perspective on global urbanization trends and environmental impact"
     ],
     "difficulty": "easy",
-    "briefing": "Nhiệm vụ của bạn là chụp ảnh thành phố Tokyo rực rỡ về đêm. Khu vực đô thị sẽ được đánh dấu màu đỏ trên bề mặt Trái Đất."
+    "briefing": "Your mission is to photograph urban areas at night to study urban sprawl and light pollution. Urban areas will be marked in red on Earth's surface."
   },
   {
-    "id": "amazon-deforestation",
-    "title": "Phá rừng Amazon",
-    "location": "Amazon Rainforest, Brazil",
-    "lat": -3.4653,
-    "lon": -62.2159,
-    "year": 2019,
-    "description": "Khu vực rừng Amazon bị phá rừng trên diện rộng, gây lo ngại về biến đổi khí hậu toàn cầu",
-    "issImage": "https://eol.jsc.nasa.gov/DatabaseImages/ESC/small/ISS060/ISS060-E-18384.JPG",
+    "id": "wildfire-disaster",
+    "title": "Wildfire Disaster Monitoring",
+    "location": "Los Angeles, California, USA",
+    "lat": 34.0200392,
+    "lon": -118.7413805,
+    "year": 2020,
+    "description": "On Jan. 10, 2025, NASA astronaut Don Pettit captured images of Los Angeles fires from the International Space Station. Multiple destructive fires broke out in Los Angeles County hills, fueled by dry landscape and winds gusting up to 100 mph. Real-time data collection on wildfire scale, wind direction, and smoke volume.",
+    "issImage": "https://www.nasa.gov/wp-content/uploads/2025/01/gg6dnlmxqaaqfoe.jpg",
     "highlights": [
-      "Nguyên nhân: Khai thác gỗ trái phép, chăn nuôi gia súc, và nông nghiệp quy mô lớn",
-      "Kết quả: Mất hơn 10,000 km² rừng mỗi năm, tương đương diện tích 10 thành phố lớn",
-      "Ý nghĩa: Amazon chứa 10% sinh quyển Trái Đất và tạo ra 20% lượng oxy toàn cầu",
-      "Thực tế thú vị: ISS theo dõi tốc độ mất rừng Amazon qua nhiều năm, giúp cảnh báo sớm",
-      "Cảnh báo: Nếu mất thêm 20-25% diện tích rừng, Amazon có thể biến thành đồng cỏ khô"
+      "Purpose: Provide real-time data on fire scale, wind direction, and smoke volume to support firefighting and air quality management",
+      "Event & Cause: Large-scale wildfires primarily caused by prolonged drought (climate change), strong winds, and human negligence or electrical failures",
+      "Impact: Massive CO2 emissions, widespread air pollution, loss of life/property, and ecosystem destruction",
+      "Timing: Typically during dry season/fire season in regions like California, Amazon, or Australia (August-October annually)",
+      "Significance: ISS imagery helps estimate comprehensive damage and supports emergency response coordination"
+    ],
+    "difficulty": "medium",
+    "briefing": "Your mission is to photograph active wildfires to monitor their scale and impact. Fire-affected areas will be marked in red on Earth's surface."
+  },
+  {
+    "id": "aurora-observation",
+    "title": "Aurora Observation",
+    "location": "High Latitude Regions",
+    "lat": 64.9631,
+    "lon": -19.0208,
+    "year": 2021,
+    "description": "Study of interaction between solar wind and Earth's magnetic field (Space Weather). Provides data on how energy is transferred into Earth's atmosphere.",
+    "issImage": "https://eol.jsc.nasa.gov/DatabaseImages/ESC/small/ISS023/ISS023-E-27385.JPG",
+    "highlights": [
+      "Purpose: Research interaction between solar wind and Earth's magnetic field, providing data on energy transfer into Earth's atmosphere",
+      "Event & Cause: Aurora phenomenon caused by charged particles from solar wind colliding with atmospheric atoms near poles (typically Oxygen and Nitrogen)",
+      "Impact: Aurora itself is harmless, but solar storms can disrupt GPS/radio signals, damage satellites, and cause power grid failures at high latitudes",
+      "Timing: During long exposure missions at night when ISS passes over high latitude regions, especially during strong solar activity cycles",
+      "Significance: ISS provides unique vantage point to study space weather effects and atmospheric interactions"
     ],
     "difficulty": "hard",
-    "briefing": "Nhiệm vụ của bạn là chụp ảnh khu vực phá rừng Amazon. Khu vực rừng bị tàn phá sẽ được đánh dấu màu đỏ trên bề mặt Trái Đất."
+    "briefing": "Your mission is to photograph aurora displays in high latitude regions. Aurora activity areas will be marked in red on Earth's surface."
   }
 ]
