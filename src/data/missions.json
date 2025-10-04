@@ -3,8 +3,8 @@
     "id": "urban-night-photography",
     "title": "Urban Night Photography",
     "location": "Chicago, Illinois, USA",
-    "lat": 41.8320229,
-    "lon": -88.3557017,
+    "lat": 41.8335928,
+    "lon": -87.8966869,
     "year": 2020,
     "description": "Chicago, Illinois, is home to roughly three million people, but the wider metropolitan area includes nearly 10 million. By day, the cement-colored urban center blends into suburbs and farmland. By night, the region's ten million people cannot be missed. Study of urban growth, light pollution, and energy consumption.",
     "issImage": "https://eol.jsc.nasa.gov/DatabaseImages/debriefing/highres/ISS007/ISS007-E-16525.JPG",
@@ -40,18 +40,19 @@
   {
     "id": "aurora-observation",
     "title": "Aurora Observation",
-    "location": "High Latitude Regions",
-    "lat": 64.9631,
-    "lon": -19.0208,
-    "year": 2021,
+    "location": "Southern Ocean, Australia",
+    "lat": -37.9659692,
+    "lon": 143.8047059,
+    "year": 2022,
     "description": "Study of interaction between solar wind and Earth's magnetic field (Space Weather). Provides data on how energy is transferred into Earth's atmosphere.",
-    "issImage": "https://eol.jsc.nasa.gov/DatabaseImages/ESC/small/ISS023/ISS023-E-27385.JPG",
+    "issImage": "https://cdn.mos.cms.futurecdn.net/C66Uf6e4Dso7hUxxR2uN9V.jpg",
     "highlights": [
       "Purpose: Research interaction between solar wind and Earth's magnetic field, providing data on energy transfer into Earth's atmosphere",
-      "Event & Cause: Aurora phenomenon caused by charged particles from solar wind colliding with atmospheric atoms near poles (typically Oxygen and Nitrogen)",
+      "Event & Cause: Aurora Australis phenomenon caused by charged particles from solar wind colliding with atmospheric atoms near the South Pole",
+      "Observation Details: 20-minute time-lapse sequence (19:13:45 to 19:33:41 GMT) showing Green and Red Aurora Australis over Southern Ocean",
+      "Geographic Coverage: Image sequence begins halfway between Africa and Antarctica, ending with Australia and Perth city lights visible",
       "Impact: Aurora itself is harmless, but solar storms can disrupt GPS/radio signals, damage satellites, and cause power grid failures at high latitudes",
-      "Timing: During long exposure missions at night when ISS passes over high latitude regions, especially during strong solar activity cycles",
-      "Significance: ISS provides unique vantage point to study space weather effects and atmospheric interactions"
+      "Significance: ISS provides unique vantage point to study space weather effects and atmospheric interactions in real-time"
     ],
     "difficulty": "hard",
     "briefing": "Your mission is to photograph aurora displays in high latitude regions. Aurora activity areas will be marked in red on Earth's surface."

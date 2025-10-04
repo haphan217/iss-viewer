@@ -73,21 +73,16 @@ const Mission3D = forwardRef<Mission3DRef, Mission3DProps>(
 
     // Convert lat/lon to 3D position on sphere (matching EarthModel scale and position)
     const latLonToVector3 = useCallback(
-      (lat: number, lon: number, radius: number = 3) => {
+      (lat: number, lon: number, radius: number = 4) => {
         const phi = (90 - lat) * (Math.PI / 180);
         const theta = (lon + 180) * (Math.PI / 180);
 
-        // Calculate position on sphere with radius 3 (matching EarthModel geometry)
+        // Calculate position on sphere with radius 4 (matching EarthModel geometry)
         const x = -(radius * Math.sin(phi) * Math.cos(theta));
         const z = radius * Math.sin(phi) * Math.sin(theta);
         const y = radius * Math.cos(phi);
 
-        // Apply EarthModel's scale factor of 4 and position offset [0, 0, -25]
-        const scaledX = x * 4;
-        const scaledY = y * 4;
-        const scaledZ = z * 4 - 25;
-
-        return new THREE.Vector3(scaledX, scaledY, scaledZ);
+        return new THREE.Vector3(x, y, z);
       },
       []
     );
@@ -119,7 +114,7 @@ const Mission3D = forwardRef<Mission3DRef, Mission3DProps>(
       const position = latLonToVector3(
         selectedMission.lat,
         selectedMission.lon,
-        3.05
+        4.05
       );
       target.position.copy(position);
       target.userData.isMissionTarget = true;
