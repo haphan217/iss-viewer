@@ -221,7 +221,10 @@ const ZeroGravityPhysics: React.FC<ZeroGravityPhysicsProps> = ({
         boundaries.y
       );
     }
-    if (camera.position.z > boundaries.z || camera.position.z < -boundaries.z) {
+    if (
+      camera.position.z > boundaries.z ||
+      camera.position.z - 3 < -boundaries.z
+    ) {
       physics.velocity.z *= -0.5;
       camera.position.z = THREE.MathUtils.clamp(
         camera.position.z,

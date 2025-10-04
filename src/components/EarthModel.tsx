@@ -113,7 +113,7 @@ const EarthModel: React.FC<EarthModelProps> = ({
   });
 
   return (
-    <group position={[0, 0, -15]} rotation={[0, 0, 0]} scale={[3, 3, 3]}>
+    <group position={[0, 0, -20]} rotation={[0, 0, 0]} scale={[3, 3, 3]}>
       {/* Earth */}
       <mesh ref={earthRef} geometry={earthGeometry} material={earthMaterial} />
 

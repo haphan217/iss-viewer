@@ -58,7 +58,7 @@ const Scene: React.FC<{
       />
 
       {/* Zero Gravity Physics System */}
-      <ZeroGravityPhysics boundaries={{ x: 3, y: 3, z: 9 }} />
+      <ZeroGravityPhysics boundaries={{ x: 3, y: 3, z: 4.5 }} />
 
       {/* Mission 3D Logic */}
       <Mission3D
