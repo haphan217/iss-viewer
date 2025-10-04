@@ -54,20 +54,21 @@ const Mission: React.FC<MissionProps> = ({
     if (missionResult) {
       if (missionResult.success) {
         setShowSuccess(true);
-        setShowWasted(false);
       } else {
         setShowWasted(true);
-        setShowSuccess(false);
       }
     }
   }, [missionResult]);
 
   // Select a mission
-  const selectMission = useCallback((mission: MissionData) => {
-    onMissionSelect(mission);
-    setShowMissionSelect(false);
-    setShowBriefing(true);
-  }, [onMissionSelect]);
+  const selectMission = useCallback(
+    (mission: MissionData) => {
+      onMissionSelect(mission);
+      setShowMissionSelect(false);
+      setShowBriefing(true);
+    },
+    [onMissionSelect]
+  );
 
   // Start mission
   const startMission = useCallback(() => {
@@ -82,12 +83,12 @@ const Mission: React.FC<MissionProps> = ({
 
   // Handle retry
   const handleRetry = useCallback(() => {
-    onResetMission();
     onClearResult();
     setShowWasted(false);
     setShowSuccess(false);
-    setTimeout(() => setShowBriefing(true), 100);
-  }, [onResetMission, onClearResult]);
+
+    onStartMission();
+  }, [onClearResult, onStartMission]);
 
   // Handle exit
   const handleExit = useCallback(() => {
@@ -109,34 +110,48 @@ const Mission: React.FC<MissionProps> = ({
     <>
       {/* Mission Selection */}
       {showMissionSelect && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-          <div className="mission-panel rounded-xl p-8 max-w-4xl mx-4 fade-in">
-            <h2 className="text-4xl font-bold text-yellow-400 text-center mb-6 uppercase tracking-wider border-b-2 border-yellow-400 pb-2">
-              SELECT MISSION
-            </h2>
-            <p className="text-lg text-gray-200 leading-relaxed mb-6 text-center">
-              Select a mission to start taking photos from ISS Cupola
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
+          <div className="mission-selection-panel rounded-xl p-8 max-w-6xl mx-4 fade-in">
+            <div className="panel-header mb-6">
+              <h2 className="text-5xl font-bold text-cyan-400 text-center mb-4 uppercase tracking-wider text-shadow-glow">
+                SELECT MISSION
+              </h2>
+              <p className="text-xl text-cyan-200 leading-relaxed text-center font-mono">
+                Select a mission to start taking photos from ISS Cupola
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {missions.map((mission) => (
                 <div
                   key={mission.id}
                   onClick={() => selectMission(mission)}
-                  className="mission-card bg-gray-800 bg-opacity-70 rounded-lg p-4 cursor-pointer hover:bg-opacity-90 transition-all duration-200 border-2 border-transparent hover:border-blue-400"
+                  className="mission-card-tech bg-slate-900 bg-opacity-80 rounded-lg p-6 cursor-pointer hover:bg-opacity-95 transition-all duration-300 border border-cyan-400 border-opacity-30 hover:border-cyan-400 hover:border-opacity-80 hover:shadow-cyan-glow group"
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className={`px-2 py-1 text-xs rounded ${
-                      mission.difficulty === 'easy' ? 'bg-green-600' :
-                      mission.difficulty === 'medium' ? 'bg-yellow-600' :
-                      'bg-red-600'
-                    }`}>
+                  <div className="flex items-center justify-between mb-3">
+                    <span
+                      className={`px-3 py-1 text-xs rounded font-mono font-bold ${
+                        mission.difficulty === "easy"
+                          ? "bg-green-600 text-green-100"
+                          : mission.difficulty === "medium"
+                          ? "bg-yellow-600 text-yellow-100"
+                          : "bg-red-600 text-red-100"
+                      }`}
+                    >
                       {mission.difficulty.toUpperCase()}
                     </span>
-                    <span className="text-xs text-gray-400">{mission.year}</span>
+                    <span className="text-xs text-cyan-300 font-mono">
+                      {mission.year}
+                    </span>
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-2">{mission.title}</h3>
-                  <p className="text-sm text-gray-300 mb-2">{mission.location}</p>
-                  <p className="text-sm text-gray-400 line-clamp-3">{mission.description}</p>
+                  <h3 className="text-xl font-bold text-cyan-100 mb-3 group-hover:text-cyan-50 transition-colors">
+                    {mission.title}
+                  </h3>
+                  <p className="text-sm text-cyan-300 mb-3 font-mono">
+                    {mission.location}
+                  </p>
+                  <p className="text-sm text-gray-300 line-clamp-3 leading-relaxed">
+                    {mission.description}
+                  </p>
                 </div>
               ))}
             </div>
@@ -146,42 +161,59 @@ const Mission: React.FC<MissionProps> = ({
 
       {/* Mission Briefing */}
       {showBriefing && selectedMission && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
-          <div className="mission-panel rounded-xl p-8 max-w-2xl mx-4 fade-in">
-            <h2 className="text-4xl font-bold text-yellow-400 text-center mb-4 uppercase tracking-wider border-b-2 border-yellow-400 pb-2">
-              {selectedMission.title}
-            </h2>
-            <div className="mb-4 flex items-center justify-between">
-              <span className={`px-3 py-1 text-sm rounded ${
-                selectedMission.difficulty === 'easy' ? 'bg-green-600' :
-                selectedMission.difficulty === 'medium' ? 'bg-yellow-600' :
-                'bg-red-600'
-              }`}>
-                {selectedMission.difficulty.toUpperCase()}
-              </span>
-              <span className="text-gray-400">{selectedMission.location}</span>
+        <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
+          <div className="mission-briefing-panel rounded-xl p-8 max-w-4xl mx-4 fade-in">
+            <div className="panel-header mb-6">
+              <h2 className="text-5xl font-bold text-cyan-400 text-center mb-4 uppercase tracking-wider text-shadow-glow">
+                {selectedMission.title}
+              </h2>
+              <div className="flex items-center justify-center gap-4 mb-4">
+                <span
+                  className={`px-4 py-2 text-sm rounded font-mono font-bold ${
+                    selectedMission.difficulty === "easy"
+                      ? "bg-green-600 text-green-100"
+                      : selectedMission.difficulty === "medium"
+                      ? "bg-yellow-600 text-yellow-100"
+                      : "bg-red-600 text-red-100"
+                  }`}
+                >
+                  {selectedMission.difficulty.toUpperCase()}
+                </span>
+                <span className="text-cyan-300 font-mono text-lg">
+                  {selectedMission.location}
+                </span>
+              </div>
             </div>
-            <p className="text-lg text-gray-200 leading-relaxed mb-6">
-              {selectedMission.briefing}
-            </p>
-            <div className="bg-gray-800 bg-opacity-50 rounded-lg p-4 mb-6">
-              <h3 className="text-xl font-bold text-blue-400 mb-2">Description:</h3>
-              <p className="text-gray-300">{selectedMission.description}</p>
+
+            <div className="bg-slate-900 bg-opacity-60 rounded-lg p-6 mb-6 border border-cyan-400 border-opacity-30">
+              <h3 className="text-2xl font-bold text-cyan-300 mb-4 font-mono">
+                BRIEFING:
+              </h3>
+              <p className="text-lg text-cyan-100 leading-relaxed font-mono">
+                {selectedMission.briefing}
+              </p>
             </div>
-            <div className="flex gap-4">
+
+            <div className="bg-slate-800 bg-opacity-50 rounded-lg p-6 mb-8 border border-cyan-400 border-opacity-20">
+              <h3 className="text-xl font-bold text-cyan-400 mb-3 font-mono">
+                {selectedMission.briefing}
+              </h3>
+              <p className="text-gray-300 leading-relaxed">
+                {selectedMission.description}
+              </p>
+            </div>
+
+            <div className="flex gap-6">
               <button
                 onClick={() => {
                   setShowBriefing(false);
                   setShowMissionSelect(true);
                 }}
-                className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-lg text-xl transition-all duration-200"
+                className="mode-button active"
               >
                 BACK
               </button>
-              <button
-                onClick={startMission}
-                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-xl transition-all duration-200 transform hover:scale-105"
-              >
+              <button onClick={startMission} className="mode-button active">
                 START
               </button>
             </div>
@@ -195,7 +227,7 @@ const Mission: React.FC<MissionProps> = ({
           <button
             onClick={capturePhoto}
             disabled={missionState.isCapturing}
-            className="capture-button w-20 h-20 bg-red-600 hover:bg-red-700 border-2 border-white rounded-full flex items-center justify-center disabled:opacity-50"
+            className="capture-button-tech w-24 h-24 bg-red-600 hover:bg-red-700 border-2 border-cyan-400 rounded-full flex items-center justify-center disabled:opacity-50 shadow-red-glow hover:shadow-red-glow-strong transition-all duration-300"
             title="Capture target photo"
           >
             <svg
@@ -204,7 +236,7 @@ const Mission: React.FC<MissionProps> = ({
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className="w-10 h-10 text-white"
+              className="w-12 h-12 text-white"
             >
               <path
                 strokeLinecap="round"
@@ -223,43 +255,57 @@ const Mission: React.FC<MissionProps> = ({
 
       {/* Mission Success Screen */}
       {showSuccess && missionResult?.mission && (
-        <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
-          <div className="mission-panel rounded-xl p-8 max-w-3xl mx-4 fade-in">
-            <h1 className="text-6xl font-bold text-green-400 text-center mb-6">
-              SUCCESS!
-            </h1>
-            <div className="bg-gray-800 bg-opacity-70 rounded-lg p-6 mb-6">
-              <h2 className="text-3xl font-bold text-yellow-400 mb-4 text-center">
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50">
+          <div className="mission-success-panel rounded-xl p-8 max-w-5xl mx-4 fade-in">
+            <div className="text-center mb-8">
+              <h1 className="text-8xl font-bold text-green-400 mb-4 text-shadow-glow-success">
+                SUCCESS!{" "}
+              </h1>
+              <div className="w-32 h-1 bg-gradient-to-r from-transparent via-green-400 to-transparent mx-auto"></div>
+            </div>
+
+            <div className="bg-slate-900 bg-opacity-80 rounded-lg p-8 mb-8 border border-green-400 border-opacity-40">
+              <h2 className="text-4xl font-bold text-cyan-400 mb-6 text-center font-mono">
                 {missionResult.mission.title}
               </h2>
-              <div className="mb-4">
+
+              <div className="mb-6">
                 <img
                   src={missionResult.mission.issImage}
                   alt={missionResult.mission.title}
-                  className="w-full rounded-lg mb-4"
+                  className="w-full rounded-lg mb-4 border border-cyan-400 border-opacity-30"
                   onError={(e) => {
-                    e.currentTarget.src = 'https://via.placeholder.com/640x360/1a2a40/00ffc8?text=ISS+Image';
+                    e.currentTarget.src =
+                      "https://via.placeholder.com/640x360/1a2a40/00ffc8?text=ISS+Image";
                   }}
                 />
               </div>
-              <p className="text-lg text-gray-200 mb-4">
+
+              <p className="text-lg text-cyan-100 mb-6 leading-relaxed font-mono">
                 {missionResult.mission.description}
               </p>
-              <div className="bg-gray-900 bg-opacity-50 rounded-lg p-4">
-                <h3 className="text-xl font-bold text-blue-400 mb-3">Highlights:</h3>
-                <ul className="space-y-2">
+
+              <div className="bg-slate-800 bg-opacity-60 rounded-lg p-6 border border-cyan-400 border-opacity-20">
+                <h3 className="text-2xl font-bold text-cyan-300 mb-4 font-mono">
+                  Highlights:
+                </h3>
+                <ul className="space-y-3">
                   {missionResult.mission.highlights.map((highlight, index) => (
-                    <li key={index} className="text-gray-300 flex items-start">
-                      <span className="text-green-400 mr-2">✓</span>
-                      <span>{highlight}</span>
+                    <li
+                      key={index}
+                      className="text-cyan-100 flex items-start font-mono"
+                    >
+                      <span className="text-green-400 mr-3 text-xl">✓</span>
+                      <span className="leading-relaxed">{highlight}</span>
                     </li>
                   ))}
                 </ul>
               </div>
             </div>
+
             <button
               onClick={handleSuccessContinue}
-              className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg text-xl transition-all duration-200"
+              className="w-full mode-button active"
             >
               CONTINUE
             </button>
@@ -269,19 +315,22 @@ const Mission: React.FC<MissionProps> = ({
 
       {/* Wasted Screen */}
       {showWasted && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 wasted-screen">
+        <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 wasted-screen">
           <div className="text-center">
-            <h1 className="text-10xl font-bold text-red-500 mb-8">Wasted</h1>
-            <div className="flex gap-6 justify-center">
+            <h1 className="text-10xl font-bold text-red-500 mb-8 text-shadow-glow-error font-mono">
+              MISSION FAILED
+            </h1>
+            <div className="w-48 h-1 bg-gradient-to-r from-transparent via-red-500 to-transparent mx-auto mb-8"></div>
+            <div className="flex gap-8 justify-center">
               <button
                 onClick={handleRetry}
-                className="bg-gray-300 hover:bg-white text-gray-800 px-8 py-3 rounded-lg text-xl font-bold transition-all duration-200"
+                className="spaceship-button-tech text-slate-900 px-8 py-4 rounded-lg text-xl font-bold transition-all duration-300 font-mono transform hover:scale-105"
               >
                 RETRY
               </button>
               <button
                 onClick={handleExit}
-                className="bg-gray-300 hover:bg-white text-gray-800 px-8 py-3 rounded-lg text-xl font-bold transition-all duration-200"
+                className="spaceship-button-tech text-slate-900 px-8 py-4 rounded-lg text-xl font-bold transition-all duration-300 font-mono transform hover:scale-105"
               >
                 EXIT
               </button>
@@ -294,35 +343,41 @@ const Mission: React.FC<MissionProps> = ({
       {!showMissionSelect && (
         <>
           <div className="fixed top-8 left-8 z-30">
-            <div className="control-panel rounded-lg p-4 w-56 font-mono text-blue-300">
-              <div className="font-bold text-white border-b border-gray-600 mb-2 pb-1">
+            <div className="control-panel-tech rounded-lg p-6 w-64 font-mono text-cyan-300 border border-cyan-400 border-opacity-30">
+              <div className="font-bold text-cyan-100 border-b border-cyan-400 border-opacity-40 mb-4 pb-2 text-lg">
                 SYSTEM
               </div>
-              <div className="flex justify-between text-sm mb-1">
-                <span>Power:</span>
-                <span className="text-green-400">STABLE</span>
-              </div>
-              <div className="flex justify-between text-sm mb-1">
-                <span>Oxygen:</span>
-                <span className="text-green-400">99.8%</span>
-              </div>
-              <div className="flex justify-between text-sm mb-1">
-                <span>Pressure:</span>
-                <span className="text-green-400">101.2 kPa</span>
-              </div>
-              <div className="flex justify-between text-sm mb-1">
-                <span>Status:</span>
-                <span className="text-green-400">ORBITAL</span>
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-cyan-200">Energy:</span>
+                  <span className="text-green-400 font-bold">STABLE</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-cyan-200">Oxygen:</span>
+                  <span className="text-green-400 font-bold">99.8%</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-cyan-200">Pressure:</span>
+                  <span className="text-green-400 font-bold">101.2 kPa</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-cyan-200">Status:</span>
+                  <span className="text-green-400 font-bold">ORBITAL</span>
+                </div>
               </div>
             </div>
           </div>
 
           <div className="fixed top-8 right-8 z-30">
-            <div className="control-panel rounded-lg p-4 w-56 font-mono text-blue-300">
+            <div className="control-panel-tech rounded-lg p-6 w-64 font-mono text-cyan-300 border border-cyan-400 border-opacity-30">
               {selectedMission && (
-                <div className="mb-3 pb-3 border-b border-gray-600">
-                  <div className="font-bold text-white mb-1">CURRENT MISSION</div>
-                  <div className="text-xs text-gray-300">{selectedMission.title}</div>
+                <div className="mb-4 pb-4 border-b border-cyan-400 border-opacity-40">
+                  <div className="font-bold text-cyan-100 mb-2 text-lg">
+                    CURRENT MISSION
+                  </div>
+                  <div className="text-sm text-cyan-200 leading-relaxed">
+                    {selectedMission.title}
+                  </div>
                 </div>
               )}
               <button
@@ -330,9 +385,9 @@ const Mission: React.FC<MissionProps> = ({
                   onResetMission();
                   setShowMissionSelect(true);
                 }}
-                className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors"
+                className="w-full spaceship-button-tech text-slate-900 font-bold py-3 px-4 rounded transition-all duration-300 font-mono"
               >
-                SELECT DIFFERENT MISSION
+                OTHER MISSIONS
               </button>
             </div>
           </div>

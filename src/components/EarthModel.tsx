@@ -27,16 +27,16 @@ const EarthModel: React.FC<EarthModelProps> = ({
 
   // Create Earth geometry
   const earthGeometry = useMemo(() => {
-    return new THREE.SphereGeometry(2, 64, 32);
+    return new THREE.SphereGeometry(4, 64, 32);
   }, []);
 
   // Create Earth material with texture (matching ExploreMode)
   const earthMaterial = useMemo(() => {
     const earthTexture = textureLoader.load(
-      '/earth_texture.jpg',
-      () => console.log('Earth texture loaded successfully'),
+      "/earth_texture.jpg",
+      () => console.log("Earth texture loaded successfully"),
       undefined,
-      (error) => console.error('Error loading Earth texture:', error)
+      (error) => console.error("Error loading Earth texture:", error)
     );
 
     return new THREE.MeshStandardMaterial({
@@ -76,7 +76,11 @@ const EarthModel: React.FC<EarthModelProps> = ({
 
     // Create new marker if mission target exists
     if (missionTarget) {
-      const position = latLonToVector3(missionTarget.lat, missionTarget.lon, 2.05);
+      const position = latLonToVector3(
+        missionTarget.lat,
+        missionTarget.lon,
+        2.05
+      );
 
       const markerGeometry = new THREE.SphereGeometry(0.08, 16, 16);
       const markerMaterial = new THREE.MeshBasicMaterial({
@@ -102,7 +106,8 @@ const EarthModel: React.FC<EarthModelProps> = ({
 
     // Animate target marker (pulsing effect)
     if (targetMarkerRef.current && targetMarkerRef.current.material) {
-      const material = targetMarkerRef.current.material as THREE.MeshBasicMaterial;
+      const material = targetMarkerRef.current
+        .material as THREE.MeshBasicMaterial;
       material.opacity = 0.3 + 0.5 * Math.sin(Date.now() * 0.005);
     }
   });

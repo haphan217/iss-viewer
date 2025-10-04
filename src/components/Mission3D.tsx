@@ -43,7 +43,16 @@ export interface Mission3DRef {
 }
 
 const Mission3D = forwardRef<Mission3DRef, Mission3DProps>(
-  ({ earthRef, missionState, onMissionStateChange, onTargetHit, selectedMission }, ref) => {
+  (
+    {
+      earthRef,
+      missionState,
+      onMissionStateChange,
+      onTargetHit,
+      selectedMission,
+    },
+    ref
+  ) => {
     const { camera, raycaster } = useThree();
 
     const targetRef = useRef<THREE.Mesh>(null);
@@ -71,17 +80,26 @@ const Mission3D = forwardRef<Mission3DRef, Mission3DProps>(
       };
     }, []);
 
-    // Convert lat/lon to 3D position on sphere (matching EarthModel scale)
-    const latLonToVector3 = useCallback((lat: number, lon: number, radius: number = 2) => {
-      const phi = (90 - lat) * (Math.PI / 180);
-      const theta = (lon + 180) * (Math.PI / 180);
+    // Convert lat/lon to 3D position on sphere (matching EarthModel scale and position)
+    const latLonToVector3 = useCallback(
+      (lat: number, lon: number, radius: number = 3) => {
+        const phi = (90 - lat) * (Math.PI / 180);
+        const theta = (lon + 180) * (Math.PI / 180);
 
-      const x = -(radius * Math.sin(phi) * Math.cos(theta));
-      const z = radius * Math.sin(phi) * Math.sin(theta);
-      const y = radius * Math.cos(phi);
+        // Calculate position on sphere with radius 3 (matching EarthModel geometry)
+        const x = -(radius * Math.sin(phi) * Math.cos(theta));
+        const z = radius * Math.sin(phi) * Math.sin(theta);
+        const y = radius * Math.cos(phi);
 
-      return new THREE.Vector3(x, y, z);
-    }, []);
+        // Apply EarthModel's scale factor of 4 and position offset [0, 0, -25]
+        const scaledX = x * 4;
+        const scaledY = y * 4;
+        const scaledZ = z * 4 - 25;
+
+        return new THREE.Vector3(scaledX, scaledY, scaledZ);
+      },
+      []
+    );
 
     // Create mission target based on selected mission
     const createMissionTarget = useCallback(() => {
@@ -107,7 +125,11 @@ const Mission3D = forwardRef<Mission3DRef, Mission3DProps>(
       const target = new THREE.Mesh(targetGeometry, targetMaterial);
 
       // Position target at mission location
-      const position = latLonToVector3(selectedMission.lat, selectedMission.lon, 2.05);
+      const position = latLonToVector3(
+        selectedMission.lat,
+        selectedMission.lon,
+        3.05
+      );
       target.position.copy(position);
       target.userData.isMissionTarget = true;
       target.userData.missionData = selectedMission;
@@ -124,7 +146,11 @@ const Mission3D = forwardRef<Mission3DRef, Mission3DProps>(
         return;
       }
       createMissionTarget();
-      const newState = { isActive: true, target: selectedMission, isCapturing: false };
+      const newState = {
+        isActive: true,
+        target: selectedMission,
+        isCapturing: false,
+      };
       onMissionStateChange(newState);
     }, [createMissionTarget, onMissionStateChange, selectedMission]);
 
@@ -162,22 +188,41 @@ const Mission3D = forwardRef<Mission3DRef, Mission3DProps>(
       const newState = { ...missionState, isCapturing: true };
       onMissionStateChange(newState);
 
-      // Set up raycaster to check if target is in center of screen
-      const pointer = new THREE.Vector2(0, 0); // Center of screen
-      raycaster.setFromCamera(pointer, camera);
+      // Set up raycaster to check if target is in center area (40% of screen)
+      // Create multiple raycasters to check a 40% area around the center
+      const centerArea = 0.4; // 40% of screen area
+      const samplePoints = [
+        new THREE.Vector2(0, 0), // Center
+        new THREE.Vector2(-centerArea, 0), // Left
+        new THREE.Vector2(centerArea, 0), // Right
+        new THREE.Vector2(0, -centerArea), // Top
+        new THREE.Vector2(0, centerArea), // Bottom
+        new THREE.Vector2(-centerArea * 0.7, -centerArea * 0.7), // Top-left
+        new THREE.Vector2(centerArea * 0.7, -centerArea * 0.7), // Top-right
+        new THREE.Vector2(-centerArea * 0.7, centerArea * 0.7), // Bottom-left
+        new THREE.Vector2(centerArea * 0.7, centerArea * 0.7), // Bottom-right
+      ];
 
       // Get all children of earth (including the target marker)
       const earthChildren = earthRef.current?.children || [];
-      const intersects = raycaster.intersectObjects(earthChildren, true);
 
-      // Check if target is hit and in center of view
+      // Check if target is hit anywhere in the center area
       let targetHit = false;
-      for (const intersect of intersects) {
-        if (intersect.object === targetRef.current ||
-            intersect.object.userData.isMissionTarget) {
-          targetHit = true;
-          break;
+      for (const pointer of samplePoints) {
+        raycaster.setFromCamera(pointer, camera);
+        const intersects = raycaster.intersectObjects(earthChildren, true);
+
+        for (const intersect of intersects) {
+          if (
+            intersect.object === targetRef.current ||
+            intersect.object.userData.isMissionTarget
+          ) {
+            targetHit = true;
+            break;
+          }
         }
+
+        if (targetHit) break;
       }
 
       setTimeout(() => {
@@ -235,6 +280,5 @@ const Mission3D = forwardRef<Mission3DRef, Mission3DProps>(
     return null;
   }
 );
-
 
 export default Mission3D;

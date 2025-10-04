@@ -20,15 +20,23 @@ const Scene: React.FC<{
   onMissionStateChange: (state: MissionState) => void;
   onTargetHit: (hit: boolean, mission?: MissionData) => void;
   selectedMission: MissionData | null;
-}> = ({ mission3DRef, missionState, onMissionStateChange, onTargetHit, selectedMission }) => {
+}> = ({
+  mission3DRef,
+  missionState,
+  onMissionStateChange,
+  onTargetHit,
+  selectedMission,
+}) => {
   const earthRef = useRef<Mesh>(null);
 
   // Convert MissionData to MissionTarget for EarthModel
-  const missionTarget: MissionTarget | null = selectedMission ? {
-    lat: selectedMission.lat,
-    lon: selectedMission.lon,
-    title: selectedMission.title,
-  } : null;
+  const missionTarget: MissionTarget | null = selectedMission
+    ? {
+        lat: selectedMission.lat,
+        lon: selectedMission.lon,
+        title: selectedMission.title,
+      }
+    : null;
 
   return (
     <>
@@ -75,8 +83,13 @@ const ISSView: React.FC = () => {
     isCapturing: false,
   });
 
-  const [selectedMission, setSelectedMission] = useState<MissionData | null>(null);
-  const [missionResult, setMissionResult] = useState<{ success: boolean; mission: MissionData } | null>(null);
+  const [selectedMission, setSelectedMission] = useState<MissionData | null>(
+    null
+  );
+  const [missionResult, setMissionResult] = useState<{
+    success: boolean;
+    mission: MissionData;
+  } | null>(null);
 
   // Mission state handlers
   const handleMissionStateChange = useCallback((state: MissionState) => {

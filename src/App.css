@@ -1,12 +1,5 @@
 @import "tailwindcss";
 
-/* Global Styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   background: #000011;
@@ -291,4 +284,281 @@ button:hover {
 
 .capture-button:active {
   transform: scale(0.95);
+}
+
+/* Mission UI Tech Theme Styles */
+.mission-selection-panel {
+  background: linear-gradient(135deg, #0f0f23, #1a1a2e);
+  border: 2px solid #00ffff;
+  box-shadow: 0 0 50px rgba(0, 255, 255, 0.3),
+    inset 0 0 50px rgba(0, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.mission-briefing-panel {
+  background: linear-gradient(135deg, #0f0f23, #1a1a2e);
+  border: 2px solid #00ffff;
+  box-shadow: 0 0 50px rgba(0, 255, 255, 0.3),
+    inset 0 0 50px rgba(0, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.mission-success-panel {
+  background: linear-gradient(135deg, #0f0f23, #1a1a2e);
+  border: 2px solid #00ffc8;
+  box-shadow: 0 0 50px rgba(0, 255, 200, 0.3),
+    inset 0 0 50px rgba(0, 255, 200, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.mission-card-tech {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  border: 1px solid #00ffff;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.2),
+    inset 0 0 20px rgba(0, 255, 255, 0.05);
+  transition: all 0.3s ease;
+}
+
+.mission-card-tech:hover {
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.4),
+    inset 0 0 30px rgba(0, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.control-panel-tech {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  border: 1px solid #00ffff;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.2),
+    inset 0 0 20px rgba(0, 255, 255, 0.05);
+  backdrop-filter: blur(5px);
+}
+
+.spaceship-button-tech {
+  background: linear-gradient(45deg, #00ffc8, #00ffff);
+  border: 2px solid #00ffff;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3),
+    inset 0 0 20px rgba(0, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.spaceship-button-tech:hover {
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.5),
+    inset 0 0 30px rgba(0, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.spaceship-button-primary {
+  background: linear-gradient(45deg, #00ffff, #0080ff);
+  border: 2px solid #00ffff;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.4),
+    inset 0 0 20px rgba(0, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.spaceship-button-primary:hover {
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.6),
+    inset 0 0 30px rgba(0, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.spaceship-button-success {
+  background: linear-gradient(45deg, #00ffc8, #00ff88);
+  border: 2px solid #00ffc8;
+  box-shadow: 0 0 20px rgba(0, 255, 200, 0.4),
+    inset 0 0 20px rgba(0, 255, 200, 0.1);
+  transition: all 0.3s ease;
+}
+
+.spaceship-button-success:hover {
+  box-shadow: 0 0 30px rgba(0, 255, 200, 0.6),
+    inset 0 0 30px rgba(0, 255, 200, 0.2);
+  transform: scale(1.05);
+}
+
+.capture-button-tech {
+  background: linear-gradient(45deg, #ef4444, #dc2626);
+  border: 2px solid #00ffff;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.4),
+    inset 0 0 20px rgba(239, 68, 68, 0.1);
+  transition: all 0.3s ease;
+}
+
+.capture-button-tech:hover {
+  box-shadow: 0 0 30px rgba(239, 68, 68, 0.6),
+    inset 0 0 30px rgba(239, 68, 68, 0.2);
+  transform: scale(1.1);
+}
+
+/* Text Shadow Effects */
+.text-shadow-glow {
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5), 0 0 20px rgba(0, 255, 255, 0.3),
+    0 0 30px rgba(0, 255, 255, 0.1);
+}
+
+.text-shadow-glow-success {
+  text-shadow: 0 0 10px rgba(0, 255, 200, 0.5), 0 0 20px rgba(0, 255, 200, 0.3),
+    0 0 30px rgba(0, 255, 200, 0.1);
+}
+
+.text-shadow-glow-error {
+  text-shadow: 0 0 10px rgba(239, 68, 68, 0.5), 0 0 20px rgba(239, 68, 68, 0.3),
+    0 0 30px rgba(239, 68, 68, 0.1);
+}
+
+/* Shadow Effects */
+.shadow-cyan-glow {
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+}
+
+.shadow-cyan-glow:hover {
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+}
+
+.shadow-red-glow {
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+}
+
+.shadow-red-glow-strong {
+  box-shadow: 0 0 30px rgba(239, 68, 68, 0.6);
+}
+
+/* Panel Header Styling */
+.panel-header {
+  text-align: center;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid rgba(0, 255, 255, 0.3);
+}
+
+.panel-header h2 {
+  color: #00ffff;
+  margin: 0;
+  font-size: 2.5rem;
+  text-transform: uppercase;
+  font-family: "Consolas", "Courier New", monospace;
+  font-weight: bold;
+  letter-spacing: 0.1em;
+}
+
+.scanline-overlay {
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0) 50%,
+    rgba(0, 0, 0, 0.2) 70%,
+    rgba(255, 255, 255, 0.1)
+  );
+  background-size: 100% 3px;
+  pointer-events: none; /* Cho phép click xuyên qua lớp phủ */
+  animation: scanline 10s linear infinite;
+}
+
+@keyframes scanline {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 -100px;
+  }
+}
+
+.mode-button {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: all 0.2s ease-in-out;
+  border: 2px solid transparent;
+  background-color: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.mode-button:before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(
+    circle,
+    rgba(0, 255, 255, 0.3) 0%,
+    rgba(0, 255, 255, 0) 70%
+  );
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.mode-button:hover:before {
+  width: 200%;
+  height: 200%;
+}
+
+.mode-button.active {
+  background-color: rgba(0, 255, 255, 0.2);
+  color: #a5f3fc; /* cyan-200 */
+  border-color: rgba(0, 255, 255, 0.5);
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+}
+
+/* --- CÁC HIỆU ỨNG CŨ --- */
+@keyframes flicker-border {
+  0% {
+    border-color: rgba(0, 255, 255, 0.2);
+    box-shadow: 0 0 5px rgba(0, 255, 255, 0.1);
+  }
+  20% {
+    border-color: rgba(0, 255, 255, 1);
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.8);
+  }
+  40% {
+    border-color: rgba(0, 255, 255, 0.3);
+  }
+  60% {
+    border-color: rgba(0, 255, 255, 1);
+    box-shadow: 0 0 25px rgba(0, 255, 255, 1);
+  }
+  80% {
+    border-color: rgba(0, 255, 255, 0.4);
+  }
+  100% {
+    border-color: rgba(0, 255, 255, 0.5);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+  }
+}
+
+.modal-flicker {
+  animation: flicker-border 1.2s forwards;
+}
+
+@keyframes blink-cursor {
+  from,
+  to {
+    border-color: transparent;
+  }
+  50% {
+    border-color: #06b6d4;
+  }
+}
+
+.typing-effect {
+  display: inline-block;
+  border-right: 3px solid #06b6d4;
+  padding-right: 2px;
+  animation: blink-cursor 0.75s step-end infinite;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.typing-effect-done {
+  border-right: none;
+  padding-right: 0;
+  animation: none;
 }
