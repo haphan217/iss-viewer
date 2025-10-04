@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ISSView from "./components/ISSView";
 import ExploreMode from "./components/ExploreMode";
+import { speak } from "./utils/textToSpeech";
 import "./App.css";
 
 type AppMode = "explore" | "mission";
@@ -8,6 +9,12 @@ type AppMode = "explore" | "mission";
 function App() {
   const [mode, setMode] = useState<AppMode>("explore");
   const [showModal, setShowModal] = useState(false);
+  const [started, setStarted] = useState(false);
+
+  const handleStart = () => {
+    setStarted(true);
+    speak("Welcome to the International Space Station");
+  };
 
   const handleModeChange = (newMode: AppMode) => {
     setMode(newMode);
@@ -26,6 +33,18 @@ function App() {
 
   return (
     <div className="w-screen h-screen overflow-hidden relative">
+      {/* Start Button Overlay */}
+      {!started && (
+        <div className="fixed inset-0 w-screen h-screen bg-black bg-opacity-90 flex items-center justify-center z-50">
+          <button
+            onClick={handleStart}
+            className="px-12 py-6 rounded-2xl text-2xl cursor-pointer font-mono font-bold spaceship-button text-cyan-400"
+          >
+            🚀 START YOUR JOURNEY
+          </button>
+        </div>
+      )}
+
       {/* Main Content */}
       {renderContent()}
 
