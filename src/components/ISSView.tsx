@@ -5,7 +5,7 @@ import EarthModel from "./EarthModel";
 import ISSTunnelModel from "./ISSTunnelModel";
 import ZeroGravityPhysics from "./ZeroGravityPhysics";
 import { type DisasterEvent } from "../data/mockDisasterData";
-import cupolaImage from "../assets/cupola.png";
+import cupolaImage from "../assets/cupola2.png";
 
 interface ISSViewProps {
   selectedMission: DisasterEvent | null;
@@ -20,7 +20,7 @@ const CupolaPlane: React.FC<{ position: [number, number, number] }> = ({
 
   return (
     <mesh position={position}>
-      <planeGeometry args={[24, 18]} />
+      <planeGeometry args={[18, 18]} />
       <meshBasicMaterial map={texture} transparent={true} />
     </mesh>
   );
@@ -161,7 +161,7 @@ const Scene: React.FC<ISSViewProps> = ({
       <ISSTunnelModel position={[0, 0, 0]} />
 
       {/* Cupola Plane - displays the cupola image */}
-      <CupolaPlane position={[0, 0, -9]} />
+      <CupolaPlane position={[0, 3, -5]} />
 
       {/* Earth - floating in space, visible through Cupola windows */}
       <EarthModel
