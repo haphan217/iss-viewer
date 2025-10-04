@@ -7,18 +7,12 @@ interface EarthModelProps {
   position?: [number, number, number];
   rotation?: [number, number, number];
   scale?: [number, number, number];
-  onMissionTarget?: {
-    latitude: number;
-    longitude: number;
-    isActive: boolean;
-  };
 }
 
 const EarthModel: React.FC<EarthModelProps> = ({
   position = [0, 0, -15],
   rotation = [0, 0, 0],
   scale = [1, 1, 1],
-  onMissionTarget,
 }) => {
   const earthRef = useRef<Mesh>(null);
   const cloudsRef = useRef<Mesh>(null);
@@ -69,46 +63,6 @@ const EarthModel: React.FC<EarthModelProps> = ({
     });
   }, []);
 
-  // Create mission target indicator
-  const missionTargetGeometry = useMemo(() => {
-    return new THREE.SphereGeometry(0.1, 16, 16);
-  }, []);
-
-  const missionTargetMaterial = useMemo(() => {
-    return new THREE.MeshBasicMaterial({
-      color: "#FF0000",
-      transparent: true,
-      opacity: onMissionTarget?.isActive ? 0.8 : 0,
-    });
-  }, [onMissionTarget?.isActive]);
-
-  // Convert lat/lng to 3D position on sphere
-  const getPositionFromLatLng = (
-    lat: number,
-    lng: number,
-    radius: number = 2
-  ) => {
-    const phi = (90 - lat) * (Math.PI / 180);
-    const theta = (lng + 180) * (Math.PI / 180);
-
-    return {
-      x: radius * Math.sin(phi) * Math.cos(theta),
-      y: radius * Math.cos(phi),
-      z: radius * Math.sin(phi) * Math.sin(theta),
-    };
-  };
-
-  // Get mission target position
-  const missionTargetPosition = useMemo(() => {
-    if (!onMissionTarget) return [0, 0, 0];
-    const pos = getPositionFromLatLng(
-      onMissionTarget.latitude,
-      onMissionTarget.longitude,
-      2.1
-    );
-    return [pos.x, pos.y, pos.z] as [number, number, number];
-  }, [onMissionTarget]);
-
   // Animation
   useFrame((state) => {
     const time = state.clock.getElapsedTime();
@@ -147,22 +101,6 @@ const EarthModel: React.FC<EarthModelProps> = ({
         geometry={atmosphereGeometry}
         material={atmosphereMaterial}
       />
-
-      {/* Mission target indicator */}
-      {onMissionTarget && (
-        <mesh
-          position={missionTargetPosition}
-          geometry={missionTargetGeometry}
-          material={missionTargetMaterial}
-        >
-          {/* Pulsing effect */}
-          <meshBasicMaterial
-            color="#FF0000"
-            transparent={true}
-            opacity={onMissionTarget.isActive ? 0.8 : 0}
-          />
-        </mesh>
-      )}
 
       {/* Add some stars in the background */}
       {Array.from({ length: 200 }).map((_, i) => {
