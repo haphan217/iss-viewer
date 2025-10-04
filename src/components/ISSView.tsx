@@ -5,7 +5,7 @@ import EarthModel from "./EarthModel";
 import ISSTunnelModel from "./ISSTunnelModel";
 import ZeroGravityPhysics from "./ZeroGravityPhysics";
 import { type DisasterEvent } from "../data/mockDisasterData";
-import cupolaImage from "../assets/cupola2.png";
+import cupolaImage from "../assets/cupola1.png";
 
 interface ISSViewProps {
   selectedMission: DisasterEvent | null;
