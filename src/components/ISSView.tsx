@@ -1,15 +1,30 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
-import CupolaModel from "./CupolaModel";
+import { TextureLoader } from "three";
 import EarthModel from "./EarthModel";
 import ISSTunnelModel from "./ISSTunnelModel";
 import ZeroGravityPhysics from "./ZeroGravityPhysics";
 import { type DisasterEvent } from "../data/mockDisasterData";
+import cupolaImage from "../assets/cupola.png";
 
 interface ISSViewProps {
   selectedMission: DisasterEvent | null;
   onMissionTargetClick: (mission: DisasterEvent) => void;
 }
+
+// CupolaPlane component to display the cupola image
+const CupolaPlane: React.FC<{ position: [number, number, number] }> = ({
+  position,
+}) => {
+  const texture = useMemo(() => new TextureLoader().load(cupolaImage), []);
+
+  return (
+    <mesh position={position}>
+      <planeGeometry args={[24, 18]} />
+      <meshBasicMaterial map={texture} transparent={true} />
+    </mesh>
+  );
+};
 
 // Camera controller component for mission transitions
 const CameraController: React.FC<{ selectedMission: DisasterEvent | null }> = ({
@@ -145,8 +160,8 @@ const Scene: React.FC<ISSViewProps> = ({
       {/* ISS Tunnel Model */}
       <ISSTunnelModel position={[0, 0, 0]} />
 
-      {/* Cupola Model - positioned at the end of the tunnel */}
-      <CupolaModel position={[0, 0, -9]} />
+      {/* Cupola Plane - displays the cupola image */}
+      <CupolaPlane position={[0, 0, -9]} />
 
       {/* Earth - floating in space, visible through Cupola windows */}
       <EarthModel
@@ -181,9 +196,7 @@ const Scene: React.FC<ISSViewProps> = ({
       )}
 
       {/* Zero Gravity Physics System */}
-      <ZeroGravityPhysics
-        boundaries={{ x: 4, y: 3.5, z: 9 }}
-      />
+      <ZeroGravityPhysics boundaries={{ x: 4, y: 3.5, z: 9 }} />
 
       {/* Camera controller for mission transitions */}
       <CameraController selectedMission={selectedMission} />

@@ -14,9 +14,9 @@ const ISSTunnelModel: React.FC<ISSTunnelModelProps> = ({
   const tunnelRef = useRef<Group>(null);
 
   // Tunnel dimensions (matching PhysicsTunnel.html)
-  const moduleWidth = 8;
+  const moduleWidth = 18;
   const moduleHeight = 7;
-  const moduleDepth = 18; // Long tunnel
+  const moduleDepth = 5; // Long tunnel
 
   // Create materials
   const createMaterial = (
