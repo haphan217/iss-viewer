@@ -134,3 +134,56 @@ button:hover {
     transform: rotate(360deg);
   }
 }
+
+/* Spaceship Theme Styles */
+.spaceship-gradient {
+  background: linear-gradient(180deg, #000011 0%, #001122 100%);
+}
+
+.spaceship-button {
+  background: linear-gradient(45deg, #1a1a2e, #16213e);
+  border: 2px solid #00ffff;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3),
+    inset 0 0 20px rgba(0, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.spaceship-button:hover {
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.5),
+    inset 0 0 30px rgba(0, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.spaceship-modal {
+  background: linear-gradient(135deg, #0f0f23, #1a1a2e);
+  border: 2px solid #00ffff;
+  box-shadow: 0 0 50px rgba(0, 255, 255, 0.3),
+    inset 0 0 50px rgba(0, 255, 255, 0.1);
+}
+
+.spaceship-modal-title {
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.spaceship-mode-button {
+  background: linear-gradient(45deg, #1a1a2e, #16213e);
+  border: 2px solid #00ffff;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.spaceship-mode-button:hover {
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.spaceship-mode-button.active {
+  background: linear-gradient(45deg, #00ffff, #0080ff);
+  color: #000;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+}
+
+.spaceship-mode-button.active:hover {
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+  transform: translateY(0);
+}
