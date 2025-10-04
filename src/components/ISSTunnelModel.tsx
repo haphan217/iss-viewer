@@ -23,17 +23,13 @@ const ISSTunnelModel: React.FC<ISSTunnelModelProps> = ({
     color: number,
     roughness: number,
     metalness: number,
-    side: THREE.Side = THREE.BackSide,
-    castShadow: boolean = true,
-    receiveShadow: boolean = true
+    side: THREE.Side = THREE.BackSide
   ) => {
     return new THREE.MeshStandardMaterial({
       color,
       metalness,
       roughness,
       side,
-      castShadow,
-      receiveShadow,
     });
   };
 
@@ -44,7 +40,7 @@ const ISSTunnelModel: React.FC<ISSTunnelModelProps> = ({
     // Floor
     const floor = new THREE.Mesh(
       new THREE.PlaneGeometry(moduleWidth, moduleDepth),
-      createMaterial(0xcccccc, 0.8, 0.1, THREE.BackSide, false, true)
+      createMaterial(0xcccccc, 0.8, 0.1, THREE.BackSide)
     );
     floor.rotation.x = Math.PI / 2;
     floor.position.y = -moduleHeight / 2;
@@ -53,7 +49,7 @@ const ISSTunnelModel: React.FC<ISSTunnelModelProps> = ({
     // Ceiling
     const ceiling = new THREE.Mesh(
       new THREE.PlaneGeometry(moduleWidth, moduleDepth),
-      createMaterial(0xcccccc, 0.8, 0.1, THREE.BackSide, false, true)
+      createMaterial(0xcccccc, 0.8, 0.1, THREE.BackSide)
     );
     ceiling.rotation.x = Math.PI / 2;
     ceiling.position.y = moduleHeight / 2;
@@ -62,7 +58,7 @@ const ISSTunnelModel: React.FC<ISSTunnelModelProps> = ({
     // Left wall
     const wallLeft = new THREE.Mesh(
       new THREE.PlaneGeometry(moduleWidth, moduleHeight),
-      createMaterial(0x888888, 0.9, 0.1, THREE.BackSide, false, true)
+      createMaterial(0x888888, 0.9, 0.1, THREE.BackSide)
     );
     wallLeft.rotation.y = Math.PI / 2;
     wallLeft.position.x = -moduleWidth / 2;
@@ -71,7 +67,7 @@ const ISSTunnelModel: React.FC<ISSTunnelModelProps> = ({
     // Right wall
     const wallRight = new THREE.Mesh(
       new THREE.PlaneGeometry(moduleWidth, moduleHeight),
-      createMaterial(0x888888, 0.9, 0.1, THREE.BackSide, false, true)
+      createMaterial(0x888888, 0.9, 0.1, THREE.BackSide)
     );
     wallRight.rotation.y = -Math.PI / 2;
     wallRight.position.x = moduleWidth / 2;
@@ -80,7 +76,7 @@ const ISSTunnelModel: React.FC<ISSTunnelModelProps> = ({
     // Front wall (tunnel entrance)
     const wallFront = new THREE.Mesh(
       new THREE.PlaneGeometry(moduleWidth, moduleHeight),
-      createMaterial(0x888888, 0.9, 0.1, THREE.BackSide, false, true)
+      createMaterial(0x888888, 0.9, 0.1, THREE.BackSide)
     );
     wallFront.position.z = moduleDepth / 2;
     group.add(wallFront);
@@ -88,7 +84,7 @@ const ISSTunnelModel: React.FC<ISSTunnelModelProps> = ({
     // Back wall (tunnel exit - connects to sphere)
     const wallBack = new THREE.Mesh(
       new THREE.PlaneGeometry(moduleWidth, moduleHeight),
-      createMaterial(0x888888, 0.9, 0.1, THREE.BackSide, false, true)
+      createMaterial(0x888888, 0.9, 0.1, THREE.BackSide)
     );
     wallBack.position.z = -moduleDepth / 2;
     group.add(wallBack);
@@ -102,14 +98,7 @@ const ISSTunnelModel: React.FC<ISSTunnelModelProps> = ({
 
     // Ribs (structural supports)
     const ribGeometry = new THREE.BoxGeometry(0.05, moduleHeight, 0.05);
-    const ribMaterial = createMaterial(
-      0x666666,
-      0.1,
-      0.9,
-      THREE.FrontSide,
-      true,
-      false
-    );
+    const ribMaterial = createMaterial(0x666666, 0.1, 0.9, THREE.FrontSide);
 
     for (let z = -moduleDepth / 2 + 1; z < moduleDepth / 2; z += 2) {
       // Left ribs
@@ -142,7 +131,6 @@ const ISSTunnelModel: React.FC<ISSTunnelModelProps> = ({
     spotLight1.decay = 1.0;
     spotLight1.distance = 15;
     spotLight1.target.position.set(0, 0, -4);
-    spotLight1.castShadow = true;
     spotLight1.shadow.mapSize.width = 1024;
     spotLight1.shadow.mapSize.height = 1024;
     group.add(spotLight1);

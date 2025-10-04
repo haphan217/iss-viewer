@@ -15,23 +15,11 @@ const EarthModel: React.FC<EarthModelProps> = ({
   scale = [1, 1, 1],
 }) => {
   const earthRef = useRef<Mesh>(null);
-  const cloudsRef = useRef<Mesh>(null);
-  const atmosphereRef = useRef<Mesh>(null);
   const textureLoader = new THREE.TextureLoader();
 
   // Create Earth geometry
   const earthGeometry = useMemo(() => {
     return new THREE.SphereGeometry(2, 64, 32);
-  }, []);
-
-  // Create clouds geometry (slightly larger than Earth)
-  const cloudsGeometry = useMemo(() => {
-    return new THREE.SphereGeometry(2.01, 64, 32);
-  }, []);
-
-  // Create atmosphere geometry
-  const atmosphereGeometry = useMemo(() => {
-    return new THREE.SphereGeometry(2.1, 32, 16);
   }, []);
 
   // Create Earth material with procedural textures
@@ -44,42 +32,11 @@ const EarthModel: React.FC<EarthModelProps> = ({
     });
   }, []);
 
-  // Create clouds material
-  const cloudsMaterial = useMemo(() => {
-    return new THREE.MeshLambertMaterial({
-      color: "#FFFFFF",
-      transparent: true,
-      opacity: 0.3,
-    });
-  }, []);
-
-  // Create atmosphere material
-  const atmosphereMaterial = useMemo(() => {
-    return new THREE.MeshLambertMaterial({
-      color: "#87CEEB",
-      transparent: true,
-      opacity: 0.1,
-      side: THREE.BackSide,
-    });
-  }, []);
-
   // Animation
-  useFrame((state) => {
-    const time = state.clock.getElapsedTime();
-
+  useFrame(() => {
     // Rotate Earth
     if (earthRef.current) {
       // earthRef.current.rotation.y = time * 0.1;
-    }
-
-    // Rotate clouds (slightly faster)
-    if (cloudsRef.current) {
-      cloudsRef.current.rotation.y = time * 0.12;
-    }
-
-    // Rotate atmosphere (slowest)
-    if (atmosphereRef.current) {
-      atmosphereRef.current.rotation.y = time * 0.05;
     }
   });
 
@@ -87,20 +44,6 @@ const EarthModel: React.FC<EarthModelProps> = ({
     <group position={position} rotation={rotation} scale={scale}>
       {/* Earth */}
       <mesh ref={earthRef} geometry={earthGeometry} material={earthMaterial} />
-
-      {/* Clouds */}
-      <mesh
-        ref={cloudsRef}
-        geometry={cloudsGeometry}
-        material={cloudsMaterial}
-      />
-
-      {/* Atmosphere */}
-      <mesh
-        ref={atmosphereRef}
-        geometry={atmosphereGeometry}
-        material={atmosphereMaterial}
-      />
 
       {/* Add some stars in the background */}
       {Array.from({ length: 200 }).map((_, i) => {

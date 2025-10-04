@@ -6,7 +6,6 @@ import ISSTunnelModel from "./ISSTunnelModel";
 import ZeroGravityPhysics from "./ZeroGravityPhysics";
 import cupolaImage from "../assets/cupola1.png";
 
-// CupolaPlane component to display the cupola image
 const CupolaPlane: React.FC<{ position: [number, number, number] }> = ({
   position,
 }) => {
