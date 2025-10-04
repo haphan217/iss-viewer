@@ -1,5 +1,6 @@
 import { useState } from "react";
 import ISSView from "./components/ISSView";
+import ExploreMode from "./components/ExploreMode";
 import "./App.css";
 
 type AppMode = "explore" | "mission";
@@ -19,15 +20,7 @@ function App() {
         return <ISSView />;
       case "explore":
       default:
-        return (
-          <div className="w-full h-full spaceship-gradient flex items-center justify-center text-cyan-400 text-2xl font-mono">
-            <div className="text-center">
-              <div className="text-5xl mb-5">🚀</div>
-              <div>EXPLORE MODE</div>
-              <div className="text-base mt-2.5 opacity-70">Coming Soon...</div>
-            </div>
-          </div>
-        );
+        return <ExploreMode />;
     }
   };
 

@@ -1,0 +1,360 @@
+.canvas-container {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.ui-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+#info-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.95);
+  color: white;
+  padding: 30px;
+  border-radius: 10px;
+  max-width: 600px;
+  max-height: 70vh;
+  overflow-y: auto;
+  display: none;
+  pointer-events: all;
+}
+
+#info-panel.visible {
+  display: block;
+}
+
+#info-panel h2 {
+  color: #4a9eff;
+  margin-bottom: 15px;
+}
+
+#info-panel p {
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+#info-panel .images {
+  display: flex;
+  gap: 10px;
+  margin: 15px 0;
+  flex-wrap: wrap;
+}
+
+#info-panel .images img {
+  width: 100%;
+  max-width: 200px;
+  border-radius: 5px;
+}
+
+#info-panel button {
+  background: #4a9eff;
+  color: white;
+  border: none;
+  padding: 10px 30px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+#info-panel button:hover {
+  background: #3a8eef;
+}
+
+#iss-info {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  color: white;
+  background: rgba(0, 0, 0, 0.85);
+  padding: 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  min-width: 280px;
+  border: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+#iss-info h3 {
+  color: #00ffff;
+  margin-bottom: 12px;
+  font-size: 16px;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+  padding-bottom: 8px;
+}
+
+#iss-info .info-row {
+  display: flex;
+  justify-content: space-between;
+  margin: 8px 0;
+  padding: 4px 0;
+}
+
+#iss-info .info-label {
+  color: #aaa;
+  font-weight: 500;
+}
+
+#iss-info .info-value {
+  color: #00ffff;
+  font-weight: 600;
+}
+
+#iss-info .scale-note {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 165, 0, 0.3);
+  font-size: 12px;
+  color: #ffaa00;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+#timeline-container {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  padding: 12px 20px;
+  border-radius: 8px;
+  pointer-events: all;
+  border: 1px solid rgba(74, 158, 255, 0.3);
+}
+
+#timeline-container h3 {
+  color: #4a9eff;
+  margin-bottom: 10px;
+  font-size: 13px;
+  text-align: center;
+}
+
+#timeline {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  overflow-x: auto;
+  max-width: 70vw;
+  padding: 6px 0;
+}
+
+#timeline::-webkit-scrollbar {
+  height: 6px;
+}
+
+#timeline::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+#timeline::-webkit-scrollbar-thumb {
+  background: rgba(74, 158, 255, 0.5);
+  border-radius: 3px;
+}
+
+.year-button {
+  background: rgba(74, 158, 255, 0.2);
+  color: #aaa;
+  border: 2px solid rgba(74, 158, 255, 0.3);
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.3s;
+  white-space: nowrap;
+  min-width: 55px;
+}
+
+.year-button:hover {
+  background: rgba(74, 158, 255, 0.4);
+  color: white;
+  border-color: rgba(74, 158, 255, 0.6);
+  transform: translateY(-2px);
+}
+
+.year-button.active {
+  background: rgba(74, 158, 255, 0.8);
+  color: white;
+  border-color: #4a9eff;
+  box-shadow: 0 0 15px rgba(74, 158, 255, 0.5);
+}
+
+#event-menu {
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 350px;
+  max-height: 70vh;
+  overflow-y: auto;
+  pointer-events: all;
+  border: 1px solid rgba(74, 158, 255, 0.4);
+  display: none;
+}
+
+#event-menu.visible {
+  display: block;
+}
+
+#event-menu h3 {
+  color: #4a9eff;
+  margin-bottom: 15px;
+  font-size: 18px;
+  text-align: center;
+  border-bottom: 2px solid rgba(74, 158, 255, 0.3);
+  padding-bottom: 10px;
+}
+
+#event-menu::-webkit-scrollbar {
+  width: 8px;
+}
+
+#event-menu::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+#event-menu::-webkit-scrollbar-thumb {
+  background: rgba(74, 158, 255, 0.5);
+  border-radius: 4px;
+}
+
+.event-item {
+  background: rgba(74, 158, 255, 0.1);
+  border: 2px solid rgba(74, 158, 255, 0.3);
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.event-item:hover {
+  background: rgba(74, 158, 255, 0.25);
+  border-color: rgba(74, 158, 255, 0.6);
+  transform: translateX(-5px);
+}
+
+.event-item.selected {
+  background: rgba(74, 158, 255, 0.4);
+  border-color: #4a9eff;
+  box-shadow: 0 0 15px rgba(74, 158, 255, 0.4);
+}
+
+.event-item h4 {
+  color: #4a9eff;
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+.event-item p {
+  color: #aaa;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.event-location {
+  color: #00ffff;
+  font-size: 12px;
+  margin-top: 8px;
+  font-style: italic;
+}
+
+.top-right-controls {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 10px;
+  pointer-events: all;
+  align-items: center;
+}
+
+.view-mode-toggle {
+  display: flex;
+  gap: 10px;
+}
+
+.view-mode-btn {
+  background: rgba(0, 0, 0, 0.85);
+  color: #aaa;
+  border: 2px solid rgba(74, 158, 255, 0.3);
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.view-mode-btn:hover {
+  background: rgba(74, 158, 255, 0.2);
+  border-color: rgba(74, 158, 255, 0.6);
+  color: white;
+}
+
+.view-mode-btn.active {
+  background: rgba(74, 158, 255, 0.8);
+  color: white;
+  border-color: #4a9eff;
+  box-shadow: 0 0 15px rgba(74, 158, 255, 0.5);
+}
+
+.instructions-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.instructions-toggle {
+  background: rgba(0, 0, 0, 0.85);
+  color: #aaa;
+  border: 2px solid rgba(74, 158, 255, 0.3);
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 18px;
+  transition: all 0.3s;
+}
+
+.instructions-toggle:hover {
+  background: rgba(74, 158, 255, 0.2);
+  border-color: rgba(74, 158, 255, 0.6);
+  color: white;
+}
+
+.instructions-panel {
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 15px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  border: 1px solid rgba(74, 158, 255, 0.4);
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+}
+
+.instructions-container:hover .instructions-panel {
+  opacity: 1;
+  visibility: visible;
+}
