@@ -669,6 +669,18 @@ const ExploreMode = () => {
           });
         }
 
+        // Close panel when clicking outside
+        document.addEventListener('click', (event) => {
+          const infoPanel = document.getElementById('info-panel');
+          if (infoPanel && infoPanel.classList.contains('visible')) {
+            const target = event.target as HTMLElement;
+            // Check if click is outside the panel and not on a pin marker
+            if (!infoPanel.contains(target) && !target.closest('.pin-marker')) {
+              this.closeInfoPanel();
+            }
+          }
+        });
+
         const viewModeButtons = document.querySelectorAll('.view-mode-btn');
         viewModeButtons.forEach(btn => {
           btn.addEventListener('click', () => {
@@ -701,6 +713,8 @@ const ExploreMode = () => {
 
           if (pinObject && pinObject.userData.isPinMarker) {
             this.showInfoPanel(pinObject.userData);
+            // Mark that we clicked on a pin to prevent outside click from closing
+            event.stopPropagation();
           }
         }
       }
