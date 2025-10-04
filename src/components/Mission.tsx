@@ -1,8 +1,23 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
+import missionsData from "../data/missions.json";
+
+export interface MissionData {
+  id: string;
+  title: string;
+  location: string;
+  lat: number;
+  lon: number;
+  year: number;
+  description: string;
+  issImage: string;
+  highlights: string[];
+  difficulty: string;
+  briefing: string;
+}
 
 interface MissionState {
   isActive: boolean;
-  target: unknown;
+  target: MissionData | null;
   isCapturing: boolean;
 }
 
@@ -11,6 +26,10 @@ interface MissionProps {
   onStartMission: () => void;
   onCapturePhoto: () => void;
   onResetMission: () => void;
+  onMissionSelect: (mission: MissionData) => void;
+  selectedMission: MissionData | null;
+  missionResult: { success: boolean; mission: MissionData } | null;
+  onClearResult: () => void;
 }
 
 const Mission: React.FC<MissionProps> = ({
@@ -18,17 +37,37 @@ const Mission: React.FC<MissionProps> = ({
   onStartMission,
   onCapturePhoto,
   onResetMission,
+  onMissionSelect,
+  selectedMission,
+  missionResult,
+  onClearResult,
 }) => {
+  const [showMissionSelect, setShowMissionSelect] = useState(true);
   const [showBriefing, setShowBriefing] = useState(false);
   const [showWasted, setShowWasted] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
-  // Handle mission results based on state changes
-  React.useEffect(() => {
-    if (missionState.isActive && !missionState.isCapturing) {
-      // Check if mission was just completed (this would need to be tracked differently)
-      // For now, we'll handle this through the target hit callback in ISSView
+  const missions = missionsData as MissionData[];
+
+  // Handle mission results
+  useEffect(() => {
+    if (missionResult) {
+      if (missionResult.success) {
+        setShowSuccess(true);
+        setShowWasted(false);
+      } else {
+        setShowWasted(true);
+        setShowSuccess(false);
+      }
     }
-  }, [missionState]);
+  }, [missionResult]);
+
+  // Select a mission
+  const selectMission = useCallback((mission: MissionData) => {
+    onMissionSelect(mission);
+    setShowMissionSelect(false);
+    setShowBriefing(true);
+  }, [onMissionSelect]);
 
   // Start mission
   const startMission = useCallback(() => {
@@ -44,39 +83,108 @@ const Mission: React.FC<MissionProps> = ({
   // Handle retry
   const handleRetry = useCallback(() => {
     onResetMission();
+    onClearResult();
     setShowWasted(false);
+    setShowSuccess(false);
     setTimeout(() => setShowBriefing(true), 100);
-  }, [onResetMission]);
+  }, [onResetMission, onClearResult]);
 
   // Handle exit
   const handleExit = useCallback(() => {
     onResetMission();
+    onClearResult();
     setShowWasted(false);
-  }, [onResetMission]);
+    setShowSuccess(false);
+    setShowMissionSelect(true);
+  }, [onResetMission, onClearResult]);
+
+  // Handle success continue
+  const handleSuccessContinue = useCallback(() => {
+    onClearResult();
+    setShowSuccess(false);
+    setShowMissionSelect(true);
+  }, [onClearResult]);
 
   return (
     <>
+      {/* Mission Selection */}
+      {showMissionSelect && (
+        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+          <div className="mission-panel rounded-xl p-8 max-w-4xl mx-4 fade-in">
+            <h2 className="text-4xl font-bold text-yellow-400 text-center mb-6 uppercase tracking-wider border-b-2 border-yellow-400 pb-2">
+              CHỌN NHIỆM VỤ
+            </h2>
+            <p className="text-lg text-gray-200 leading-relaxed mb-6 text-center">
+              Chọn một nhiệm vụ để bắt đầu chụp ảnh từ ISS Cupola
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {missions.map((mission) => (
+                <div
+                  key={mission.id}
+                  onClick={() => selectMission(mission)}
+                  className="mission-card bg-gray-800 bg-opacity-70 rounded-lg p-4 cursor-pointer hover:bg-opacity-90 transition-all duration-200 border-2 border-transparent hover:border-blue-400"
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className={`px-2 py-1 text-xs rounded ${
+                      mission.difficulty === 'easy' ? 'bg-green-600' :
+                      mission.difficulty === 'medium' ? 'bg-yellow-600' :
+                      'bg-red-600'
+                    }`}>
+                      {mission.difficulty.toUpperCase()}
+                    </span>
+                    <span className="text-xs text-gray-400">{mission.year}</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">{mission.title}</h3>
+                  <p className="text-sm text-gray-300 mb-2">{mission.location}</p>
+                  <p className="text-sm text-gray-400 line-clamp-3">{mission.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Mission Briefing */}
-      {showBriefing && (
+      {showBriefing && selectedMission && (
         <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
           <div className="mission-panel rounded-xl p-8 max-w-2xl mx-4 fade-in">
             <h2 className="text-4xl font-bold text-yellow-400 text-center mb-4 uppercase tracking-wider border-b-2 border-yellow-400 pb-2">
-              Nhiệm vụ: Tìm & Chụp
+              {selectedMission.title}
             </h2>
-            <p className="text-lg text-gray-200 leading-relaxed mb-8 text-center">
-              Chào phi hành gia. Một mục tiêu trinh sát đã được đánh dấu màu đỏ
-              trên bề mặt hành tinh.
-              <br />
-              <br />
-              Hãy điều khiển tàu quanh quỹ đạo, xác định vị trí mục tiêu và chụp
-              một bức ảnh rõ nét. Chúc may mắn!
+            <div className="mb-4 flex items-center justify-between">
+              <span className={`px-3 py-1 text-sm rounded ${
+                selectedMission.difficulty === 'easy' ? 'bg-green-600' :
+                selectedMission.difficulty === 'medium' ? 'bg-yellow-600' :
+                'bg-red-600'
+              }`}>
+                {selectedMission.difficulty.toUpperCase()}
+              </span>
+              <span className="text-gray-400">{selectedMission.location}</span>
+            </div>
+            <p className="text-lg text-gray-200 leading-relaxed mb-6">
+              {selectedMission.briefing}
             </p>
-            <button
-              onClick={startMission}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-xl transition-all duration-200 transform hover:scale-105"
-            >
-              CHẤP NHẬN NHIỆM VỤ
-            </button>
+            <div className="bg-gray-800 bg-opacity-50 rounded-lg p-4 mb-6">
+              <h3 className="text-xl font-bold text-blue-400 mb-2">Mô tả:</h3>
+              <p className="text-gray-300">{selectedMission.description}</p>
+            </div>
+            <div className="flex gap-4">
+              <button
+                onClick={() => {
+                  setShowBriefing(false);
+                  setShowMissionSelect(true);
+                }}
+                className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-lg text-xl transition-all duration-200"
+              >
+                TRỞ LẠI
+              </button>
+              <button
+                onClick={startMission}
+                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-lg text-xl transition-all duration-200 transform hover:scale-105"
+              >
+                BẮT ĐẦU
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -113,7 +221,51 @@ const Mission: React.FC<MissionProps> = ({
         </div>
       )}
 
-      {/* Mission Passed Screen - handled by parent component */}
+      {/* Mission Success Screen */}
+      {showSuccess && missionResult?.mission && (
+        <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
+          <div className="mission-panel rounded-xl p-8 max-w-3xl mx-4 fade-in">
+            <h1 className="text-6xl font-bold text-green-400 text-center mb-6">
+              THÀNH CÔNG!
+            </h1>
+            <div className="bg-gray-800 bg-opacity-70 rounded-lg p-6 mb-6">
+              <h2 className="text-3xl font-bold text-yellow-400 mb-4 text-center">
+                {missionResult.mission.title}
+              </h2>
+              <div className="mb-4">
+                <img
+                  src={missionResult.mission.issImage}
+                  alt={missionResult.mission.title}
+                  className="w-full rounded-lg mb-4"
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://via.placeholder.com/640x360/1a2a40/00ffc8?text=ISS+Image';
+                  }}
+                />
+              </div>
+              <p className="text-lg text-gray-200 mb-4">
+                {missionResult.mission.description}
+              </p>
+              <div className="bg-gray-900 bg-opacity-50 rounded-lg p-4">
+                <h3 className="text-xl font-bold text-blue-400 mb-3">Thông tin nổi bật:</h3>
+                <ul className="space-y-2">
+                  {missionResult.mission.highlights.map((highlight, index) => (
+                    <li key={index} className="text-gray-300 flex items-start">
+                      <span className="text-green-400 mr-2">✓</span>
+                      <span>{highlight}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <button
+              onClick={handleSuccessContinue}
+              className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg text-xl transition-all duration-200"
+            >
+              TIẾP TỤC
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Wasted Screen */}
       {showWasted && (
@@ -139,40 +291,53 @@ const Mission: React.FC<MissionProps> = ({
       )}
 
       {/* Control Panels */}
-      <div className="fixed top-8 left-8 z-30">
-        <div className="control-panel rounded-lg p-4 w-56 font-mono text-blue-300">
-          <div className="font-bold text-white border-b border-gray-600 mb-2 pb-1">
-            HỆ THỐNG
+      {!showMissionSelect && (
+        <>
+          <div className="fixed top-8 left-8 z-30">
+            <div className="control-panel rounded-lg p-4 w-56 font-mono text-blue-300">
+              <div className="font-bold text-white border-b border-gray-600 mb-2 pb-1">
+                HỆ THỐNG
+              </div>
+              <div className="flex justify-between text-sm mb-1">
+                <span>Năng lượng:</span>
+                <span className="text-green-400">ỔN ĐỊNH</span>
+              </div>
+              <div className="flex justify-between text-sm mb-1">
+                <span>Oxy:</span>
+                <span className="text-green-400">99.8%</span>
+              </div>
+              <div className="flex justify-between text-sm mb-1">
+                <span>Áp suất:</span>
+                <span className="text-green-400">101.2 kPa</span>
+              </div>
+              <div className="flex justify-between text-sm mb-1">
+                <span>Trạng thái:</span>
+                <span className="text-green-400">QUỸ ĐẠO</span>
+              </div>
+            </div>
           </div>
-          <div className="flex justify-between text-sm mb-1">
-            <span>Năng lượng:</span>
-            <span className="text-green-400">ỔN ĐỊNH</span>
-          </div>
-          <div className="flex justify-between text-sm mb-1">
-            <span>Oxy:</span>
-            <span className="text-green-400">99.8%</span>
-          </div>
-          <div className="flex justify-between text-sm mb-1">
-            <span>Áp suất:</span>
-            <span className="text-green-400">101.2 kPa</span>
-          </div>
-          <div className="flex justify-between text-sm mb-1">
-            <span>Trạng thái:</span>
-            <span className="text-green-400">QUỸ ĐẠO</span>
-          </div>
-        </div>
-      </div>
 
-      <div className="fixed top-8 right-8 z-30">
-        <div className="control-panel rounded-lg p-4 w-56 font-mono text-blue-300">
-          <button
-            onClick={() => setShowBriefing(true)}
-            className="w-full mt-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors"
-          >
-            NHIỆM VỤ MỚI
-          </button>
-        </div>
-      </div>
+          <div className="fixed top-8 right-8 z-30">
+            <div className="control-panel rounded-lg p-4 w-56 font-mono text-blue-300">
+              {selectedMission && (
+                <div className="mb-3 pb-3 border-b border-gray-600">
+                  <div className="font-bold text-white mb-1">NHIỆM VỤ HIỆN TẠI</div>
+                  <div className="text-xs text-gray-300">{selectedMission.title}</div>
+                </div>
+              )}
+              <button
+                onClick={() => {
+                  onResetMission();
+                  setShowMissionSelect(true);
+                }}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors"
+              >
+                CHỌN NHIỆM VỤ KHÁC
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 };

@@ -1,0 +1,60 @@
+[
+  {
+    "year": 2010,
+    "lat": 18.9712,
+    "lon": -72.2852,
+    "title": "Haiti Earthquake",
+    "description": "A devastating 7.0 magnitude earthquake struck Haiti, causing catastrophic damage to Port-au-Prince and surrounding areas",
+    "issImage": "https://eol.jsc.nasa.gov/DatabaseImages/ESC/small/ISS022/ISS022-E-36022.JPG",
+    "highlights": [
+      "Cause: Rupture of the Enriquillo-Plantain Garden fault system",
+      "Result: Over 230,000 deaths, 300,000 injured, 1.5 million displaced",
+      "Significance: One of deadliest earthquakes in recorded history, prompted massive international humanitarian response",
+      "Fun fact: The earthquake was felt in Cuba, Jamaica, and Venezuela, over 200 miles away"
+    ]
+  },
+  {
+    "year": 2010,
+    "lat": 55.7558,
+    "lon": 37.6173,
+    "title": "Russian Heat Wave & Wildfires",
+    "description": "Record-breaking heat wave with temperatures reaching 44°C (111°F), triggering massive wildfires across western Russia",
+    "issImage": "https://eol.jsc.nasa.gov/DatabaseImages/ESC/small/ISS024/ISS024-E-10169.JPG",
+    "highlights": [
+      "Cause: Unusual blocking high-pressure system causing prolonged extreme heat",
+      "Result: Over 56,000 deaths, $15 billion in economic losses, destroyed crops",
+      "Significance: Moscow experienced hottest summer in 1,000 years, smoke from fires blanketed the capital",
+      "Highlighted fact: ISS astronauts could see the smoke plumes from space covering an area larger than California"
+    ]
+  },
+  {
+    "year": 2011,
+    "lat": 38.2975,
+    "lon": 141.0217,
+    "title": "Tōhoku Earthquake & Tsunami",
+    "description": "Magnitude 9.1 earthquake triggered devastating tsunami waves up to 40 meters high, leading to Fukushima nuclear disaster",
+    "issImage": "https://eol.jsc.nasa.gov/DatabaseImages/ESC/small/ISS026/ISS026-E-27888.JPG",
+    "highlights": [
+      "Cause: Massive thrust fault rupture along Japan Trench subduction zone",
+      "Result: Nearly 20,000 deaths, Fukushima Daiichi nuclear meltdown, $235 billion in damages",
+      "Significance: Fourth most powerful earthquake ever recorded globally, shifted Earth's axis by 10-25 cm",
+      "Fun fact: The tsunami traveled across the Pacific Ocean, causing damage as far as California and Chile",
+      "Highlighted fact: ISS captured images of the coastline before and after, showing the massive scale of destruction"
+    ]
+  },
+  {
+    "year": 2011,
+    "lat": 33.9249,
+    "lon": 9.5371,
+    "title": "Arab Spring Begins",
+    "description": "Pro-democracy uprisings spread across the Middle East and North Africa, starting with Tunisia's Jasmine Revolution",
+    "issImage": "https://eol.jsc.nasa.gov/DatabaseImages/ESC/small/ISS026/ISS026-E-10702.JPG",
+    "highlights": [
+      "Cause: Widespread dissatisfaction with authoritarian regimes, economic hardship, corruption, and lack of freedoms",
+      "Result: Governments overthrown in Tunisia, Egypt, Libya, and Yemen; civil wars in Syria and Libya",
+      "Significance: Largest revolutionary wave in the Arab world since 1945, reshaped regional politics",
+      "Fun fact: Social media platforms like Facebook and Twitter played crucial role in organizing protests",
+      "Highlighted fact: The movement started when Tunisian street vendor Mohamed Bouazizi set himself on fire in protest"
+    ]
+  }
+]

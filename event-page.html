@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Điều Khiển Hình Ảnh Vệ Tinh (ISS View)</title>
+    <style>
+        /* CSS Chung cho phong cách Tối giản/Công nghệ (Giữ nguyên) */
+        body {
+            font-family: 'Consolas', 'Courier New', monospace;
+            margin: 0;
+            background-color: #0b1a2d; 
+            color: #00ffc8; 
+            padding: 20px;
+        }
+
+        h1 {
+            color: #00ffff;
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff;
+        }
+
+        /* Container chứa các Bảng điều khiển */
+        .dashboard-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px; /* Tăng khoảng cách để nổi bật từng thẻ */
+            padding: 10px;
+        }
+
+        /* Thẻ Bảng điều khiển (Control Panel) - Đã thay đổi bố cục */
+        .control-panel {
+            background-color: #1a2a40;
+            border: 1px solid #00ffc880; 
+            box-shadow: 0 0 15px rgba(0, 255, 200, 0.2);
+            border-radius: 8px;
+            width: 95%;
+            max-width: 650px; /* Kích thước lớn hơn để chứa cửa sổ ảnh */
+            overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 20px; /* Thêm padding tổng thể */
+        }
+
+        .control-panel:hover {
+            box-shadow: 0 0 25px rgba(0, 255, 200, 0.5), 0 0 5px #00ffc8;
+            transform: scale(1.01);
+        }
+
+        /* Khung Cửa sổ Ảnh (Viewfinder) - Vị trí trung tâm */
+        .viewfinder-wrapper {
+            width: 95%;
+            margin: 20px auto; /* Tự động căn giữa */
+            border: 3px solid #00ffff; /* Viền nổi bật */
+            box-shadow: 0 0 15px #00ffff70;
+            position: relative;
+            aspect-ratio: 16 / 9; /* Tỷ lệ 16:9 cho khung nhìn */
+        }
+
+        .viewfinder-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Lớp phủ HUD trên ảnh */
+        .overlay-hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Không chặn click chuột */
+            border: 1px solid #00ffc8;
+            box-sizing: border-box;
+            opacity: 0.7;
+        }
+        
+        /* Container chứa thông tin xung quanh ảnh */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Chia 2 cột */
+            gap: 10px 20px;
+            margin-top: 10px;
+            border-top: 1px dashed #00ffc840;
+            padding-top: 15px;
+        }
+
+        .info-grid p {
+            margin: 0;
+            font-size: 0.85em;
+            line-height: 1.3;
+        }
+        
+        .info-grid strong {
+            color: #00ffff;
+        }
+        
+        /* Tiêu đề Sự kiện */
+        .panel-header {
+            text-align: center;
+            padding-bottom: 10px;
+            margin-bottom: 5px;
+            border-bottom: 1px solid #00ffc860;
+        }
+        
+        .panel-header h2 {
+            color: #00ffff;
+            margin: 0;
+            font-size: 1.4em;
+            text-transform: uppercase;
+        }
+
+        /* Mô tả (chiếm hết chiều rộng) */
+        .description {
+            grid-column: 1 / 3; /* Chiếm cả 2 cột */
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #ffffff;
+            border-top: 1px solid #00ffc840;
+            padding-top: 10px;
+        }
+
+        /* Hiệu ứng chỉnh sửa */
+        .data-field[contenteditable="true"] {
+            border-bottom: 1px solid #00ffff;
+            background-color: #2c4463;
+            padding: 2px;
+            cursor: text;
+        }
+        .data-field[contenteditable="true"]:focus {
+            outline: none;
+            background-color: #3a5c88;
+        }
+
+        /* Nút Chỉnh sửa */
+        .edit-btn {
+            background-color: #00ffc8;
+            color: #0b1a2d;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+            text-transform: uppercase;
+            display: block;
+            margin-left: auto; /* Căn nút sang phải */
+        }
+
+        .edit-btn:hover {
+            background-color: #00e0b3;
+            box-shadow: 0 0 8px #00ffc8;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>🛰️ BẢNG ĐIỀU KHIỂN HỆ THỐNG QUAN SÁT TRÁI ĐẤT (ISS)</h1>
+
+    <div class="dashboard-container">
+        
+        <div class="control-panel" id="event_fire">
+            <div class="panel-header">
+                <h2 class="data-field" contenteditable="true">Cháy Rừng Amazon (2019)</h2>
+            </div>
+            
+            <div class="viewfinder-wrapper">
+                <img class="viewfinder-image" src="https://via.placeholder.com/640x360/964B00/FFFFFF?text=ISS+VIEW:+Amazon+Wildfire" alt="Cháy rừng Amazon">
+                <div class="overlay-hud"></div> </div>
+            
+            <div class="info-grid">
+                <p><strong>Mã Sự Kiện:</strong> <span class="data-field" contenteditable="true">AZF-2019-08-01</span></p>
+                <p><strong>Ngày Xảy Ra:</strong> <span class="data-field" contenteditable="true">Tháng 8 - 9, 2019</span></p>
+                <p><strong>Vĩ Độ/Kinh Độ:</strong> <span class="data-field" contenteditable="true">-7.0, -55.0</span></p>
+                
+                <p><strong>Loại Sự Kiện:</strong> <span class="data-field" contenteditable="true">Cháy rừng lịch sử</span></p>
+                <p><strong>Phạm Vi Ước Tính:</strong> <span class="data-field" contenteditable="true">~900.000 Hecta</span></p>
+                <p><strong>Tình Trạng:</strong> <span class="data-field" contenteditable="true">Đã được kiểm soát</span></p>
+
+                <p class="description">
+                    <strong>Nguyên nhân/Hậu quả:</strong> <span class="data-field" contenteditable="true">Chủ yếu do phá rừng và đốt nương làm rẫy kết hợp với mùa khô bất thường. Hậu quả là phát thải CO2 lớn và mất đa dạng sinh học nghiêm trọng.</span>
+                </p>
+            </div>
+            
+            <button class="edit-btn" onclick="toggleEdit('event_fire')">Chỉnh Sửa Dữ Liệu</button>
+        </div>
+
+        <div class="control-panel" id="event_festival">
+            <div class="panel-header">
+                <h2 class="data-field" contenteditable="true">Lễ Hội Ánh Sáng Giza (Tưởng niệm)</h2>
+            </div>
+            
+            <div class="viewfinder-wrapper">
+                <img class="viewfinder-image" src="https://via.placeholder.com/640x360/B8860B/000000?text=ISS+VIEW:+Giza+Light+Festival+(Night)" alt="Lễ hội Giza">
+                <div class="overlay-hud"></div> 
+            </div>
+            
+            <div class="info-grid">
+                <p><strong>Mã Sự Kiện:</strong> <span class="data-field" contenteditable="true">GIZA-2023-11-20</span></p>
+                <p><strong>Ngày Xảy Ra:</strong> <span class="data-field" contenteditable="true">20 - 22 tháng 11, 2023</span></p>
+                <p><strong>Vĩ Độ/Kinh Độ:</strong> <span class="data-field" contenteditable="true">29.97, 31.13</span></p>
+                
+                <p><strong>Loại Sự Kiện:</strong> <span class="data-field" contenteditable="true">Lễ hội Ánh sáng (Nhân tạo)</span></p>
+                <p><strong>Độ Sáng (NASA):</strong> <span class="data-field" contenteditable="true">Tăng 800% (So với bình thường)</span></p>
+                <p><strong>Tình Trạng:</strong> <span class="data-field" contenteditable="true">Đã kết thúc</span></p>
+
+                <p class="description">
+                    <strong>Mục đích:</strong> <span class="data-field" contenteditable="true">Sự kiện văn hóa lớn, sử dụng đèn pha công suất cao để chiếu sáng các Kim Tự Tháp và khu vực xung quanh, có thể quan sát rõ từ quỹ đạo.</span>
+                </p>
+            </div>
+            
+            <button class="edit-btn" onclick="toggleEdit('event_festival')">Chỉnh Sửa Dữ Liệu</button>
+        </div>
+
+    </div>
+
+    <script>
+        // Hàm chuyển đổi trạng thái chỉnh sửa (Giữ nguyên logic)
+        function toggleEdit(eventId) {
+            const panel = document.getElementById(eventId);
+            const editableElements = panel.querySelectorAll('.data-field'); 
+            const editButton = panel.querySelector('.edit-btn');
+
+            let isEditing = editButton.textContent === 'LƯU THAY ĐỔI';
+
+            editableElements.forEach(el => {
+                el.contentEditable = !isEditing; 
+                el.style.backgroundColor = !isEditing ? '#2c4463' : 'transparent';
+                el.style.color = !isEditing ? '#ffffff' : '#00ffc8';
+            });
+
+            if (!isEditing) {
+                editButton.textContent = 'LƯU THAY ĐỔI';
+                editButton.style.backgroundColor = '#ff6b6b';
+                editButton.style.color = '#0b1a2d';
+                // Sử dụng focus để người dùng bắt đầu chỉnh sửa dễ dàng hơn
+                editableElements[0].focus(); 
+                alert('CHẾ ĐỘ CHỈNH SỬA KÍCH HOẠT. Nhấn vào các trường để thay đổi.');
+            } else {
+                editButton.textContent = 'Chỉnh Sửa Dữ Liệu';
+                editButton.style.backgroundColor = '#00ffc8';
+                editButton.style.color = '#0b1a2d';
+                alert('DỮ LIỆU ĐÃ CẬP NHẬT. Đã gửi lên Hệ thống Lõi.');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -3,13 +3,16 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import './ExploreMode.css';
+import eventsData from '../data/events.json';
 
 interface Event {
+  year: number;
   lat: number;
   lon: number;
   title: string;
-  content: string;
-  images: string[];
+  description: string;
+  issImage: string;
+  highlights: string[];
 }
 
 interface EventsByYear {
@@ -91,61 +94,14 @@ const ExploreMode = () => {
           angle: 0,
         };
 
-        this.eventsByYear = {
-          2010: [
-            {
-              lat: 18.9712,
-              lon: -72.2852,
-              title: 'Haiti Earthquake - 2010',
-              content: 'Trận động đất mạnh 7.0 độ Richter đã tàn phá Haiti, gây thiệt hại nghiêm trọng về người và tài sản.',
-              images: []
-            },
-            {
-              lat: -33.0472,
-              lon: -71.6127,
-              title: 'Chile Earthquake - 2010',
-              content: 'Một trong những trận động đất mạnh nhất trong lịch sử, 8.8 độ Richter, đã xảy ra tại Chile.',
-              images: []
-            },
-            {
-              lat: 55.7558,
-              lon: 37.6173,
-              title: 'Russian Heat Wave - 2010',
-              content: 'Đợt sóng nhiệt kỷ lục đã tấn công Nga, gây ra nhiều vụ cháy rừng và ảnh hưởng đến nông nghiệp.',
-              images: []
-            }
-          ],
-          2020: [
-            {
-              lat: 40.7128,
-              lon: -74.0060,
-              title: 'COVID-19 Pandemic - 2020',
-              content: 'Đại dịch COVID-19 đã lan rộng toàn cầu, với New York là một trong những tâm điểm ban đầu.',
-              images: []
-            },
-            {
-              lat: -33.8688,
-              lon: 151.2093,
-              title: 'Cháy Rừng Úc - 2020',
-              content: 'Các vụ cháy rừng lớn đã tàn phá nhiều khu vực rộng lớn của Úc, ảnh hưởng đến động vật hoang dã và cộng đồng.',
-              images: []
-            },
-            {
-              lat: 37.5665,
-              lon: 126.9780,
-              title: 'East Asia Monsoon - 2020',
-              content: 'Mùa mưa kéo dài bất thường đã gây lũ lụt nghiêm trọng tại Đông Á.',
-              images: []
-            },
-            {
-              lat: 38.9072,
-              lon: -120.7401,
-              title: 'California Wildfires - 2020',
-              content: 'Các vụ cháy rừng lịch sử đã thiêu rụi hàng triệu mẫu đất tại California.',
-              images: []
-            }
-          ]
-        };
+        // Group events by year from imported data
+        this.eventsByYear = (eventsData as Event[]).reduce((acc, event) => {
+          if (!acc[event.year]) {
+            acc[event.year] = [];
+          }
+          acc[event.year].push(event);
+          return acc;
+        }, {} as EventsByYear);
 
         this.selectedYear = null;
         this.mockPinData = [];
@@ -526,7 +482,7 @@ const ExploreMode = () => {
           title.textContent = event.title;
 
           const description = document.createElement('p');
-          description.textContent = event.content;
+          description.textContent = event.description;
 
           const location = document.createElement('div');
           location.className = 'event-location';
@@ -646,8 +602,6 @@ const ExploreMode = () => {
             const headGeometry = new THREE.SphereGeometry(2, 16, 16);
             const headMaterial = new THREE.MeshBasicMaterial({
               color: 0xff4444,
-              emissive: 0xff4444,
-              emissiveIntensity: 0.5,
             });
             const head = new THREE.Mesh(headGeometry, headMaterial);
             pinGroup.add(head);
@@ -666,8 +620,9 @@ const ExploreMode = () => {
 
           pinGroup.userData = {
             title: data.title,
-            content: data.content,
-            images: data.images,
+            description: data.description,
+            issImage: data.issImage,
+            highlights: data.highlights,
             isPinMarker: true,
           };
 
@@ -728,21 +683,31 @@ const ExploreMode = () => {
         const panel = document.getElementById('info-panel');
         const infoTitle = document.getElementById('info-title');
         const infoContent = document.getElementById('info-content');
-        const imagesContainer = document.getElementById('info-images');
+        const infoImage = document.getElementById('info-image') as HTMLImageElement;
 
-        if (!panel || !infoTitle || !infoContent || !imagesContainer) return;
+        if (!panel || !infoTitle || !infoContent || !infoImage) return;
 
         infoTitle.textContent = data.title;
-        infoContent.textContent = data.content;
 
-        imagesContainer.innerHTML = '';
-        if (data.images && data.images.length > 0) {
-          data.images.forEach((imgSrc: string) => {
-            const img = document.createElement('img');
-            img.src = imgSrc;
-            imagesContainer.appendChild(img);
-          });
+        // Set the ISS image
+        if (data.issImage) {
+          infoImage.src = data.issImage;
+          infoImage.alt = data.title;
+        } else {
+          infoImage.src = 'https://via.placeholder.com/640x360/1a2a40/00ffc8?text=No+Image+Available';
+          infoImage.alt = 'No image available';
         }
+
+        // Create content with description and highlights
+        let contentHTML = `<p>${data.description}</p>`;
+        if (data.highlights && data.highlights.length > 0) {
+          contentHTML += '<ul class="highlights">';
+          data.highlights.forEach((highlight: string) => {
+            contentHTML += `<li>${highlight}</li>`;
+          });
+          contentHTML += '</ul>';
+        }
+        infoContent.innerHTML = contentHTML;
 
         panel.classList.add('visible');
       }
@@ -1012,8 +977,11 @@ const ExploreMode = () => {
 
         <div id="info-panel" ref={infoPanelRef}>
           <h2 id="info-title">Tiêu đề sự kiện</h2>
-          <div id="info-images" className="images"></div>
-          <p id="info-content">Thông tin sự kiện sẽ hiển thị ở đây.</p>
+          <div className="viewfinder-wrapper">
+            <img id="info-image" className="viewfinder-image" src="" alt="" />
+            <div className="overlay-hud"></div>
+          </div>
+          <div id="info-content">Thông tin sự kiện sẽ hiển thị ở đây.</div>
           <button id="close-panel">Đóng</button>
         </div>
 

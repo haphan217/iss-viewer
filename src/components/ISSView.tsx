@@ -2,16 +2,16 @@ import { useMemo, useRef, useState, useCallback } from "react";
 import { Canvas } from "@react-three/fiber";
 import { TextureLoader } from "three";
 import { Mesh } from "three";
-import EarthModel from "./EarthModel";
+import EarthModel, { type MissionTarget } from "./EarthModel";
 import ISSTunnelModel from "./ISSTunnelModel";
 import ZeroGravityPhysics from "./ZeroGravityPhysics";
-import Mission from "./Mission";
+import Mission, { type MissionData } from "./Mission";
 import Mission3D, { type Mission3DRef } from "./Mission3D";
 import cupolaImage from "../assets/cupola2.png";
 
 interface MissionState {
   isActive: boolean;
-  target: unknown;
+  target: MissionData | null;
   isCapturing: boolean;
 }
 
@@ -33,9 +33,17 @@ const Scene: React.FC<{
   mission3DRef: React.RefObject<Mission3DRef | null>;
   missionState: MissionState;
   onMissionStateChange: (state: MissionState) => void;
-  onTargetHit: (hit: boolean) => void;
-}> = ({ mission3DRef, missionState, onMissionStateChange, onTargetHit }) => {
+  onTargetHit: (hit: boolean, mission?: MissionData) => void;
+  selectedMission: MissionData | null;
+}> = ({ mission3DRef, missionState, onMissionStateChange, onTargetHit, selectedMission }) => {
   const earthRef = useRef<Mesh>(null);
+
+  // Convert MissionData to MissionTarget for EarthModel
+  const missionTarget: MissionTarget | null = selectedMission ? {
+    lat: selectedMission.lat,
+    lon: selectedMission.lon,
+    title: selectedMission.title,
+  } : null;
 
   return (
     <>
@@ -52,7 +60,12 @@ const Scene: React.FC<{
       <CupolaPlane position={[0, 3, -5]} />
 
       {/* Earth - floating in space, visible through Cupola windows */}
-      <EarthModel earthRef={earthRef} enableMissionRotation={true} />
+      <EarthModel
+        earthRef={earthRef}
+        enableMissionRotation={missionState.isActive}
+        missionTarget={missionTarget}
+        rotationSpeed={0.2}
+      />
 
       {/* Zero Gravity Physics System */}
       <ZeroGravityPhysics boundaries={{ x: 4, y: 3.5, z: 9 }} />
@@ -64,6 +77,7 @@ const Scene: React.FC<{
         missionState={missionState}
         onMissionStateChange={onMissionStateChange}
         onTargetHit={onTargetHit}
+        selectedMission={selectedMission}
       />
     </>
   );
@@ -79,19 +93,27 @@ const ISSView: React.FC = () => {
     isCapturing: false,
   });
 
+  const [selectedMission, setSelectedMission] = useState<MissionData | null>(null);
+  const [missionResult, setMissionResult] = useState<{ success: boolean; mission: MissionData } | null>(null);
+
   // Mission state handlers
   const handleMissionStateChange = useCallback((state: MissionState) => {
     setMissionState(state);
   }, []);
 
-  const handleTargetHit = useCallback((hit: boolean) => {
-    if (hit) {
-      // Mission passed - this will be handled by Mission component state
-      console.log("Target hit successfully!");
-    } else {
-      // Mission failed - this will be handled by Mission component state
-      console.log("Target missed!");
+  const handleTargetHit = useCallback((hit: boolean, mission?: MissionData) => {
+    if (mission) {
+      setMissionResult({ success: hit, mission });
     }
+  }, []);
+
+  const handleMissionSelect = useCallback((mission: MissionData) => {
+    setSelectedMission(mission);
+    setMissionResult(null);
+  }, []);
+
+  const handleClearResult = useCallback(() => {
+    setMissionResult(null);
   }, []);
 
   // Mission control handlers
@@ -132,6 +154,7 @@ const ISSView: React.FC = () => {
           missionState={missionState}
           onMissionStateChange={handleMissionStateChange}
           onTargetHit={handleTargetHit}
+          selectedMission={selectedMission}
         />
       </Canvas>
 
@@ -141,6 +164,10 @@ const ISSView: React.FC = () => {
         onStartMission={handleStartMission}
         onCapturePhoto={handleCapturePhoto}
         onResetMission={handleResetMission}
+        onMissionSelect={handleMissionSelect}
+        selectedMission={selectedMission}
+        missionResult={missionResult}
+        onClearResult={handleClearResult}
       />
     </div>
   );

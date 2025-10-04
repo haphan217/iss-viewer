@@ -8,9 +8,23 @@ import {
 import { useThree, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
+export interface MissionData {
+  id: string;
+  title: string;
+  location: string;
+  lat: number;
+  lon: number;
+  year: number;
+  description: string;
+  issImage: string;
+  highlights: string[];
+  difficulty: string;
+  briefing: string;
+}
+
 interface MissionState {
   isActive: boolean;
-  target: unknown;
+  target: MissionData | null;
   isCapturing: boolean;
 }
 
@@ -18,7 +32,8 @@ interface Mission3DProps {
   earthRef: React.RefObject<THREE.Mesh | null>;
   missionState: MissionState;
   onMissionStateChange: (state: MissionState) => void;
-  onTargetHit: (hit: boolean) => void;
+  onTargetHit: (hit: boolean, mission?: MissionData) => void;
+  selectedMission: MissionData | null;
 }
 
 export interface Mission3DRef {
@@ -27,11 +42,8 @@ export interface Mission3DRef {
   capturePhoto: () => void;
 }
 
-// Mission constants
-const EARTH_RADIUS = 6.371;
-
 const Mission3D = forwardRef<Mission3DRef, Mission3DProps>(
-  ({ earthRef, missionState, onMissionStateChange, onTargetHit }, ref) => {
+  ({ earthRef, missionState, onMissionStateChange, onTargetHit, selectedMission }, ref) => {
     const { camera, raycaster } = useThree();
 
     const targetRef = useRef<THREE.Mesh>(null);
@@ -59,9 +71,21 @@ const Mission3D = forwardRef<Mission3DRef, Mission3DProps>(
       };
     }, []);
 
-    // Create mission target
+    // Convert lat/lon to 3D position on sphere (matching EarthModel scale)
+    const latLonToVector3 = useCallback((lat: number, lon: number, radius: number = 2) => {
+      const phi = (90 - lat) * (Math.PI / 180);
+      const theta = (lon + 180) * (Math.PI / 180);
+
+      const x = -(radius * Math.sin(phi) * Math.cos(theta));
+      const z = radius * Math.sin(phi) * Math.sin(theta);
+      const y = radius * Math.cos(phi);
+
+      return new THREE.Vector3(x, y, z);
+    }, []);
+
+    // Create mission target based on selected mission
     const createMissionTarget = useCallback(() => {
-      if (!earthRef.current) return null;
+      if (!earthRef.current || !selectedMission) return null;
 
       // Remove existing target
       if (targetRef.current) {
@@ -82,37 +106,27 @@ const Mission3D = forwardRef<Mission3DRef, Mission3DProps>(
       });
       const target = new THREE.Mesh(targetGeometry, targetMaterial);
 
-      // Add blinking animation to target
-      const animateTarget = () => {
-        if (target.material instanceof THREE.MeshBasicMaterial) {
-          target.material.opacity = 0.3 + 0.5 * Math.sin(Date.now() * 0.005);
-        }
-        requestAnimationFrame(animateTarget);
-      };
-      animateTarget();
-
-      // Create a random point on Earth's surface
-      const vec = new THREE.Vector3();
-      vec.set(
-        Math.random() * 2 - 1,
-        Math.random() * 2 - 1,
-        Math.random() * 2 - 1
-      );
-      vec.normalize();
-      vec.multiplyScalar(EARTH_RADIUS);
-      target.position.copy(vec);
+      // Position target at mission location
+      const position = latLonToVector3(selectedMission.lat, selectedMission.lon, 2.05);
+      target.position.copy(position);
+      target.userData.isMissionTarget = true;
+      target.userData.missionData = selectedMission;
 
       earthRef.current.add(target);
       targetRef.current = target;
       return target;
-    }, [earthRef]);
+    }, [earthRef, selectedMission, latLonToVector3]);
 
     // Start mission
     const startMission = useCallback(() => {
-      const target = createMissionTarget();
-      const newState = { isActive: true, target, isCapturing: false };
+      if (!selectedMission) {
+        console.warn("No mission selected");
+        return;
+      }
+      createMissionTarget();
+      const newState = { isActive: true, target: selectedMission, isCapturing: false };
       onMissionStateChange(newState);
-    }, [createMissionTarget, onMissionStateChange]);
+    }, [createMissionTarget, onMissionStateChange, selectedMission]);
 
     // Reset mission state
     const resetMissionState = useCallback(() => {
@@ -140,7 +154,8 @@ const Mission3D = forwardRef<Mission3DRef, Mission3DProps>(
       if (
         !missionState.isActive ||
         !missionState.target ||
-        missionState.isCapturing
+        missionState.isCapturing ||
+        !targetRef.current
       )
         return;
 
@@ -150,17 +165,23 @@ const Mission3D = forwardRef<Mission3DRef, Mission3DProps>(
       // Set up raycaster to check if target is in center of screen
       const pointer = new THREE.Vector2(0, 0); // Center of screen
       raycaster.setFromCamera(pointer, camera);
-      const intersects = raycaster.intersectObjects([
-        missionState.target as THREE.Mesh,
-        earthRef.current!,
-      ]);
+
+      // Get all children of earth (including the target marker)
+      const earthChildren = earthRef.current?.children || [];
+      const intersects = raycaster.intersectObjects(earthChildren, true);
 
       // Check if target is hit and in center of view
-      const targetHit =
-        intersects.length > 0 && intersects[0].object === missionState.target;
+      let targetHit = false;
+      for (const intersect of intersects) {
+        if (intersect.object === targetRef.current ||
+            intersect.object.userData.isMissionTarget) {
+          targetHit = true;
+          break;
+        }
+      }
 
       setTimeout(() => {
-        onTargetHit(targetHit);
+        onTargetHit(targetHit, missionState.target || undefined);
 
         const finalState = { ...missionState, isCapturing: false };
         onMissionStateChange(finalState);
@@ -174,7 +195,7 @@ const Mission3D = forwardRef<Mission3DRef, Mission3DProps>(
       missionState,
     ]);
 
-    // Animation loop for orbit simulation
+    // Animation loop for orbit simulation and target animation
     useFrame((_, delta) => {
       if (!earthRef.current) return;
 
@@ -192,6 +213,12 @@ const Mission3D = forwardRef<Mission3DRef, Mission3DProps>(
 
       // Rotate Earth to simulate ISS orbit (90 minutes = 0.02 rad/s)
       earthRef.current.rotation.y += totalOrbitSpeed * delta;
+
+      // Animate target marker (pulsing effect)
+      if (targetRef.current && targetRef.current.material) {
+        const material = targetRef.current.material as THREE.MeshBasicMaterial;
+        material.opacity = 0.3 + 0.5 * Math.sin(Date.now() * 0.005);
+      }
     });
 
     // Expose methods to parent component through ref
