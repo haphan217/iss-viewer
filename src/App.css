@@ -187,3 +187,108 @@ button:hover {
   box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
   transform: translateY(0);
 }
+
+/* Mission-specific animations */
+@keyframes missionPulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes missionPassed {
+  0% {
+    opacity: 0;
+    transform: translateY(100px) scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-20px) scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes wastedScreen {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+    filter: grayscale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+    filter: grayscale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: grayscale(1);
+  }
+}
+
+@keyframes targetBlink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  25%,
+  75% {
+    opacity: 0.3;
+  }
+}
+
+.mission-pulse {
+  animation: missionPulse 2s infinite;
+}
+
+.mission-passed {
+  animation: missionPassed 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.wasted-screen {
+  animation: wastedScreen 1s ease-in-out;
+}
+
+.target-blink {
+  animation: targetBlink 1s infinite;
+}
+
+/* Mission UI Styles */
+.mission-panel {
+  background: rgba(10, 20, 30, 0.95);
+  border: 2px solid #38bdf8;
+  box-shadow: 0 0 25px rgba(56, 189, 248, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.control-panel {
+  background: rgba(20, 25, 30, 0.85);
+  border: 1px solid #4a5568;
+  backdrop-filter: blur(5px);
+  text-shadow: 0 0 3px currentColor;
+}
+
+.capture-button {
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+}
+
+.capture-button:hover {
+  box-shadow: 0 0 30px rgba(239, 68, 68, 0.6);
+  transform: scale(1.1);
+}
+
+.capture-button:active {
+  transform: scale(0.95);
+}

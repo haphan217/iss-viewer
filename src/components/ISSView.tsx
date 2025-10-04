@@ -1,10 +1,19 @@
-import React, { useMemo } from "react";
+import { useMemo, useRef, useState, useCallback } from "react";
 import { Canvas } from "@react-three/fiber";
 import { TextureLoader } from "three";
+import { Mesh } from "three";
 import EarthModel from "./EarthModel";
 import ISSTunnelModel from "./ISSTunnelModel";
 import ZeroGravityPhysics from "./ZeroGravityPhysics";
-import cupolaImage from "../assets/cupola1.png";
+import Mission from "./Mission";
+import Mission3D, { type Mission3DRef } from "./Mission3D";
+import cupolaImage from "../assets/cupola2.png";
+
+interface MissionState {
+  isActive: boolean;
+  target: unknown;
+  isCapturing: boolean;
+}
 
 const CupolaPlane: React.FC<{ position: [number, number, number] }> = ({
   position,
@@ -20,7 +29,14 @@ const CupolaPlane: React.FC<{ position: [number, number, number] }> = ({
 };
 
 // Scene component
-const Scene: React.FC = () => {
+const Scene: React.FC<{
+  mission3DRef: React.RefObject<Mission3DRef | null>;
+  missionState: MissionState;
+  onMissionStateChange: (state: MissionState) => void;
+  onTargetHit: (hit: boolean) => void;
+}> = ({ mission3DRef, missionState, onMissionStateChange, onTargetHit }) => {
+  const earthRef = useRef<Mesh>(null);
+
   return (
     <>
       {/* Enhanced Lighting for both tunnel and space */}
@@ -36,15 +52,61 @@ const Scene: React.FC = () => {
       <CupolaPlane position={[0, 3, -5]} />
 
       {/* Earth - floating in space, visible through Cupola windows */}
-      <EarthModel position={[0, 0, -25]} scale={[4, 4, 4]} />
+      <EarthModel earthRef={earthRef} enableMissionRotation={true} />
 
       {/* Zero Gravity Physics System */}
       <ZeroGravityPhysics boundaries={{ x: 4, y: 3.5, z: 9 }} />
+
+      {/* Mission 3D Logic */}
+      <Mission3D
+        ref={mission3DRef}
+        earthRef={earthRef}
+        missionState={missionState}
+        onMissionStateChange={onMissionStateChange}
+        onTargetHit={onTargetHit}
+      />
     </>
   );
 };
 
 const ISSView: React.FC = () => {
+  const mission3DRef = useRef<Mission3DRef>(null);
+
+  // Mission state management
+  const [missionState, setMissionState] = useState<MissionState>({
+    isActive: false,
+    target: null,
+    isCapturing: false,
+  });
+
+  // Mission state handlers
+  const handleMissionStateChange = useCallback((state: MissionState) => {
+    setMissionState(state);
+  }, []);
+
+  const handleTargetHit = useCallback((hit: boolean) => {
+    if (hit) {
+      // Mission passed - this will be handled by Mission component state
+      console.log("Target hit successfully!");
+    } else {
+      // Mission failed - this will be handled by Mission component state
+      console.log("Target missed!");
+    }
+  }, []);
+
+  // Mission control handlers
+  const handleStartMission = useCallback(() => {
+    mission3DRef.current?.startMission();
+  }, []);
+
+  const handleCapturePhoto = useCallback(() => {
+    mission3DRef.current?.capturePhoto();
+  }, []);
+
+  const handleResetMission = useCallback(() => {
+    mission3DRef.current?.resetMissionState();
+  }, []);
+
   return (
     <div
       style={{
@@ -65,8 +127,21 @@ const ISSView: React.FC = () => {
           background: "linear-gradient(180deg, #000011 0%, #001122 100%)",
         }}
       >
-        <Scene />
+        <Scene
+          mission3DRef={mission3DRef}
+          missionState={missionState}
+          onMissionStateChange={handleMissionStateChange}
+          onTargetHit={handleTargetHit}
+        />
       </Canvas>
+
+      {/* Mission Component */}
+      <Mission
+        missionState={missionState}
+        onStartMission={handleStartMission}
+        onCapturePhoto={handleCapturePhoto}
+        onResetMission={handleResetMission}
+      />
     </div>
   );
 };

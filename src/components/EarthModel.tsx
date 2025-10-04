@@ -1,20 +1,17 @@
-import React, { useRef, useMemo } from "react";
+import { useMemo } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Mesh } from "three";
 import * as THREE from "three";
 
 interface EarthModelProps {
-  position?: [number, number, number];
-  rotation?: [number, number, number];
-  scale?: [number, number, number];
+  enableMissionRotation?: boolean;
+  earthRef: React.RefObject<Mesh | null>;
 }
 
 const EarthModel: React.FC<EarthModelProps> = ({
-  position = [0, 0, -15],
-  rotation = [0, 0, 0],
-  scale = [1, 1, 1],
+  enableMissionRotation = false,
+  earthRef,
 }) => {
-  const earthRef = useRef<Mesh>(null);
   const textureLoader = new THREE.TextureLoader();
 
   // Create Earth geometry
@@ -33,15 +30,15 @@ const EarthModel: React.FC<EarthModelProps> = ({
   }, []);
 
   // Animation
-  useFrame(() => {
-    // Rotate Earth
-    if (earthRef.current) {
-      // earthRef.current.rotation.y = time * 0.1;
+  useFrame((_, delta) => {
+    // Rotate Earth for mission simulation (90-minute orbit)
+    if (earthRef.current && enableMissionRotation) {
+      earthRef.current.rotation.y -= 0.2 * delta; // Simulate ISS orbit speed
     }
   });
 
   return (
-    <group position={position} rotation={rotation} scale={scale}>
+    <group position={[0, 0, -25]} rotation={[0, 0, 0]} scale={[4, 4, 4]}>
       {/* Earth */}
       <mesh ref={earthRef} geometry={earthGeometry} material={earthMaterial} />
 
