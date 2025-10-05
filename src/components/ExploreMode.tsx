@@ -114,7 +114,7 @@ const ExploreMode = () => {
           radius: this.sceneScale.earthRadius + this.sceneScale.issAltitude,
           speed: 27600,
           inclination: 51.6 * (Math.PI / 180),
-          orbitalPeriod: 92.68 * 60,
+          orbitalPeriod: 92.68 * 60 / 100, // 100x faster orbit
           angle: 0,
         };
 
@@ -184,6 +184,7 @@ const ExploreMode = () => {
           10000
         );
         this.camera.position.set(0, 0, 250);
+        this.scene.add(this.camera);
 
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableDamping = true;
@@ -209,11 +210,11 @@ const ExploreMode = () => {
 
         this.sunLight = new THREE.DirectionalLight(0xfff8e7, 3.0);
         this.sunLight.position.set(100, 50, 50);
-        this.scene.add(this.sunLight);
+        this.camera.add(this.sunLight);
 
         const fillLight = new THREE.DirectionalLight(0x5599ff, 1.0);
         fillLight.position.set(-100, -50, -50);
-        this.scene.add(fillLight);
+        this.camera.add(fillLight);
       }
 
       createEarth() {
@@ -872,9 +873,10 @@ const ExploreMode = () => {
 
         this.controls.update();
 
-        if (this.autoRotate) {
-          this.earth.rotation.y += 0.001;
-        }
+        // Earth rotation disabled to keep sun light stationary
+        // if (this.autoRotate) {
+        //   this.earth.rotation.y += 0.0003;
+        // }
 
         const angularVelocity = (Math.PI * 2) / this.issOrbit.orbitalPeriod;
         this.issOrbit.angle += angularVelocity * delta;

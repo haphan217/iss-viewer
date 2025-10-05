@@ -103,6 +103,8 @@ In Mission Mode:
 - Wildfire Disaster Monitoring (2020): NASA astronaut Don Pettit's real-time capture of Los Angeles fires from ISS - supporting firefighting and air quality management  
 - Aurora Observation (2022): Aurora Australis study over Southern Ocean - research on solar wind and Earth's magnetic field interaction
 
+## 4. Use of AI
+We use AI to speed up our application development process, specifically Claude Code and Cursor. These tools turn hours of work into a single command, helping us test, visualize, and develop ideas better.
 
 ---
 
