@@ -113,13 +113,13 @@ export default function App() {
           onClick={() => setShowModal(false)}
         >
           <div
-            className={`rounded-lg p-1 min-w-[340px] max-w-sm text-cyan-300 bg-slate-900/50 transition-all duration-300 ease-in-out border border-transparent ${
+            className={`rounded-lg p-1 min-w-[480px] max-w-lg text-cyan-300 bg-slate-900/50 transition-all duration-300 ease-in-out border border-transparent ${
               isModalVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"
             } ${isModalVisible ? "modal-flicker" : ""}`}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="w-full h-full bg-slate-900/90 rounded p-6">
-              <h2 className="m-0 mb-6 text-center text-xl tracking-[0.3em] font-bold text-cyan-300 h-8">
+            <div className="w-full h-full bg-slate-900/90 rounded p-8">
+              <h2 className="m-0 mb-8 text-center text-3xl tracking-[0.3em] font-bold text-cyan-300 h-12">
                 <span
                   className={isTyping ? "typing-effect" : "typing-effect-done"}
                 >
@@ -132,25 +132,25 @@ export default function App() {
                   showModalContent ? "opacity-100" : "opacity-0"
                 }`}
               >
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-4">
                   <button
                     onClick={() => handleModeChange("explore")}
-                    className={`mode-button ${
+                    className={`mode-button text-lg ${
                       mode === "explore" ? "active" : ""
                     }`}
                   >
-                    <span>🌌</span> <span>EXPLORE</span>
+                    <span className="text-2xl">🌌</span> <span>EXPLORE</span>
                   </button>
                   <button
                     onClick={() => handleModeChange("mission")}
-                    className={`mode-button ${
+                    className={`mode-button text-lg ${
                       mode === "mission" ? "active" : ""
                     }`}
                   >
-                    <span>🛰️</span> <span>MISSION</span>
+                    <span className="text-2xl">🛰️</span> <span>MISSION</span>
                   </button>
                 </div>
-                <div className="text-center text-xs opacity-50 border-t border-cyan-400/20 pt-4 mt-6">
+                <div className="text-center text-sm opacity-50 border-t border-cyan-400/20 pt-6 mt-8">
                   CURRENT MODE: {mode.toUpperCase()}
                 </div>
               </div>
