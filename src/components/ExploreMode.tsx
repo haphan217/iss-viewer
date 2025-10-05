@@ -6,9 +6,11 @@ import './ExploreMode.css';
 import eventsData from '../data/events.json';
 import { speak } from '../utils/textToSpeech';
 import InfoPanel from './InfoPanel';
+import { playClickSound } from '../utils/clickSound';
 
 // Global flag to ensure welcome message plays only once per session
 let hasPlayedWelcomeGlobal = false;
+let hasUserInteracted = false;
 
 interface Event {
   year: number;
@@ -149,7 +151,22 @@ const ExploreMode = () => {
         this.init();
         this.setupEventListeners();
         this.animate();
-        this.playWelcomeMessage();
+
+        // Check if user clicked start button, then play welcome
+        this.checkAndPlayWelcome();
+      }
+
+      checkAndPlayWelcome() {
+        // Check periodically if user has interacted via start button
+        const checkInterval = setInterval(() => {
+          if ((window as any).userHasInteracted && !hasPlayedWelcomeGlobal) {
+            clearInterval(checkInterval);
+            this.playWelcomeMessage();
+          }
+        }, 100);
+
+        // Stop checking after 5 seconds
+        setTimeout(() => clearInterval(checkInterval), 5000);
       }
 
       playWelcomeMessage() {
@@ -166,6 +183,13 @@ const ExploreMode = () => {
               { rate: 0.9, pitch: 1.0, volume: 0.8 }
             );
           }, 1000);
+        }
+      }
+
+      triggerWelcomeOnInteraction() {
+        if (!hasUserInteracted) {
+          hasUserInteracted = true;
+          this.playWelcomeMessage();
         }
       }
 
@@ -470,6 +494,8 @@ const ExploreMode = () => {
 
           button.addEventListener('click', () => {
             console.log('Year clicked:', year);
+            playClickSound();
+            this.triggerWelcomeOnInteraction();
             this.selectYear(year);
           });
 
@@ -538,6 +564,7 @@ const ExploreMode = () => {
           eventItem.appendChild(location);
 
           eventItem.addEventListener('click', () => {
+            playClickSound();
             this.selectEvent(index, event);
           });
 
@@ -679,13 +706,17 @@ const ExploreMode = () => {
       setupEventListeners() {
         window.addEventListener('resize', () => this.onWindowResize());
 
-        this.renderer.domElement.addEventListener('click', (event) => this.onMouseClick(event));
+        this.renderer.domElement.addEventListener('click', (event) => {
+          this.triggerWelcomeOnInteraction();
+          this.onMouseClick(event);
+        });
 
         const viewModeButtons = document.querySelectorAll('.view-mode-btn');
         viewModeButtons.forEach(btn => {
           btn.addEventListener('click', () => {
             const mode = (btn as HTMLElement).dataset.mode;
             if (mode && mode !== this.viewMode && !this.isTransitioning) {
+              playClickSound();
               this.switchViewMode(mode);
             }
           });

@@ -1,5 +1,6 @@
 import React from "react";
 import "./InfoPanel.css";
+import { playClickSound } from "../utils/clickSound";
 
 interface InfoPanelProps {
   isVisible: boolean;
@@ -48,7 +49,10 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
             </ul>
           )}
         </div>
-        <button onClick={onClose} className="info-panel-button">
+        <button onClick={() => {
+          playClickSound();
+          onClose();
+        }} className="info-panel-button">
           {buttonText}
         </button>
       </div>

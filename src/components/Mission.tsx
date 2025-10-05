@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import missionsData from "../data/missions.json";
 import InfoPanel from "./InfoPanel";
+import { playClickSound, playCameraFlashSound, playNoLuckSound, playCongratulationsSound } from "../utils/clickSound";
 
 export interface MissionData {
   id: string;
@@ -55,6 +56,9 @@ const Mission: React.FC<MissionProps> = ({
   useEffect(() => {
     if (missionResult) {
       if (missionResult.success) {
+        // Play congratulations sound
+        playCongratulationsSound();
+
         // Show success animation first
         setShowSuccessAnimation(true);
         setShowWasted(false);
@@ -65,6 +69,9 @@ const Mission: React.FC<MissionProps> = ({
           setShowSuccess(true);
         }, 1500);
       } else {
+        // Play no luck sound
+        playNoLuckSound();
+
         setShowWasted(true);
         setShowSuccess(false);
         setShowSuccessAnimation(false);
@@ -75,6 +82,7 @@ const Mission: React.FC<MissionProps> = ({
   // Select a mission
   const selectMission = useCallback(
     (mission: MissionData) => {
+      playClickSound();
       onMissionSelect(mission);
       setShowMissionSelect(false);
       setShowBriefing(true);
@@ -84,17 +92,20 @@ const Mission: React.FC<MissionProps> = ({
 
   // Start mission
   const startMission = useCallback(() => {
+    playClickSound();
     onStartMission();
     setShowBriefing(false);
   }, [onStartMission]);
 
   // Capture photo
   const capturePhoto = useCallback(() => {
+    playCameraFlashSound();
     onCapturePhoto();
   }, [onCapturePhoto]);
 
   // Handle retry
   const handleRetry = useCallback(() => {
+    playClickSound();
     onClearResult();
     setShowWasted(false);
     setShowSuccess(false);
@@ -104,6 +115,7 @@ const Mission: React.FC<MissionProps> = ({
 
   // Handle exit
   const handleExit = useCallback(() => {
+    playClickSound();
     onResetMission();
     onClearResult();
     setShowWasted(false);
@@ -113,6 +125,7 @@ const Mission: React.FC<MissionProps> = ({
 
   // Handle success continue
   const handleSuccessContinue = useCallback(() => {
+    playClickSound();
     onClearResult();
     setShowSuccess(false);
     setShowMissionSelect(true);
@@ -218,6 +231,7 @@ const Mission: React.FC<MissionProps> = ({
             <div className="flex gap-6">
               <button
                 onClick={() => {
+                  playClickSound();
                   setShowBriefing(false);
                   setShowMissionSelect(true);
                 }}
@@ -378,6 +392,7 @@ const Mission: React.FC<MissionProps> = ({
               )}
               <button
                 onClick={() => {
+                  playClickSound();
                   onResetMission();
                   setShowMissionSelect(true);
                 }}

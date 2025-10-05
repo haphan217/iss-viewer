@@ -1,7 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import ISSView from "./components/ISSView";
 import ExploreMode from "./components/ExploreMode";
 import "./App.css";
+import backgroundSound from "./assets/soundspace.mp3";
+import { playClickSound } from "./utils/clickSound";
 
 const FULL_TITLE = "MISSION CONTROL";
 type AppMode = "explore" | "mission";
@@ -10,9 +12,19 @@ export default function App() {
   const [mode, setMode] = useState<AppMode>("explore");
   const [showModal, setShowModal] = useState(false);
   const [started, setStarted] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const handleStart = () => {
+    playClickSound();
     setStarted(true);
+    // Trigger user interaction flag for welcome message
+    (window as any).userHasInteracted = true;
+    // Play background sound
+    if (audioRef.current) {
+      audioRef.current.play().catch((error) => {
+        console.log("Audio playback failed:", error);
+      });
+    }
   };
 
   // States cho animations
@@ -52,6 +64,7 @@ export default function App() {
   }, [showModal]);
 
   const handleModeChange = (newMode: AppMode) => {
+    playClickSound();
     setMode(newMode);
     setShowModal(false);
   };
@@ -67,6 +80,9 @@ export default function App() {
 
   return (
     <div className="w-screen h-screen overflow-hidden relative">
+      {/* Background Audio */}
+      <audio ref={audioRef} src={backgroundSound} loop />
+
       {/* Start Button Overlay */}
       {!started && (
         <div className="fixed inset-0 w-screen h-screen bg-black bg-opacity-90 flex items-center justify-center z-50">
@@ -85,7 +101,10 @@ export default function App() {
       <div className="absolute top-0 left-0 w-full h-full z-10 scanline-overlay"></div>
 
       <button
-        onClick={() => setShowModal(true)}
+        onClick={() => {
+          playClickSound();
+          setShowModal(true);
+        }}
         className="absolute bottom-6 right-6 w-16 h-16 rounded-full text-cyan-300 flex items-center justify-center bg-slate-900/70 border-2 border-cyan-400/30 backdrop-blur-sm hover:border-cyan-400/80 hover:bg-cyan-400/20 transition-all duration-300 ease-in-out hover:scale-110 active:scale-95 z-30"
         aria-label="Open Mission Control"
       >
@@ -110,7 +129,10 @@ export default function App() {
           className={`fixed inset-0 w-screen h-screen flex items-center justify-center z-50 bg-black/70 backdrop-blur-md transition-opacity duration-300 ease-in-out ${
             isModalVisible ? "opacity-100" : "opacity-0"
           }`}
-          onClick={() => setShowModal(false)}
+          onClick={() => {
+            playClickSound();
+            setShowModal(false);
+          }}
         >
           <div
             className={`rounded-lg p-1 min-w-[480px] max-w-lg text-cyan-300 bg-slate-900/50 transition-all duration-300 ease-in-out border border-transparent ${
