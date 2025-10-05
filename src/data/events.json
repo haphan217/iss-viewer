@@ -1,60 +1,156 @@
 [
   {
-    "year": 2010,
-    "lat": 18.9712,
-    "lon": -72.2852,
-    "title": "Haiti Earthquake",
-    "description": "A devastating 7.0 magnitude earthquake struck Haiti, causing catastrophic damage to Port-au-Prince and surrounding areas",
-    "issImage": "https://eol.jsc.nasa.gov/DatabaseImages/ESC/small/ISS022/ISS022-E-36022.JPG",
+    "year": 2001,
+    "lat": 16.9,
+    "lon": 18.5,
+    "title": "Major Dust Storm over the Sahara",
+    "description": "The ISS routinely photographed massive dust storms sweeping across the Sahara Desert and out over the Atlantic Ocean. Images from 2001 highlighted the scale of this phenomenon, which transports vital minerals and dust across continents.",
+    "issImage": "https://images-assets.nasa.gov/image/iss017e006820/iss017e006820~orig.jpg",
     "highlights": [
-      "Cause: Rupture of the Enriquillo-Plantain Garden fault system",
-      "Result: Over 230,000 deaths, 300,000 injured, 1.5 million displaced",
-      "Significance: One of deadliest earthquakes in recorded history, prompted massive international humanitarian response",
-      "Fun fact: The earthquake was felt in Cuba, Jamaica, and Venezuela, over 200 miles away"
+      "Cause: Strong seasonal winds, known as the Harmattan, lift vast quantities of sand and dust from dry lake beds like the Bodélé Depression in Chad.",
+      "Result: Millions of tons of dust are transported thousands of miles across the Atlantic Ocean.",
+      "Significance: This dust is a primary source of mineral nutrients, especially phosphorus, that fertilize the Amazon rainforest and marine life in the Atlantic.",
+      "Fun fact: A single large Saharan dust storm can carry more dust than the annual sediment discharge of the Amazon River."
+    ]
+  },
+  {
+    "year": 2003,
+    "lat": -14.07,
+    "lon": -75.73,
+    "title": "Arid Coast of Peru",
+    "description": "The crew captured dramatic images of the extremely arid canyons and coastal features of Southern Peru. These photographs were valuable for geological studies, highlighting the impact of tectonic uplift of the Andes Mountains and long-term erosion patterns carved by rivers. The photos also showed localized sand dunes and dark wind streaks, providing data on coastal winds and sediment transport.",
+    "issImage": "https://images-assets.nasa.gov/image/iss006e38306/iss006e38306~orig.jpg",
+    "highlights": [
+      "Cause: The region's extreme aridity is caused by the Andes Mountains creating a rain shadow and the cold, offshore Humboldt Current limiting atmospheric moisture.",
+      "Result: The formation of one of the driest coastal deserts in the world, the Atacama-Sechura Desert, with deep canyons carved by ancient rivers.",
+      "Significance: The hyper-arid conditions perfectly preserve ancient archaeological sites, including the famous Nazca Lines, and make the area an analogue for studying Martian geology.",
+      "Fun fact: Some weather stations in this desert region have never recorded any rainfall, making it one of the driest places on Earth."
+    ]
+  },
+  {
+    "year": 2003,
+    "lat": 31.76,
+    "lon": -106.49,
+    "title": "The Rio Grande River System",
+    "description": "Photographs consistently highlight the Rio Grande river itself—the political boundary. In this arid region, the river's channel is often highly managed, providing a visual context for studies on water resource management and irrigation practices within the vast Chihuahuan Desert environment.",
+    "issImage": "https://images-assets.nasa.gov/image/iss008e13212/iss008e13212~orig.jpg",
+    "highlights": [
+      "Cause: The river flows through the arid Chihuahuan Desert, where human water extraction for agriculture and cities exceeds the natural replenishment rate.",
+      "Result: The river's flow is heavily managed and reduced by dams and irrigation canals, leading to sections of the riverbed periodically running dry.",
+      "Significance: It serves as a critical water resource for millions of people and a major political boundary between the United States and Mexico, making it a focal point for water rights disputes.",
+      "Fun fact: Despite its name, which means 'Big River,' the Rio Grande's flow is now only about 20% of its historic levels due to overuse."
+    ]
+  },
+  {
+    "year": 2006,
+    "lat": 29.3,
+    "lon": -94.79,
+    "title": "Galveston Island - Historical Port",
+    "description": "This photograph, taken by an Expedition 14 crewmember, captures the city of Galveston. The image is notable for documenting the geographical location of this historically significant port, established by Mexico as a port of entry in 1825. Its history includes serving briefly as the capital of the Republic of Texas in 1836. The image's primary scientific value lies in observing coastal land use and the interplay between historical development and modern environmental processes (like sediment flow into the Gulf of Mexico).",
+    "issImage": "https://images-assets.nasa.gov/image/iss014e07258/iss014e07258~orig.jpg",
+    "highlights": [
+      "Cause: Galveston is a barrier island formed by the deposition of sand and sediment by longshore currents in the Gulf of Mexico.",
+      "Result: Development of a major port city that is highly vulnerable to hurricanes, leading to the construction of a massive seawall for protection.",
+      "Significance: The city is a key case study in coastal resilience, having survived the deadliest natural disaster in U.S. history, the 1900 hurricane.",
+      "Fun fact: After the 1900 hurricane, engineers raised the entire level of the city by up to 17 feet (5.2 m) by dredging sand and lifting over 2,000 buildings."
+    ]
+  },
+  {
+    "year": 2007,
+    "lat": -18.99,
+    "lon": -50.55,
+    "title": "São Simão Reservoir, Brazil",
+    "description": "This colorful, patchwork photograph is notable for being the 300,000th image of Earth successfully downlinked from the International Space Station. The image focuses on the São Simão Reservoir, a major hydroelectric feature located near the confluence of the Rio Paranaiba and Rio Verde rivers. The image provides crucial data for studying large-scale human impact on hydrology, including water management, reservoir capacity, and the surrounding agricultural land use in the central Brazilian states of Goiás and Minas Gerais.",
+    "issImage": "https://images-assets.nasa.gov/image/iss016e011999/iss016e011999~orig.jpg",
+    "highlights": [
+      "Cause: The construction of the São Simão Hydroelectric Power Plant, which involved damming the Paranaíba River.",
+      "Result: Creation of a massive reservoir with a surface area of over 700 square kilometers, which generates electricity and influences regional agriculture.",
+      "Significance: This photo was the 300,000th image of Earth taken from the ISS, marking a milestone for the station's role in long-term environmental monitoring of human impact.",
+      "Fun fact: The patchwork of colors around the reservoir represents different crops and stages of agricultural cultivation, such as soybeans and corn, in Brazil's savanna region."
+    ]
+  },
+  {
+    "year": 2009,
+    "lat": 38.91,
+    "lon": 16.59,
+    "title": "Calabria and Sunglint",
+    "description": "This image, captured by an Expedition 22 crewmember, shows the Calabria region—the 'toe' of the Italian peninsula—flanked by the Ionian Sea (southeast) and the Tyrrhenian Sea (northwest). The main feature is the intense sunglint, which makes the surface of the water appear mirror-like as sunlight is reflected directly back to the ISS camera. The perspective was highly oblique, taken when the ISS was approximately 1,040 km to the northeast (over Romania/Northwestern Europe), causing the Calabrian peninsula to appear significantly foreshortened and distorted in the frame.",
+    "issImage": "https://images-assets.nasa.gov/image/iss022e005807/iss022e005807~orig.jpg",
+    "highlights": [
+      "Cause: The mirror-like effect, called sunglint, is created when sunlight reflects off the water's surface at the same angle that the ISS is viewing it.",
+      "Result: The sunglint highlights the texture of the sea surface, revealing subtle features like internal waves, currents, and calm patches that are otherwise invisible.",
+      "Significance: Sunglint imagery is a valuable scientific tool for oceanographers to study dynamic sea surface phenomena.",
+      "Fun fact: The image was taken from a highly oblique angle when the ISS was over Romania, more than 1,000 km away from Italy, which created the severely foreshortened view."
     ]
   },
   {
     "year": 2010,
-    "lat": 55.7558,
-    "lon": 37.6173,
-    "title": "Russian Heat Wave & Wildfires",
-    "description": "Record-breaking heat wave with temperatures reaching 44°C (111°F), triggering massive wildfires across western Russia",
-    "issImage": "https://eol.jsc.nasa.gov/DatabaseImages/ESC/small/ISS024/ISS024-E-10169.JPG",
+    "lat": 37.82,
+    "lon": -122.37,
+    "title": "San Francisco Bay and Islands",
+    "description": "This view from the ISS provides an excellent perspective of San Francisco's urban core (left) and the major islands in the Bay. It clearly shows the rectangular outline of Treasure Island (man-made), the natural landmass of Yerba Buena Island (below Treasure Island), and the distinct structure of the San Francisco–Oakland Bay Bridge connecting them to the city. The small, isolated island to the north is Alcatraz Island. The image is valuable for studying coastal engineering (the Bay Bridge and man-made islands) and the boundary between dense urbanization and maritime environments.",
+    "issImage": "https://images-assets.nasa.gov/image/iss022e050559/iss022e050559~orig.jpg",
     "highlights": [
-      "Cause: Unusual blocking high-pressure system causing prolonged extreme heat",
-      "Result: Over 56,000 deaths, $15 billion in economic losses, destroyed crops",
-      "Significance: Moscow experienced hottest summer in 1,000 years, smoke from fires blanketed the capital",
-      "Highlighted fact: ISS astronauts could see the smoke plumes from space covering an area larger than California"
+      "Cause: San Francisco Bay is a natural estuary formed by rising sea levels at the end of the last ice age, flooding a coastal valley. Some islands are natural rock outcroppings, while others are artificial.",
+      "Result: A world-renowned natural harbor surrounded by a densely populated urban area, connected by massive engineering projects like the Bay Bridge.",
+      "Significance: The image provides a clear view of the interface between natural geography and large-scale urban engineering, such as the man-made Treasure Island.",
+      "Fun fact: Treasure Island was built in the 1930s using millions of cubic yards of dredged material from the bay specifically to host the 1939 Golden Gate International Exposition."
     ]
   },
   {
-    "year": 2011,
-    "lat": 38.2975,
-    "lon": 141.0217,
-    "title": "Tōhoku Earthquake & Tsunami",
-    "description": "Magnitude 9.1 earthquake triggered devastating tsunami waves up to 40 meters high, leading to Fukushima nuclear disaster",
-    "issImage": "https://eol.jsc.nasa.gov/DatabaseImages/ESC/small/ISS026/ISS026-E-27888.JPG",
+    "year": 2012,
+    "lat": 49.1,
+    "lon": 176.3,
+    "title": "Annular Eclipse Shadow",
+    "description": "This historic image captured the Moon's gray shadow cast onto the bright clouds of the North Pacific Ocean during the Annular Solar Eclipse. The shadow appears as a flattened circle due to the highly oblique viewing angle from the ISS. This unique perspective, looking back at the shadow projected onto Earth, is only possible from orbit. The ISS crew captured the shadow as it tracked toward the Aleutian Islands and Northern California.",
+    "issImage": "https://images-assets.nasa.gov/image/iss031e041635/iss031e041635~orig.jpg",
     "highlights": [
-      "Cause: Massive thrust fault rupture along Japan Trench subduction zone",
-      "Result: Nearly 20,000 deaths, Fukushima Daiichi nuclear meltdown, $235 billion in damages",
-      "Significance: Fourth most powerful earthquake ever recorded globally, shifted Earth's axis by 10-25 cm",
-      "Fun fact: The tsunami traveled across the Pacific Ocean, causing damage as far as California and Chile",
-      "Highlighted fact: ISS captured images of the coastline before and after, showing the massive scale of destruction"
+      "Cause: An annular solar eclipse, which occurs when the Moon passes in front of the Sun but is too far from Earth to completely cover it, leaving a 'ring of fire.'",
+      "Result: The Moon's shadow, known as the antumbra, was cast upon Earth's surface and photographed from the ISS as a massive, diffuse circle.",
+      "Significance: The image offers a rare, orbital perspective of a celestial event, demonstrating the unique viewpoint the ISS provides for Earth and space science.",
+      "Fun fact: The shadow of an eclipse moves across the Earth's surface at speeds over 1,000 miles per hour (1,600 km/h)."
     ]
   },
   {
-    "year": 2011,
-    "lat": 33.9249,
-    "lon": 9.5371,
-    "title": "Arab Spring Begins",
-    "description": "Pro-democracy uprisings spread across the Middle East and North Africa, starting with Tunisia's Jasmine Revolution",
-    "issImage": "https://eol.jsc.nasa.gov/DatabaseImages/ESC/small/ISS026/ISS026-E-10702.JPG",
+    "year": 2013,
+    "lat": 55.0,
+    "lon": 150.0,
+    "title": "Ice Floes and Spring Breakup",
+    "description": "An observation of ice dynamics in a high-latitude region. The image shows large ice floes breaking up in a body of water (top right), bordering a forested and snow-covered landmass (boreal forest). This visual evidence is used to monitor the seasonal freeze/thaw cycle and is valuable for maritime navigation and climate studies.",
+    "issImage": "https://images-assets.nasa.gov/image/iss035e008351/iss035e008351~orig.jpg",
     "highlights": [
-      "Cause: Widespread dissatisfaction with authoritarian regimes, economic hardship, corruption, and lack of freedoms",
-      "Result: Governments overthrown in Tunisia, Egypt, Libya, and Yemen; civil wars in Syria and Libya",
-      "Significance: Largest revolutionary wave in the Arab world since 1945, reshaped regional politics",
-      "Fun fact: Social media platforms like Facebook and Twitter played crucial role in organizing protests",
-      "Highlighted fact: The movement started when Tunisian street vendor Mohamed Bouazizi set himself on fire in protest"
+      "Cause: Seasonal warming in the spring increases air and water temperatures, causing vast sheets of sea or lake ice to weaken, melt, and fracture.",
+      "Result: The solid ice sheet breaks apart into smaller, drifting pieces known as ice floes, which are moved by winds and currents. This photo shows the event in the Sea of Okhotsk.",
+      "Significance: Monitoring the timing and extent of the annual ice breakup is a critical indicator used by climate scientists to track the effects of global warming in polar regions.",
+      "Fun fact: The forested area seen is a boreal forest, or taiga, which is the world's largest land biome, stretching across North America and Eurasia."
+    ]
+  },
+  {
+    "year": 2014,
+    "lat": 26.5,
+    "lon": 128.0,
+    "title": "Okinawa Island and Reefs",
+    "description": "A near-vertical view of the largest Ryukyu Island in Japan. The image highlights the island's dark, mountainous, and densely vegetated northern half and the intricate fringing coral reefs that surround the coastline. The shallow, protected water of the reef appears light turquoise.",
+    "issImage": "https://images-assets.nasa.gov/image/iss039e012296/iss039e012296~orig.jpg",
+    "highlights": [
+      "Cause: The island is part of a volcanic island arc formed by tectonic plate activity. The surrounding reefs are built by coral polyps in the warm, shallow waters.",
+      "Result: A mountainous, subtropical island fringed by one of the northernmost coral reef systems in the world.",
+      "Significance: The reefs of Okinawa are a biodiversity hotspot but are highly vulnerable to climate change-induced coral bleaching, making satellite monitoring crucial for their conservation.",
+      "Fun fact: Okinawa is famous as a 'Blue Zone,' a region where residents have an unusually high life expectancy and are known for their longevity."
+    ]
+  },
+  {
+    "year": 2015,
+    "lat": 25.22,
+    "lon": 55.17,
+    "title": "Dubai Coast and Artificial Islands",
+    "description": "An oblique view of the Dubai, UAE, coastline along the Persian Gulf. The image dramatically shows the contrast between the turquoise ocean, the pale desert (sand and urban development), and the famous Palm Jumeirah (partially visible) and The World Islands (scattered circles offshore).",
+    "issImage": "https://images-assets.nasa.gov/image/iss043e010521/iss043e010521~orig.jpg",
+    "highlights": [
+      "Cause: An ambitious and massive land reclamation project aimed at increasing Dubai's coastline for tourism and luxury real estate development.",
+      "Result: The creation of several large-scale artificial archipelagos, including the Palm Jumeirah and The World Islands, visible from space.",
+      "Significance: These projects are premier examples of mega-scale coastal engineering and serve as case studies for the significant environmental impact of such developments on marine ecosystems.",
+      "Fun fact: The Palm Jumeirah is made of over 94 million cubic meters of sand and 7 million tons of rock, adding 72 kilometers of new coastline to Dubai."
     ]
   }
 ]
