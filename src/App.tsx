@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import ISSView from "./components/ISSView";
 import ExploreMode from "./components/ExploreMode";
-import { speak } from "./utils/textToSpeech";
 import "./App.css";
 
 const FULL_TITLE = "MISSION CONTROL";
