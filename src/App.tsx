@@ -85,7 +85,21 @@ export default function App() {
 
       {/* Start Button Overlay */}
       {!started && (
-        <div className="fixed inset-0 w-screen h-screen bg-black bg-opacity-90 flex items-center justify-center z-50">
+        <div className="fixed inset-0 w-screen h-screen bg-black bg-opacity-90 flex flex-col items-center justify-center z-50">
+          {/* Application Title */}
+          <div className="mb-12 text-center relative">
+            <h1 className="text-6xl md:text-8xl font-black mb-4 tracking-wide leading-none">
+              <div className="relative inline-block">
+                <span className="text-amber-400 font-black">OUT OF THIS</span>
+                <br />
+                <span className="text-white font-black text-7xl md:text-9xl relative -mt-4 inline-block">WORLD</span>
+              </div>
+            </h1>
+            <p className="text-white/80 text-lg md:text-xl italic mt-6 font-light">
+              "Live like an astronaut, explore the endless universe."
+            </p>
+          </div>
+          
           <button
             onClick={handleStart}
             className="px-12 py-6 rounded-2xl text-2xl cursor-pointer font-mono font-bold spaceship-button text-cyan-400"
