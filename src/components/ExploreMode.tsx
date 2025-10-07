@@ -492,6 +492,18 @@ const ExploreMode = () => {
           button.textContent = year.toString();
           button.dataset.year = year.toString();
 
+          // Add visual indicator if year has events
+          const yearEvents = this.eventsByYear[year];
+          if (yearEvents && yearEvents.length > 0) {
+            button.classList.add('has-events');
+            button.title = `${yearEvents.length} event${yearEvents.length > 1 ? 's' : ''}`;
+
+            // Add a small dot indicator
+            const dot = document.createElement('span');
+            dot.className = 'event-dot';
+            button.appendChild(dot);
+          }
+
           button.addEventListener('click', () => {
             console.log('Year clicked:', year);
             playClickSound();
