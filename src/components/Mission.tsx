@@ -141,9 +141,24 @@ const Mission: React.FC<MissionProps> = ({
               <h2 className="text-5xl font-bold text-cyan-400 text-center mb-4 uppercase tracking-wider text-shadow-glow">
                 SELECT MISSION
               </h2>
-              <p className="text-xl text-cyan-200 leading-relaxed text-center font-mono">
+              <p className="text-xl text-cyan-200 leading-relaxed text-center font-mono mb-4">
                 Select a mission to start taking photos from ISS Cupola
               </p>
+              <div className="bg-slate-900 bg-opacity-60 rounded-lg p-6 border border-cyan-400 border-opacity-30 max-w-3xl mx-auto">
+                <h3 className="text-2xl font-bold text-cyan-300 mb-3 font-mono text-center">
+                  HOW TO PLAY
+                </h3>
+                <ul className="text-cyan-100 space-y-2 font-mono text-sm">
+                  <li className="flex items-start">
+                    <span className="text-cyan-400 mr-2">▸</span>
+                    <span>Use <span className="text-yellow-400 font-bold">WASD-QE</span> to rotate the Earth</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-cyan-400 mr-2">▸</span>
+                    <span>Click the <span className="text-red-400 font-bold">Camera</span> to capture photos when your target colored in <span className="text-red-400 font-bold">Red</span>  is in view</span>
+                  </li>
+                </ul>
+              </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {missions.map((mission) => (
