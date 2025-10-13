@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import "./InfoPanel.css";
 import { playClickSound } from "../utils/clickSound";
 
@@ -19,14 +20,15 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
   image,
   highlights = [],
   onClose,
-  buttonText = "Close",
+  buttonText,
 }) => {
+  const { t } = useTranslation();
   if (!isVisible) return null;
 
   return (
     <div className="info-panel-overlay">
       <div className="info-panel">
-        <h2 className="info-panel-title">{title}</h2>
+        <h2 className="info-panel-title">{t(title)}</h2>
         <div className="viewfinder-wrapper">
           <img
             className="viewfinder-image"
@@ -40,20 +42,23 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
           <div className="overlay-hud"></div>
         </div>
         <div className="info-panel-content">
-          <p>{description}</p>
+          <p>{t(description)}</p>
           {highlights && highlights.length > 0 && (
             <ul className="highlights">
               {highlights.map((highlight, index) => (
-                <li key={index}>{highlight}</li>
+                <li key={index}>{t(highlight)}</li>
               ))}
             </ul>
           )}
         </div>
-        <button onClick={() => {
-          playClickSound();
-          onClose();
-        }} className="info-panel-button">
-          {buttonText}
+        <button
+          onClick={() => {
+            playClickSound();
+            onClose();
+          }}
+          className="info-panel-button"
+        >
+          {buttonText || t("Close")}
         </button>
       </div>
     </div>

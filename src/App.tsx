@@ -1,18 +1,21 @@
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import ISSView from "./components/ISSView";
 import ExploreMode from "./components/ExploreMode";
+import LanguageSwitcher from "./components/LanguageSwitcher";
 import "./App.css";
 import backgroundSound from "./assets/soundspace.mp3";
 import { playClickSound } from "./utils/clickSound";
 
-const FULL_TITLE = "MISSION CONTROL";
 type AppMode = "explore" | "mission";
 
 export default function App() {
+  const { t } = useTranslation();
   const [mode, setMode] = useState<AppMode>("explore");
   const [showModal, setShowModal] = useState(false);
   const [started, setStarted] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const FULL_TITLE = t("MISSION CONTROL");
 
   const handleStart = () => {
     playClickSound();
@@ -90,21 +93,25 @@ export default function App() {
           <div className="mb-12 text-center relative">
             <h1 className="text-6xl md:text-8xl font-black mb-4 tracking-wide leading-none">
               <div className="relative inline-block">
-                <span className="text-amber-400 font-black">OUT OF THIS</span>
+                <span className="text-amber-400 font-black">
+                  {t("OUT OF THIS")}
+                </span>
                 <br />
-                <span className="text-white font-black text-7xl md:text-9xl relative -mt-4 inline-block">WORLD</span>
+                <span className="text-white font-black text-7xl md:text-9xl relative -mt-4 inline-block">
+                  {t("WORLD")}
+                </span>
               </div>
             </h1>
             <p className="text-white/80 text-lg md:text-xl italic mt-6 font-light">
-              "Live like an astronaut, explore the endless universe."
+              "{t("Live like an astronaut, explore the endless universe.")}"
             </p>
           </div>
-          
+
           <button
             onClick={handleStart}
             className="px-12 py-6 rounded-2xl text-2xl cursor-pointer font-mono font-bold spaceship-button text-cyan-400"
           >
-            🚀 START YOUR JOURNEY
+            🚀 {t("START YOUR JOURNEY")}
           </button>
         </div>
       )}
@@ -113,6 +120,9 @@ export default function App() {
       {renderContent()}
 
       <div className="absolute top-0 left-0 w-full h-full z-10 scanline-overlay"></div>
+
+      {/* Language Switcher */}
+      {started && <LanguageSwitcher />}
 
       <button
         onClick={() => {
@@ -175,7 +185,8 @@ export default function App() {
                       mode === "explore" ? "active" : ""
                     }`}
                   >
-                    <span className="text-2xl">🌌</span> <span>EXPLORE</span>
+                    <span className="text-2xl">🌌</span>{" "}
+                    <span>{t("EXPLORE")}</span>
                   </button>
                   <button
                     onClick={() => handleModeChange("mission")}
@@ -183,11 +194,12 @@ export default function App() {
                       mode === "mission" ? "active" : ""
                     }`}
                   >
-                    <span className="text-2xl">🛰️</span> <span>MISSION</span>
+                    <span className="text-2xl">🛰️</span>{" "}
+                    <span>{t("MISSION")}</span>
                   </button>
                 </div>
                 <div className="text-center text-sm opacity-50 border-t border-cyan-400/20 pt-6 mt-8">
-                  CURRENT MODE: {mode.toUpperCase()}
+                  {t("CURRENT MODE:")} {t(mode.toUpperCase())}
                 </div>
               </div>
             </div>

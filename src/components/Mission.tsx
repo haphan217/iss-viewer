@@ -1,7 +1,13 @@
 import React, { useState, useCallback, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import missionsData from "../data/missions.json";
 import InfoPanel from "./InfoPanel";
-import { playClickSound, playCameraFlashSound, playNoLuckSound, playCongratulationsSound } from "../utils/clickSound";
+import {
+  playClickSound,
+  playCameraFlashSound,
+  playNoLuckSound,
+  playCongratulationsSound,
+} from "../utils/clickSound";
 
 export interface MissionData {
   id: string;
@@ -44,6 +50,7 @@ const Mission: React.FC<MissionProps> = ({
   missionResult,
   onClearResult,
 }) => {
+  const { t } = useTranslation();
   const [showMissionSelect, setShowMissionSelect] = useState(true);
   const [showBriefing, setShowBriefing] = useState(false);
   const [showWasted, setShowWasted] = useState(false);
@@ -139,23 +146,27 @@ const Mission: React.FC<MissionProps> = ({
           <div className="mission-selection-panel rounded-xl p-8 max-w-6xl mx-4 fade-in">
             <div className="panel-header mb-6">
               <h2 className="text-5xl font-bold text-cyan-400 text-center mb-4 uppercase tracking-wider text-shadow-glow">
-                SELECT MISSION
+                {t("SELECT MISSION")}
               </h2>
               <p className="text-xl text-cyan-200 leading-relaxed text-center font-mono mb-4">
-                Select a mission to start taking photos from ISS Cupola
+                {t("Select a mission to start taking photos from ISS Cupola")}
               </p>
               <div className="bg-slate-900 bg-opacity-60 rounded-lg p-6 border border-cyan-400 border-opacity-30 max-w-3xl mx-auto">
                 <h3 className="text-2xl font-bold text-cyan-300 mb-3 font-mono text-center">
-                  HOW TO PLAY
+                  {t("HOW TO PLAY")}
                 </h3>
-                <ul className="text-cyan-100 space-y-2 font-mono text-sm">
+                <ul className="text-cyan-100 space-y-2 font-mono text-sm text-left">
                   <li className="flex items-start">
                     <span className="text-cyan-400 mr-2">▸</span>
-                    <span>Use <span className="text-yellow-400 font-bold">WASD-QE</span> to rotate the Earth</span>
+                    <span>{t("Use WASD-QE to rotate the Earth")}</span>
                   </li>
                   <li className="flex items-start">
                     <span className="text-cyan-400 mr-2">▸</span>
-                    <span>Click the <span className="text-red-400 font-bold">Camera</span> to capture photos when your target colored in <span className="text-red-400 font-bold">Red</span>  is in view</span>
+                    <span>
+                      {t(
+                        "Click the Camera to capture photos when your target colored in Red is in view"
+                      )}
+                    </span>
                   </li>
                 </ul>
               </div>
@@ -177,20 +188,24 @@ const Mission: React.FC<MissionProps> = ({
                           : "bg-red-600 text-red-100"
                       }`}
                     >
-                      {mission.difficulty.toUpperCase()}
+                      {mission.difficulty === "easy"
+                        ? t("EASY")
+                        : mission.difficulty === "medium"
+                        ? t("MEDIUM")
+                        : t("HARD")}
                     </span>
                     <span className="text-xs text-cyan-300 font-mono">
                       {mission.year}
                     </span>
                   </div>
                   <h3 className="text-xl font-bold text-cyan-100 mb-3 group-hover:text-cyan-50 transition-colors">
-                    {mission.title}
+                    {t(mission.title)}
                   </h3>
                   <p className="text-sm text-cyan-300 mb-3 font-mono">
-                    {mission.location}
+                    {t(mission.location)}
                   </p>
                   <p className="text-sm text-gray-300 line-clamp-3 leading-relaxed">
-                    {mission.description}
+                    {t(mission.description)}
                   </p>
                 </div>
               ))}
@@ -205,7 +220,7 @@ const Mission: React.FC<MissionProps> = ({
           <div className="mission-briefing-panel rounded-xl p-8 max-w-4xl mx-4 fade-in">
             <div className="panel-header mb-6">
               <h2 className="text-5xl font-bold text-cyan-400 text-center mb-4 uppercase tracking-wider text-shadow-glow">
-                {selectedMission.title}
+                {t(selectedMission.title)}
               </h2>
               <div className="flex items-center justify-center gap-4 mb-4">
                 <span
@@ -217,29 +232,33 @@ const Mission: React.FC<MissionProps> = ({
                       : "bg-red-600 text-red-100"
                   }`}
                 >
-                  {selectedMission.difficulty.toUpperCase()}
+                  {selectedMission.difficulty === "easy"
+                    ? t("EASY")
+                    : selectedMission.difficulty === "medium"
+                    ? t("MEDIUM")
+                    : t("HARD")}
                 </span>
                 <span className="text-cyan-300 font-mono text-lg">
-                  {selectedMission.location}
+                  {t(selectedMission.location)}
                 </span>
               </div>
             </div>
 
             <div className="bg-slate-900 bg-opacity-60 rounded-lg p-6 mb-6 border border-cyan-400 border-opacity-30">
               <h3 className="text-2xl font-bold text-cyan-300 mb-4 font-mono">
-                BRIEFING:
+                {t("BRIEFING:")}
               </h3>
               <p className="text-lg text-cyan-100 leading-relaxed font-mono">
-                {selectedMission.briefing}
+                {t(selectedMission.briefing)}
               </p>
             </div>
 
             <div className="bg-slate-800 bg-opacity-50 rounded-lg p-6 mb-8 border border-cyan-400 border-opacity-20">
               <h3 className="text-xl font-bold text-cyan-400 mb-3 font-mono">
-                {selectedMission.briefing}
+                {t(selectedMission.briefing)}
               </h3>
               <p className="text-gray-300 leading-relaxed">
-                {selectedMission.description}
+                {t(selectedMission.description)}
               </p>
             </div>
 
@@ -252,10 +271,10 @@ const Mission: React.FC<MissionProps> = ({
                 }}
                 className="mode-button active"
               >
-                BACK
+                {t("BACK")}
               </button>
               <button onClick={startMission} className="mode-button active">
-                START
+                {t("START")}
               </button>
             </div>
           </div>
@@ -315,9 +334,11 @@ const Mission: React.FC<MissionProps> = ({
         <div className="fixed inset-0 bg-black bg-opacity-95 flex items-center justify-center z-50">
           <div className="text-center animate-pulse">
             <h1 className="text-8xl font-bold text-green-400 mb-4 animate-bounce">
-              ✓ SUCCESS!
+              ✓ {t("SUCCESS!")}
             </h1>
-            <p className="text-2xl text-cyan-400 font-mono">Mission Accomplished</p>
+            <p className="text-2xl text-cyan-400 font-mono">
+              {t("Mission Accomplished")}
+            </p>
             <div className="mt-8">
               <div className="w-16 h-16 border-4 border-green-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
             </div>
@@ -334,7 +355,7 @@ const Mission: React.FC<MissionProps> = ({
           image={missionResult.mission.issImage}
           highlights={missionResult.mission.highlights}
           onClose={handleSuccessContinue}
-          buttonText="CONTINUE"
+          buttonText={t("CONTINUE")}
         />
       )}
 
@@ -343,7 +364,7 @@ const Mission: React.FC<MissionProps> = ({
         <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 wasted-screen">
           <div className="text-center">
             <h1 className="text-10xl font-bold text-red-500 mb-8 text-shadow-glow-error font-mono">
-              MISSION FAILED
+              {t("MISSION FAILED")}
             </h1>
             <div className="w-48 h-1 bg-gradient-to-r from-transparent via-red-500 to-transparent mx-auto mb-8"></div>
             <div className="flex gap-8 justify-center">
@@ -351,13 +372,13 @@ const Mission: React.FC<MissionProps> = ({
                 onClick={handleRetry}
                 className="spaceship-button-tech text-slate-900 px-8 py-4 rounded-lg text-xl font-bold transition-all duration-300 font-mono transform hover:scale-105"
               >
-                RETRY
+                {t("RETRY")}
               </button>
               <button
                 onClick={handleExit}
                 className="spaceship-button-tech text-slate-900 px-8 py-4 rounded-lg text-xl font-bold transition-all duration-300 font-mono transform hover:scale-105"
               >
-                EXIT
+                {t("EXIT")}
               </button>
             </div>
           </div>
@@ -370,24 +391,30 @@ const Mission: React.FC<MissionProps> = ({
           <div className="fixed top-8 left-8 z-30">
             <div className="control-panel-tech rounded-lg p-6 w-64 font-mono text-cyan-300 border border-cyan-400 border-opacity-30">
               <div className="font-bold text-cyan-100 border-b border-cyan-400 border-opacity-40 mb-4 pb-2 text-lg">
-                SYSTEM
+                {t("SYSTEM")}
               </div>
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-cyan-200">Energy:</span>
-                  <span className="text-green-400 font-bold">STABLE</span>
+                  <span className="text-cyan-200">{t("Energy:")}</span>
+                  <span className="text-green-400 font-bold">
+                    {t("STABLE")}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-cyan-200">Oxygen:</span>
-                  <span className="text-green-400 font-bold">99.8%</span>
+                  <span className="text-cyan-200">{t("Oxygen:")}</span>
+                  <span className="text-green-400 font-bold">{t("99.8%")}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-cyan-200">Pressure:</span>
-                  <span className="text-green-400 font-bold">101.2 kPa</span>
+                  <span className="text-cyan-200">{t("Pressure:")}</span>
+                  <span className="text-green-400 font-bold">
+                    {t("101.2 kPa")}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-cyan-200">Status:</span>
-                  <span className="text-green-400 font-bold">ORBITAL</span>
+                  <span className="text-cyan-200">{t("Status:")}</span>
+                  <span className="text-green-400 font-bold">
+                    {t("ORBITAL")}
+                  </span>
                 </div>
               </div>
             </div>
@@ -398,10 +425,10 @@ const Mission: React.FC<MissionProps> = ({
               {selectedMission && (
                 <div className="mb-4 pb-4 border-b border-cyan-400 border-opacity-40">
                   <div className="font-bold text-cyan-100 mb-2 text-lg">
-                    CURRENT MISSION
+                    {t("CURRENT MISSION")}
                   </div>
                   <div className="text-sm text-cyan-200 leading-relaxed">
-                    {selectedMission.title}
+                    {t(selectedMission.title) }
                   </div>
                 </div>
               )}
@@ -413,7 +440,7 @@ const Mission: React.FC<MissionProps> = ({
                 }}
                 className="w-full spaceship-button-tech text-slate-900 font-bold py-3 px-4 rounded transition-all duration-300 font-mono"
               >
-                OTHER MISSIONS
+                {t("OTHER MISSIONS")}
               </button>
             </div>
           </div>

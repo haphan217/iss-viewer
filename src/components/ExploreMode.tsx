@@ -1,12 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
-import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import './ExploreMode.css';
-import eventsData from '../data/events.json';
-import { speak } from '../utils/textToSpeech';
-import InfoPanel from './InfoPanel';
-import { playClickSound } from '../utils/clickSound';
+import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import "./ExploreMode.css";
+import eventsData from "../data/events.json";
+import { speak } from "../utils/textToSpeech";
+import InfoPanel from "./InfoPanel";
+import { playClickSound } from "../utils/clickSound";
 
 // Global flag to ensure welcome message plays only once per session
 let hasPlayedWelcomeGlobal = false;
@@ -27,6 +28,7 @@ interface EventsByYear {
 }
 
 const ExploreMode = () => {
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const eventMenuRef = useRef<HTMLDivElement>(null);
 
@@ -38,9 +40,9 @@ const ExploreMode = () => {
     highlights: string[];
   }>({
     isVisible: false,
-    title: '',
-    description: '',
-    image: '',
+    title: "",
+    description: "",
+    image: "",
     highlights: [],
   });
 
@@ -50,6 +52,11 @@ const ExploreMode = () => {
 
   useEffect(() => {
     if (!containerRef.current) return;
+
+    // Set welcome message for the class to access
+    (window as any).__welcomeMessage = t(
+      "Welcome to ISS Viewer. You're viewing Earth from space. Select a year from the timeline to see historical events captured by the ISS."
+    );
 
     class EarthViewExplore {
       scene: THREE.Scene;
@@ -116,7 +123,7 @@ const ExploreMode = () => {
           radius: this.sceneScale.earthRadius + this.sceneScale.issAltitude,
           speed: 27600,
           inclination: 51.6 * (Math.PI / 180),
-          orbitalPeriod: 92.68 * 60 / 100, // 100x faster orbit
+          orbitalPeriod: (92.68 * 60) / 100, // 100x faster orbit
           angle: 0,
         };
 
@@ -131,7 +138,7 @@ const ExploreMode = () => {
 
         this.selectedYear = null;
         this.mockPinData = [];
-        this.viewMode = 'earth';
+        this.viewMode = "earth";
         this.isTransitioning = false;
         this.trailPositions = [];
         this.maxTrailLength = 50;
@@ -170,7 +177,11 @@ const ExploreMode = () => {
       }
 
       playWelcomeMessage() {
-        if (!hasPlayedWelcomeGlobal && this.voiceEnabled && 'speechSynthesis' in window) {
+        if (
+          !hasPlayedWelcomeGlobal &&
+          this.voiceEnabled &&
+          "speechSynthesis" in window
+        ) {
           // Mark as played immediately to prevent duplicate calls
           hasPlayedWelcomeGlobal = true;
           this.hasPlayedWelcome = true;
@@ -178,10 +189,11 @@ const ExploreMode = () => {
           // Wait longer to avoid interrupting the initial "Happy 25th anniversary" message
           // and to let the scene fully load
           setTimeout(() => {
-            speak(
-              "Welcome to ISS Viewer. You're viewing Earth from space. Select a year from the timeline to see historical events captured by the ISS.",
-              { rate: 0.9, pitch: 1.0, volume: 0.8 }
-            );
+            // Get translation from window object (set from component)
+            const welcomeMsg =
+              (window as any).__welcomeMessage ||
+              "Welcome to ISS Viewer. You're viewing Earth from space. Select a year from the timeline to see historical events captured by the ISS.";
+            speak(welcomeMsg, { rate: 0.9, pitch: 1.0, volume: 0.8 });
           }, 1000);
         }
       }
@@ -210,7 +222,10 @@ const ExploreMode = () => {
         this.camera.position.set(0, 0, 250);
         this.scene.add(this.camera);
 
-        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls = new OrbitControls(
+          this.camera,
+          this.renderer.domElement
+        );
         this.controls.enableDamping = true;
         this.controls.dampingFactor = 0.05;
         this.controls.minDistance = 100;
@@ -242,14 +257,18 @@ const ExploreMode = () => {
       }
 
       createEarth() {
-        const earthGeometry = new THREE.SphereGeometry(this.sceneScale.earthRadius, 64, 64);
+        const earthGeometry = new THREE.SphereGeometry(
+          this.sceneScale.earthRadius,
+          64,
+          64
+        );
 
         const textureLoader = new THREE.TextureLoader();
         const earthTexture = textureLoader.load(
-          '/earth_texture.jpg',
-          () => console.log('Earth texture loaded successfully'),
+          "/earth_texture.jpg",
+          () => console.log("Earth texture loaded successfully"),
           undefined,
-          (error) => console.error('Error loading Earth texture:', error)
+          (error) => console.error("Error loading Earth texture:", error)
         );
 
         const earthMaterial = new THREE.MeshStandardMaterial({
@@ -266,9 +285,8 @@ const ExploreMode = () => {
         const loader = new GLTFLoader();
 
         loader.load(
-          '/ISS_stationary.glb',
+          "/ISS_stationary.glb",
           (gltf) => {
-            console.log('ISS model loaded successfully');
             this.issModel = gltf.scene;
 
             const issScale = this.sceneScale.issVisibleSize / 40;
@@ -296,7 +314,7 @@ const ExploreMode = () => {
           },
           undefined,
           (error) => {
-            console.error('Error loading ISS model:', error);
+            console.error("Error loading ISS model:", error);
           }
         );
       }
@@ -311,7 +329,9 @@ const ExploreMode = () => {
           orbitPoints.push(position);
         }
 
-        const orbitGeometry = new THREE.BufferGeometry().setFromPoints(orbitPoints);
+        const orbitGeometry = new THREE.BufferGeometry().setFromPoints(
+          orbitPoints
+        );
         const orbitMaterial = new THREE.LineBasicMaterial({
           color: 0x00ffff,
           opacity: 0.5,
@@ -325,7 +345,10 @@ const ExploreMode = () => {
       createISSTrail() {
         const trailGeometry = new THREE.BufferGeometry();
         const positions = new Float32Array(this.maxTrailLength * 3);
-        trailGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        trailGeometry.setAttribute(
+          "position",
+          new THREE.BufferAttribute(positions, 3)
+        );
 
         const trailMaterial = new THREE.LineBasicMaterial({
           color: 0xffffff,
@@ -346,7 +369,8 @@ const ExploreMode = () => {
           this.trailPositions.shift();
         }
 
-        const positions = this.issTrail.geometry.attributes.position.array as Float32Array;
+        const positions = this.issTrail.geometry.attributes.position
+          .array as Float32Array;
         for (let i = 0; i < this.maxTrailLength; i++) {
           if (i < this.trailPositions.length) {
             const pos = this.trailPositions[i];
@@ -354,7 +378,9 @@ const ExploreMode = () => {
             positions[i * 3 + 1] = pos.y;
             positions[i * 3 + 2] = pos.z;
           } else {
-            const lastPos = this.trailPositions[this.trailPositions.length - 1] || new THREE.Vector3();
+            const lastPos =
+              this.trailPositions[this.trailPositions.length - 1] ||
+              new THREE.Vector3();
             positions[i * 3] = lastPos.x;
             positions[i * 3 + 1] = lastPos.y;
             positions[i * 3 + 2] = lastPos.z;
@@ -365,8 +391,14 @@ const ExploreMode = () => {
 
       getISSPositionAtAngle(angle: number) {
         const x = this.issOrbit.radius * Math.cos(angle);
-        const y = this.issOrbit.radius * Math.sin(angle) * Math.sin(this.issOrbit.inclination);
-        const z = this.issOrbit.radius * Math.sin(angle) * Math.cos(this.issOrbit.inclination);
+        const y =
+          this.issOrbit.radius *
+          Math.sin(angle) *
+          Math.sin(this.issOrbit.inclination);
+        const z =
+          this.issOrbit.radius *
+          Math.sin(angle) *
+          Math.cos(this.issOrbit.inclination);
 
         return new THREE.Vector3(x, y, z);
       }
@@ -399,41 +431,41 @@ const ExploreMode = () => {
       }
 
       getLocationName(lat: number, lon: number) {
-        if (lat > 66) return 'Arctic';
-        if (lat < -66) return 'Antarctic';
+        if (lat > 66) return "Arctic";
+        if (lat < -66) return "Antarctic";
 
         if (lon >= -170 && lon <= -30) {
-          if (lat >= 15 && lat <= 72) return 'North America';
-          if (lat >= -56 && lat < 15) return 'South America';
+          if (lat >= 15 && lat <= 72) return "North America";
+          if (lat >= -56 && lat < 15) return "South America";
         }
         if (lon >= -30 && lon <= 60) {
-          if (lat >= 35 && lat <= 71) return 'Europe';
-          if (lat >= -35 && lat < 35) return 'Africa';
+          if (lat >= 35 && lat <= 71) return "Europe";
+          if (lat >= -35 && lat < 35) return "Africa";
         }
         if (lon >= 60 && lon <= 150) {
-          if (lat >= 8 && lat <= 75) return 'Asia';
-          if (lat >= -50 && lat < 8) return 'Oceania';
+          if (lat >= 8 && lat <= 75) return "Asia";
+          if (lat >= -50 && lat < 8) return "Oceania";
         }
 
         if (lat >= -60 && lat <= 60) {
-          if (lon >= -170 && lon <= -70) return 'Pacific Ocean';
-          if (lon >= -70 && lon <= 20) return 'Atlantic Ocean';
-          if (lon >= 20 && lon <= 120) return 'Indian Ocean';
+          if (lon >= -170 && lon <= -70) return "Pacific Ocean";
+          if (lon >= -70 && lon <= 20) return "Atlantic Ocean";
+          if (lon >= 20 && lon <= 120) return "Indian Ocean";
         }
 
-        return 'Ocean';
+        return "Ocean";
       }
 
       updateISSInfo(position: THREE.Vector3) {
         const { lat, lon } = this.vector3ToLatLon(position);
         const locationName = this.getLocationName(lat, lon);
 
-        const locationElement = document.getElementById('iss-location');
+        const locationElement = document.getElementById("iss-location");
         if (locationElement) {
           locationElement.textContent = locationName;
         }
 
-        const coordsElement = document.getElementById('iss-coords');
+        const coordsElement = document.getElementById("iss-coords");
         if (coordsElement) {
           coordsElement.textContent = `${lat.toFixed(1)}°, ${lon.toFixed(1)}°`;
         }
@@ -454,7 +486,10 @@ const ExploreMode = () => {
           positions[i + 2] = radius * Math.cos(phi);
         }
 
-        starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        starsGeometry.setAttribute(
+          "position",
+          new THREE.BufferAttribute(positions, 3)
+        );
 
         const starsMaterial = new THREE.PointsMaterial({
           color: 0xffffff,
@@ -466,7 +501,11 @@ const ExploreMode = () => {
         this.scene.add(this.stars);
       }
 
-      latLonToVector3(lat: number, lon: number, radius = this.sceneScale.earthRadius) {
+      latLonToVector3(
+        lat: number,
+        lon: number,
+        radius = this.sceneScale.earthRadius
+      ) {
         const phi = (90 - lat) * (Math.PI / 180);
         const theta = (lon + 180) * (Math.PI / 180);
 
@@ -478,34 +517,32 @@ const ExploreMode = () => {
       }
 
       initializeTimeline() {
-        const timeline = document.getElementById('timeline');
+        const timeline = document.getElementById("timeline");
         if (!timeline) {
-          console.log('Timeline element not found');
           return;
         }
 
-        console.log('Initializing timeline with years 2000-2025');
-
         for (let year = 2000; year <= 2025; year++) {
-          const button = document.createElement('button');
-          button.className = 'year-button';
+          const button = document.createElement("button");
+          button.className = "year-button";
           button.textContent = year.toString();
           button.dataset.year = year.toString();
 
           // Add visual indicator if year has events
           const yearEvents = this.eventsByYear[year];
           if (yearEvents && yearEvents.length > 0) {
-            button.classList.add('has-events');
-            button.title = `${yearEvents.length} event${yearEvents.length > 1 ? 's' : ''}`;
+            button.classList.add("has-events");
+            button.title = `${yearEvents.length} event${
+              yearEvents.length > 1 ? "s" : ""
+            }`;
 
             // Add a small dot indicator
-            const dot = document.createElement('span');
-            dot.className = 'event-dot';
+            const dot = document.createElement("span");
+            dot.className = "event-dot";
             button.appendChild(dot);
           }
 
-          button.addEventListener('click', () => {
-            console.log('Year clicked:', year);
+          button.addEventListener("click", () => {
             playClickSound();
             this.triggerWelcomeOnInteraction();
             this.selectYear(year);
@@ -518,12 +555,12 @@ const ExploreMode = () => {
       selectYear(year: number) {
         this.selectedYear = year;
 
-        const buttons = document.querySelectorAll('.year-button');
-        buttons.forEach(btn => {
-          if (parseInt((btn as HTMLElement).dataset.year || '0') === year) {
-            btn.classList.add('active');
+        const buttons = document.querySelectorAll(".year-button");
+        buttons.forEach((btn) => {
+          if (parseInt((btn as HTMLElement).dataset.year || "0") === year) {
+            btn.classList.add("active");
           } else {
-            btn.classList.remove('active');
+            btn.classList.remove("active");
           }
         });
 
@@ -536,46 +573,53 @@ const ExploreMode = () => {
       }
 
       displayEventMenu(year: number, events: Event[]) {
-        const eventMenu = document.getElementById('event-menu');
-        const eventList = document.getElementById('event-list');
-        const eventMenuTitle = document.getElementById('event-menu-title');
+        const eventMenu = document.getElementById("event-menu");
+        const eventList = document.getElementById("event-list");
+        const eventMenuTitle = document.getElementById("event-menu-title");
 
         if (!eventMenu || !eventList || !eventMenuTitle) {
-          console.log('Event menu elements not found:', { eventMenu, eventList, eventMenuTitle });
+          console.log("Event menu elements not found:", {
+            eventMenu,
+            eventList,
+            eventMenuTitle,
+          });
           return;
         }
 
-        eventList.innerHTML = '';
+        eventList.innerHTML = "";
 
         if (events.length === 0) {
           eventMenuTitle.textContent = `${year} - No Events`;
-          eventMenu.classList.remove('visible');
+          eventMenu.classList.remove("visible");
           return;
         }
 
-        eventMenuTitle.textContent = `${year} Events (${events.length})`;
-        console.log('Displaying event menu for year', year, 'with', events.length, 'events');
+        eventMenuTitle.textContent = `${year} ${t("Events")} (${
+          events.length
+        })`;
 
         events.forEach((event, index) => {
-          const eventItem = document.createElement('div');
-          eventItem.className = 'event-item';
+          const eventItem = document.createElement("div");
+          eventItem.className = "event-item";
           eventItem.dataset.index = index.toString();
 
-          const title = document.createElement('h4');
-          title.textContent = event.title;
+          const title = document.createElement("h4");
+          title.textContent = t(event.title);
 
-          const description = document.createElement('p');
-          description.textContent = event.description;
+          const description = document.createElement("p");
+          description.textContent = t(event.description);
 
-          const location = document.createElement('div');
-          location.className = 'event-location';
-          location.textContent = `📍 ${event.lat.toFixed(2)}°, ${event.lon.toFixed(2)}°`;
+          const location = document.createElement("div");
+          location.className = "event-location";
+          location.textContent = `📍 ${event.lat.toFixed(
+            2
+          )}°, ${event.lon.toFixed(2)}°`;
 
           eventItem.appendChild(title);
           eventItem.appendChild(description);
           eventItem.appendChild(location);
 
-          eventItem.addEventListener('click', () => {
+          eventItem.addEventListener("click", () => {
             playClickSound();
             this.selectEvent(index, event);
           });
@@ -583,17 +627,16 @@ const ExploreMode = () => {
           eventList.appendChild(eventItem);
         });
 
-        eventMenu.classList.add('visible');
-        console.log('Event menu should now be visible. Classes:', eventMenu.className);
+        eventMenu.classList.add("visible");
       }
 
       selectEvent(index: number, event: Event) {
-        const eventItems = document.querySelectorAll('.event-item');
+        const eventItems = document.querySelectorAll(".event-item");
         eventItems.forEach((item, i) => {
           if (i === index) {
-            item.classList.add('selected');
+            item.classList.add("selected");
           } else {
-            item.classList.remove('selected');
+            item.classList.remove("selected");
           }
         });
 
@@ -604,7 +647,10 @@ const ExploreMode = () => {
         const targetPosition = this.latLonToVector3(event.lat, event.lon);
 
         const distance = 120;
-        const cameraTargetPosition = targetPosition.clone().normalize().multiplyScalar(this.sceneScale.earthRadius + distance);
+        const cameraTargetPosition = targetPosition
+          .clone()
+          .normalize()
+          .multiplyScalar(this.sceneScale.earthRadius + distance);
 
         this.controls.autoRotate = false;
         this.autoRotate = false;
@@ -627,11 +673,16 @@ const ExploreMode = () => {
           const elapsed = timestamp - startTime;
           const progress = Math.min(elapsed / duration, 1);
 
-          const eased = progress < 0.5
-            ? 2 * progress * progress
-            : -1 + (4 - 2 * progress) * progress;
+          const eased =
+            progress < 0.5
+              ? 2 * progress * progress
+              : -1 + (4 - 2 * progress) * progress;
 
-          this.camera.position.lerpVectors(startPosition, cameraTargetPosition, eased);
+          this.camera.position.lerpVectors(
+            startPosition,
+            cameraTargetPosition,
+            eased
+          );
           this.controls.target.lerpVectors(startTarget, endTarget, eased);
 
           this.controls.update();
@@ -648,7 +699,7 @@ const ExploreMode = () => {
       }
 
       clearPins() {
-        this.pinMarkers.forEach(pin => {
+        this.pinMarkers.forEach((pin) => {
           this.earth.remove(pin);
         });
         this.pinMarkers = [];
@@ -658,14 +709,13 @@ const ExploreMode = () => {
         const loader = new GLTFLoader();
 
         loader.load(
-          '/map_pin.glb',
+          "/map_pin.glb",
           (gltf) => {
-            console.log('Pin model loaded successfully');
             this.pinModelTemplate = gltf.scene;
           },
           undefined,
           (error) => {
-            console.error('Error loading pin model:', error);
+            console.error("Error loading pin model:", error);
           }
         );
       }
@@ -691,7 +741,9 @@ const ExploreMode = () => {
             pinGroup.add(head);
 
             const stickGeometry = new THREE.CylinderGeometry(0.3, 0.3, 5, 8);
-            const stickMaterial = new THREE.MeshBasicMaterial({ color: 0xff4444 });
+            const stickMaterial = new THREE.MeshBasicMaterial({
+              color: 0xff4444,
+            });
             const stick = new THREE.Mesh(stickGeometry, stickMaterial);
             stick.position.y = -2.5;
             pinGroup.add(stick);
@@ -700,7 +752,10 @@ const ExploreMode = () => {
           pinGroup.position.copy(position);
 
           const up = position.clone().normalize();
-          pinGroup.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), up);
+          pinGroup.quaternion.setFromUnitVectors(
+            new THREE.Vector3(0, 1, 0),
+            up
+          );
 
           pinGroup.userData = {
             title: data.title,
@@ -716,16 +771,16 @@ const ExploreMode = () => {
       }
 
       setupEventListeners() {
-        window.addEventListener('resize', () => this.onWindowResize());
+        window.addEventListener("resize", () => this.onWindowResize());
 
-        this.renderer.domElement.addEventListener('click', (event) => {
+        this.renderer.domElement.addEventListener("click", (event) => {
           this.triggerWelcomeOnInteraction();
           this.onMouseClick(event);
         });
 
-        const viewModeButtons = document.querySelectorAll('.view-mode-btn');
-        viewModeButtons.forEach(btn => {
-          btn.addEventListener('click', () => {
+        const viewModeButtons = document.querySelectorAll(".view-mode-btn");
+        viewModeButtons.forEach((btn) => {
+          btn.addEventListener("click", () => {
             const mode = (btn as HTMLElement).dataset.mode;
             if (mode && mode !== this.viewMode && !this.isTransitioning) {
               playClickSound();
@@ -746,7 +801,10 @@ const ExploreMode = () => {
         this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
         this.raycaster.setFromCamera(this.mouse, this.camera);
-        const intersects = this.raycaster.intersectObjects(this.pinMarkers, true);
+        const intersects = this.raycaster.intersectObjects(
+          this.pinMarkers,
+          true
+        );
 
         if (intersects.length > 0) {
           let pinObject: any = intersects[0].object;
@@ -767,13 +825,15 @@ const ExploreMode = () => {
           isVisible: true,
           title: data.title,
           description: data.description,
-          image: data.issImage || 'https://via.placeholder.com/640x360/1a2a40/00ffc8?text=No+Image+Available',
+          image:
+            data.issImage ||
+            "https://via.placeholder.com/640x360/1a2a40/00ffc8?text=No+Image+Available",
           highlights: data.highlights || [],
         });
       }
 
       closeInfoPanel() {
-        setInfoPanelData(prev => ({ ...prev, isVisible: false }));
+        setInfoPanelData((prev) => ({ ...prev, isVisible: false }));
       }
 
       switchViewMode(mode: string) {
@@ -782,16 +842,16 @@ const ExploreMode = () => {
         this.viewMode = mode;
         this.isTransitioning = true;
 
-        const viewModeButtons = document.querySelectorAll('.view-mode-btn');
-        viewModeButtons.forEach(btn => {
+        const viewModeButtons = document.querySelectorAll(".view-mode-btn");
+        viewModeButtons.forEach((btn) => {
           if ((btn as HTMLElement).dataset.mode === mode) {
-            btn.classList.add('active');
+            btn.classList.add("active");
           } else {
-            btn.classList.remove('active');
+            btn.classList.remove("active");
           }
         });
 
-        if (mode === 'iss') {
+        if (mode === "iss") {
           this.transitionToISSView();
         } else {
           this.transitionToEarthView();
@@ -828,11 +888,16 @@ const ExploreMode = () => {
           const elapsed = timestamp - startTime;
           const progress = Math.min(elapsed / duration, 1);
 
-          const eased = progress < 0.5
-            ? 2 * progress * progress
-            : -1 + (4 - 2 * progress) * progress;
+          const eased =
+            progress < 0.5
+              ? 2 * progress * progress
+              : -1 + (4 - 2 * progress) * progress;
 
-          this.camera.position.lerpVectors(startPosition, cameraTargetPosition, eased);
+          this.camera.position.lerpVectors(
+            startPosition,
+            cameraTargetPosition,
+            eased
+          );
           this.controls.target.lerpVectors(startTarget, endTarget, eased);
 
           this.controls.update();
@@ -871,11 +936,16 @@ const ExploreMode = () => {
           const elapsed = timestamp - startTime;
           const progress = Math.min(elapsed / duration, 1);
 
-          const eased = progress < 0.5
-            ? 2 * progress * progress
-            : -1 + (4 - 2 * progress) * progress;
+          const eased =
+            progress < 0.5
+              ? 2 * progress * progress
+              : -1 + (4 - 2 * progress) * progress;
 
-          this.camera.position.lerpVectors(startPosition, cameraTargetPosition, eased);
+          this.camera.position.lerpVectors(
+            startPosition,
+            cameraTargetPosition,
+            eased
+          );
           this.controls.target.lerpVectors(startTarget, endTarget, eased);
 
           this.controls.update();
@@ -895,17 +965,17 @@ const ExploreMode = () => {
       }
 
       updateUIForViewMode() {
-        const issInfo = document.getElementById('iss-info');
-        const timelineContainer = document.getElementById('timeline-container');
-        const eventMenu = document.getElementById('event-menu');
+        const issInfo = document.getElementById("iss-info");
+        const timelineContainer = document.getElementById("timeline-container");
+        const eventMenu = document.getElementById("event-menu");
 
-        if (this.viewMode === 'iss') {
-          if (issInfo) issInfo.style.display = 'block';
-          if (timelineContainer) timelineContainer.style.display = 'none';
-          if (eventMenu) eventMenu.style.display = 'none';
+        if (this.viewMode === "iss") {
+          if (issInfo) issInfo.style.display = "block";
+          if (timelineContainer) timelineContainer.style.display = "none";
+          if (eventMenu) eventMenu.style.display = "none";
         } else {
-          if (issInfo) issInfo.style.display = 'none';
-          if (timelineContainer) timelineContainer.style.display = 'block';
+          if (issInfo) issInfo.style.display = "none";
+          if (timelineContainer) timelineContainer.style.display = "block";
         }
       }
 
@@ -964,7 +1034,7 @@ const ExploreMode = () => {
       app.cleanup();
       containerRef.current?.removeChild(app.renderer.domElement);
     };
-  }, [setInfoPanelData]);
+  }, [setInfoPanelData, t]);
 
   return (
     <>
@@ -978,72 +1048,73 @@ const ExploreMode = () => {
         image={infoPanelData.image}
         highlights={infoPanelData.highlights}
         onClose={handleCloseInfoPanel}
-        buttonText="Close"
+        buttonText={t("Close")}
       />
 
       <div className="ui-overlay">
         <div className="top-right-controls">
           <div className="instructions-container">
             <div className="instructions-panel">
-              🖱️ Hold left mouse + drag to rotate • Scroll to zoom in/out • Hold right mouse + drag to move • Click on pins to view events
+              {t(
+                "Hold left mouse + drag to rotate • Scroll to zoom in/out • Hold right mouse + drag to move • Click on pins to view events"
+              )}
             </div>
-            <div className="instructions-toggle">
-              ❓
-            </div>
+            <div className="instructions-toggle">❓</div>
           </div>
           <div className="view-mode-toggle">
             <button className="view-mode-btn active" data-mode="earth">
               <span>🌍</span>
-              <span>Earth</span>
+              <span>{t("Earth")}</span>
             </button>
             <button className="view-mode-btn" data-mode="iss">
               <span>🛰️</span>
-              <span>ISS</span>
+              <span>{t("ISS")}</span>
             </button>
           </div>
         </div>
 
-        <div id="iss-info" style={{ display: 'none' }}>
-          <h3>🛰️ ISS Orbit</h3>
+        <div id="iss-info" style={{ display: "none" }}>
+          <h3>🛰️ {t("ISS Orbit")}</h3>
           <div className="info-row">
-            <span className="info-label">Speed:</span>
-            <span className="info-value">27,600 km/h</span>
+            <span className="info-label">{t("Speed:")}</span>
+            <span className="info-value">{t("27,600 km/h")}</span>
           </div>
           <div className="info-row">
-            <span className="info-label">Altitude:</span>
-            <span className="info-value">~408 km</span>
+            <span className="info-label">{t("Altitude:")}</span>
+            <span className="info-value">{t("~408 km")}</span>
           </div>
           <div className="info-row">
-            <span className="info-label">Orbital period:</span>
-            <span className="info-value">~92.7 minutes</span>
+            <span className="info-label">{t("Orbital period:")}</span>
+            <span className="info-value">{t("~92.7 minutes")}</span>
           </div>
           <div className="info-row">
-            <span className="info-label">Inclination:</span>
-            <span className="info-value">51.6°</span>
+            <span className="info-label">{t("Inclination:")}</span>
+            <span className="info-value">{t("51.6°")}</span>
           </div>
           <div className="info-row">
-            <span className="info-label">Orbits/day:</span>
-            <span className="info-value">~15.5 times</span>
+            <span className="info-label">{t("Orbits/day:")}</span>
+            <span className="info-value">{t("~15.5 times")}</span>
           </div>
           <div className="info-row">
-            <span className="info-label">Earth radius:</span>
-            <span className="info-value">6,371 km</span>
+            <span className="info-label">{t("Earth radius:")}</span>
+            <span className="info-value">{t("6,371 km")}</span>
           </div>
           <div className="scale-note">
-            ⚠️ Note:
-            <br /> ISS is magnified ~11,500x for easier observation.
-            <br /> In reality, ISS is only 109m long, extremely small compared to Earth.
+            ⚠️ {t("Note:")}
+            <br />{" "}
+            {t(
+              "ISS is magnified ~11,500x for easier observation. In reality, ISS is only 109m long, extremely small compared to Earth."
+            )}
           </div>
         </div>
 
-
         <div id="event-menu" ref={eventMenuRef}>
-          <h3 id="event-menu-title">Events</h3>
+          <h3 id="event-menu-title">{t("Events")}</h3>
           <div id="event-list"></div>
         </div>
 
         <div id="timeline-container">
-          <h3>🌍 25 years of ISS (2000-2025)</h3>
+          <h3>🌍 {t("25 years of ISS (2000-2025)")}</h3>
           <div id="timeline"></div>
         </div>
       </div>

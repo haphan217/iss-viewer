@@ -1,29 +1,39 @@
-export const speak = (text: string, options?: Partial<SpeechSynthesisUtterance>) => {
-  console.log('Speak function called with text:', text);
+export const speak = (
+  text: string,
+  options?: Partial<SpeechSynthesisUtterance>
+) => {
+  console.log("Speak function called with text:", text);
 
-  if (!('speechSynthesis' in window)) {
-    console.error('Text-to-speech not supported in this browser');
+  if (!("speechSynthesis" in window)) {
+    console.error("Text-to-speech not supported in this browser");
     return;
   }
 
   // If speech is already in progress, queue this message instead of canceling
   const isSpeaking = window.speechSynthesis.speaking;
   if (isSpeaking) {
-    console.log('Speech already in progress, queueing message');
+    console.log("Speech already in progress, queueing message");
     // Don't cancel, let it queue naturally
   }
 
-  const getBestVoice = (preferredNames: string[] = ['Google US English', 'Microsoft Zira', 'Karen',  'Samantha']) => {
+  const getBestVoice = (
+    preferredNames: string[] = [
+      "Google US English",
+      "Microsoft Zira",
+      "Karen",
+      "Samantha",
+    ]
+  ) => {
     const voices = speechSynthesis.getVoices();
-    
+
     // Try preferred voices first
     for (const name of preferredNames) {
-      const voice = voices.find(v => v.name.includes(name));
+      const voice = voices.find((v) => v.name.includes(name));
       if (voice) return voice;
     }
-    
+
     // Fallback to first en-US voice
-    return voices.find(v => v.lang === 'en-US') || voices[0];
+    return voices.find((v) => v.lang === "en-US") || voices[0];
   };
 
   // Wait for voices to be loaded
@@ -40,15 +50,13 @@ export const speak = (text: string, options?: Partial<SpeechSynthesisUtterance>)
     }
 
     // Use the first English voice if available
-    const englishVoice = getBestVoice()
+    const englishVoice = getBestVoice();
     utterance.voice = englishVoice;
-    console.log('Using voice:', englishVoice.name);
 
-    utterance.onstart = () => console.log('Speech started');
-    utterance.onend = () => console.log('Speech ended');
-    utterance.onerror = (event) => console.error('Speech error:', event);
+    utterance.onstart = () => console.log("Speech started");
+    utterance.onend = () => console.log("Speech ended");
+    utterance.onerror = (event) => console.error("Speech error:", event);
 
-    console.log('Calling speechSynthesis.speak()');
     window.speechSynthesis.speak(utterance);
   };
 
@@ -66,7 +74,7 @@ export const speak = (text: string, options?: Partial<SpeechSynthesisUtterance>)
 };
 
 export const stopSpeaking = () => {
-  if ('speechSynthesis' in window) {
+  if ("speechSynthesis" in window) {
     window.speechSynthesis.cancel();
   }
 };
