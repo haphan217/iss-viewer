@@ -8,8 +8,9 @@ i18n.use(initReactI18next).init({
       translation: viTranslation,
     },
   },
-  lng: "en", // default language
-  fallbackLng: "en",
+  lng: "vi", // default language
+  fallbackLng: "vi",
+  nsSeparator: false,
   interpolation: {
     escapeValue: false, // React already does escaping
   },

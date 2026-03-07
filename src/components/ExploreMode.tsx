@@ -1,17 +1,15 @@
+import "../styles/ExploreMode.css";
+
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import "./ExploreMode.css";
-import eventsData from "../data/events.json";
-import { speak } from "../utils/textToSpeech";
-import InfoPanel from "./InfoPanel";
-import { playClickSound } from "../utils/clickSound";
 
-// Global flag to ensure welcome message plays only once per session
-let hasPlayedWelcomeGlobal = false;
-let hasUserInteracted = false;
+import eventsData from "../data/events.json";
+import { playClickSound } from "../utils/clickSound";
+import EventInfo from "./InfoPanels/EventInfo";
+import ISSInfo from "./InfoPanels/ISSInfo";
 
 interface Event {
   year: number;
@@ -53,11 +51,6 @@ const ExploreMode = () => {
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Set welcome message for the class to access
-    (window as any).__welcomeMessage = t(
-      "Welcome to ISS Viewer. You're viewing Earth from space. Select a year from the timeline to see historical events captured by the ISS."
-    );
-
     class EarthViewExplore {
       scene: THREE.Scene;
       clock: THREE.Clock;
@@ -90,7 +83,6 @@ const ExploreMode = () => {
       stars: THREE.Points;
       issGlow?: THREE.Mesh;
       voiceEnabled: boolean;
-      hasPlayedWelcome: boolean;
 
       constructor() {
         this.scene = new THREE.Scene();
@@ -143,7 +135,6 @@ const ExploreMode = () => {
         this.trailPositions = [];
         this.maxTrailLength = 50;
         this.voiceEnabled = true;
-        this.hasPlayedWelcome = false;
 
         this.renderer = null as any;
         this.camera = null as any;
@@ -158,51 +149,6 @@ const ExploreMode = () => {
         this.init();
         this.setupEventListeners();
         this.animate();
-
-        // Check if user clicked start button, then play welcome
-        this.checkAndPlayWelcome();
-      }
-
-      checkAndPlayWelcome() {
-        // Check periodically if user has interacted via start button
-        const checkInterval = setInterval(() => {
-          if ((window as any).userHasInteracted && !hasPlayedWelcomeGlobal) {
-            clearInterval(checkInterval);
-            this.playWelcomeMessage();
-          }
-        }, 100);
-
-        // Stop checking after 5 seconds
-        setTimeout(() => clearInterval(checkInterval), 5000);
-      }
-
-      playWelcomeMessage() {
-        if (
-          !hasPlayedWelcomeGlobal &&
-          this.voiceEnabled &&
-          "speechSynthesis" in window
-        ) {
-          // Mark as played immediately to prevent duplicate calls
-          hasPlayedWelcomeGlobal = true;
-          this.hasPlayedWelcome = true;
-
-          // Wait longer to avoid interrupting the initial "Happy 25th anniversary" message
-          // and to let the scene fully load
-          setTimeout(() => {
-            // Get translation from window object (set from component)
-            const welcomeMsg =
-              (window as any).__welcomeMessage ||
-              "Welcome to ISS Viewer. You're viewing Earth from space. Select a year from the timeline to see historical events captured by the ISS.";
-            speak(welcomeMsg, { rate: 0.9, pitch: 1.0, volume: 0.8 });
-          }, 1000);
-        }
-      }
-
-      triggerWelcomeOnInteraction() {
-        if (!hasUserInteracted) {
-          hasUserInteracted = true;
-          this.playWelcomeMessage();
-        }
       }
 
       init() {
@@ -419,56 +365,6 @@ const ExploreMode = () => {
 
         this.issModel.rotateX(Math.PI / 2);
         this.issModel.rotateZ(Math.PI / 2);
-
-        this.updateISSInfo(position);
-      }
-
-      vector3ToLatLon(position: THREE.Vector3) {
-        const normalized = position.clone().normalize();
-        const lat = Math.asin(normalized.y) * (180 / Math.PI);
-        const lon = Math.atan2(normalized.z, -normalized.x) * (180 / Math.PI);
-        return { lat, lon };
-      }
-
-      getLocationName(lat: number, lon: number) {
-        if (lat > 66) return "Arctic";
-        if (lat < -66) return "Antarctic";
-
-        if (lon >= -170 && lon <= -30) {
-          if (lat >= 15 && lat <= 72) return "North America";
-          if (lat >= -56 && lat < 15) return "South America";
-        }
-        if (lon >= -30 && lon <= 60) {
-          if (lat >= 35 && lat <= 71) return "Europe";
-          if (lat >= -35 && lat < 35) return "Africa";
-        }
-        if (lon >= 60 && lon <= 150) {
-          if (lat >= 8 && lat <= 75) return "Asia";
-          if (lat >= -50 && lat < 8) return "Oceania";
-        }
-
-        if (lat >= -60 && lat <= 60) {
-          if (lon >= -170 && lon <= -70) return "Pacific Ocean";
-          if (lon >= -70 && lon <= 20) return "Atlantic Ocean";
-          if (lon >= 20 && lon <= 120) return "Indian Ocean";
-        }
-
-        return "Ocean";
-      }
-
-      updateISSInfo(position: THREE.Vector3) {
-        const { lat, lon } = this.vector3ToLatLon(position);
-        const locationName = this.getLocationName(lat, lon);
-
-        const locationElement = document.getElementById("iss-location");
-        if (locationElement) {
-          locationElement.textContent = locationName;
-        }
-
-        const coordsElement = document.getElementById("iss-coords");
-        if (coordsElement) {
-          coordsElement.textContent = `${lat.toFixed(1)}°, ${lon.toFixed(1)}°`;
-        }
       }
 
       createStars() {
@@ -544,7 +440,6 @@ const ExploreMode = () => {
 
           button.addEventListener("click", () => {
             playClickSound();
-            this.triggerWelcomeOnInteraction();
             this.selectYear(year);
           });
 
@@ -774,7 +669,6 @@ const ExploreMode = () => {
         window.addEventListener("resize", () => this.onWindowResize());
 
         this.renderer.domElement.addEventListener("click", (event) => {
-          this.triggerWelcomeOnInteraction();
           this.onMouseClick(event);
         });
 
@@ -986,11 +880,6 @@ const ExploreMode = () => {
 
         this.controls.update();
 
-        // Earth rotation disabled to keep sun light stationary
-        // if (this.autoRotate) {
-        //   this.earth.rotation.y += 0.0003;
-        // }
-
         const angularVelocity = (Math.PI * 2) / this.issOrbit.orbitalPeriod;
         this.issOrbit.angle += angularVelocity * delta;
 
@@ -1040,8 +929,7 @@ const ExploreMode = () => {
     <>
       <div ref={containerRef} className="canvas-container"></div>
 
-      {/* Reusable Info Panel */}
-      <InfoPanel
+      <EventInfo
         isVisible={infoPanelData.isVisible}
         title={infoPanelData.title}
         description={infoPanelData.description}
@@ -1051,12 +939,14 @@ const ExploreMode = () => {
         buttonText={t("Close")}
       />
 
+      <ISSInfo />
+
       <div className="ui-overlay">
         <div className="top-right-controls">
           <div className="instructions-container">
             <div className="instructions-panel">
               {t(
-                "Hold left mouse + drag to rotate • Scroll to zoom in/out • Hold right mouse + drag to move • Click on pins to view events"
+                "Hold left mouse + drag to rotate • Scroll to zoom in/out • Click on pins to view events"
               )}
             </div>
             <div className="instructions-toggle">❓</div>
@@ -1070,41 +960,6 @@ const ExploreMode = () => {
               <span>🛰️</span>
               <span>{t("ISS")}</span>
             </button>
-          </div>
-        </div>
-
-        <div id="iss-info" style={{ display: "none" }}>
-          <h3>🛰️ {t("ISS Orbit")}</h3>
-          <div className="info-row">
-            <span className="info-label">{t("Speed:")}</span>
-            <span className="info-value">{t("27,600 km/h")}</span>
-          </div>
-          <div className="info-row">
-            <span className="info-label">{t("Altitude:")}</span>
-            <span className="info-value">{t("~408 km")}</span>
-          </div>
-          <div className="info-row">
-            <span className="info-label">{t("Orbital period:")}</span>
-            <span className="info-value">{t("~92.7 minutes")}</span>
-          </div>
-          <div className="info-row">
-            <span className="info-label">{t("Inclination:")}</span>
-            <span className="info-value">{t("51.6°")}</span>
-          </div>
-          <div className="info-row">
-            <span className="info-label">{t("Orbits/day:")}</span>
-            <span className="info-value">{t("~15.5 times")}</span>
-          </div>
-          <div className="info-row">
-            <span className="info-label">{t("Earth radius:")}</span>
-            <span className="info-value">{t("6,371 km")}</span>
-          </div>
-          <div className="scale-note">
-            ⚠️ {t("Note:")}
-            <br />{" "}
-            {t(
-              "ISS is magnified ~11,500x for easier observation. In reality, ISS is only 109m long, extremely small compared to Earth."
-            )}
           </div>
         </div>
 

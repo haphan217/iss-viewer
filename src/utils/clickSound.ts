@@ -1,12 +1,20 @@
-import clickSound from '../assets/mouse-click.mp3';
-import cameraFlashSound from '../assets/camera-flash.mp3';
-import noLuckSound from '../assets/no-luck.mp3';
-import congratulationsSound from '../assets/congratulations.mp3';
+import clickSound from "../assets/mouse-click.mp3";
+import cameraFlashSound from "../assets/camera-flash.mp3";
+import noLuckSound from "../assets/no-luck.mp3";
+import congratulationsSound from "../assets/congratulations.mp3";
+import exploreEnSound from "../assets/explore-en.mp3";
+import exploreViSound from "../assets/explore-vi.mp3";
+import missionEnSound from "../assets/mission-en.mp3";
+import missionViSound from "../assets/mission-vi.mp3";
 
 let clickAudio: HTMLAudioElement | null = null;
 let cameraFlashAudio: HTMLAudioElement | null = null;
 let noLuckAudio: HTMLAudioElement | null = null;
 let congratulationsAudio: HTMLAudioElement | null = null;
+let exploreEnAudio: HTMLAudioElement | null = null;
+let exploreViAudio: HTMLAudioElement | null = null;
+let missionViAudio: HTMLAudioElement | null = null;
+let missionEnAudio: HTMLAudioElement | null = null;
 
 // Initialize the audio element
 const initClickAudio = () => {
@@ -30,6 +38,30 @@ const initNoLuckAudio = () => {
 const initCongratulationsAudio = () => {
   if (!congratulationsAudio) {
     congratulationsAudio = new Audio(congratulationsSound);
+  }
+};
+
+const initExploreEnAudio = () => {
+  if (!exploreEnAudio) {
+    exploreEnAudio = new Audio(exploreEnSound);
+  }
+};
+
+const initExploreViAudio = () => {
+  if (!exploreViAudio) {
+    exploreViAudio = new Audio(exploreViSound);
+  }
+};
+
+const initMissionEnAudio = () => {
+  if (!missionEnAudio) {
+    missionEnAudio = new Audio(missionEnSound);
+  }
+};
+
+const initMissionViAudio = () => {
+  if (!missionViAudio) {
+    missionViAudio = new Audio(missionViSound);
   }
 };
 
@@ -73,6 +105,46 @@ export const playCongratulationsSound = () => {
     congratulationsAudio.currentTime = 0;
     congratulationsAudio.play().catch((error) => {
       console.log("Congratulations sound playback failed:", error);
+    });
+  }
+};
+
+export const playExploreEnSound = () => {
+  initExploreEnAudio();
+  if (exploreEnAudio) {
+    exploreEnAudio.currentTime = 0;
+    exploreEnAudio.play().catch((error) => {
+      console.log("Explore sound playback failed:", error);
+    });
+  }
+};
+
+export const playExploreViSound = () => {
+  initExploreViAudio();
+  if (exploreViAudio) {
+    exploreViAudio.currentTime = 0;
+    exploreViAudio.play().catch((error) => {
+      console.log("Explore sound playback failed:", error);
+    });
+  }
+};
+
+export const playMissionEnSound = () => {
+  initMissionEnAudio();
+  if (missionEnAudio) {
+    missionEnAudio.currentTime = 0;
+    missionEnAudio.play().catch((error) => {
+      console.log("Mission sound playback failed:", error);
+    });
+  }
+};
+
+export const playMissionViSound = () => {
+  initMissionViAudio();
+  if (missionViAudio) {
+    missionViAudio.currentTime = 0;
+    missionViAudio.play().catch((error) => {
+      console.log("Mission sound playback failed:", error);
     });
   }
 };

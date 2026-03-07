@@ -3,28 +3,37 @@ import { useTranslation } from "react-i18next";
 import ISSView from "./components/ISSView";
 import ExploreMode from "./components/ExploreMode";
 import LanguageSwitcher from "./components/LanguageSwitcher";
-import "./App.css";
 import backgroundSound from "./assets/soundspace.mp3";
-import { playClickSound } from "./utils/clickSound";
+import {
+  playClickSound,
+  playExploreEnSound,
+  playExploreViSound,
+  playMissionEnSound,
+  playMissionViSound,
+} from "./utils/clickSound";
 
 type AppMode = "explore" | "mission";
 
 export default function App() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [mode, setMode] = useState<AppMode>("explore");
   const [showModal, setShowModal] = useState(false);
   const [started, setStarted] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
+
+  const bgAudioRef = useRef<HTMLAudioElement>(null);
+  const welcomeMissionPlayedRef = useRef(false);
   const FULL_TITLE = t("MISSION CONTROL");
 
   const handleStart = () => {
     playClickSound();
     setStarted(true);
-    // Trigger user interaction flag for welcome message
-    (window as any).userHasInteracted = true;
+
+    if (i18n.language === "en") playExploreEnSound();
+    else playExploreViSound();
+
     // Play background sound
-    if (audioRef.current) {
-      audioRef.current.play().catch((error) => {
+    if (bgAudioRef.current) {
+      bgAudioRef.current.play().catch((error) => {
         console.log("Audio playback failed:", error);
       });
     }
@@ -36,7 +45,6 @@ export default function App() {
   const [isTyping, setIsTyping] = useState(false);
   const [showModalContent, setShowModalContent] = useState(false);
 
-  // --- Effect điều khiển animation của modal ---
   useEffect(() => {
     if (showModal) {
       setTypedTitle("");
@@ -70,6 +78,12 @@ export default function App() {
     playClickSound();
     setMode(newMode);
     setShowModal(false);
+
+    if (newMode === "explore" || welcomeMissionPlayedRef.current) return;
+
+    if (i18n.language === "en") playMissionEnSound();
+    else playMissionViSound();
+    welcomeMissionPlayedRef.current = true;
   };
 
   const renderContent = () => {
@@ -84,7 +98,7 @@ export default function App() {
   return (
     <div className="w-screen h-screen overflow-hidden relative">
       {/* Background Audio */}
-      <audio ref={audioRef} src={backgroundSound} loop />
+      {/* <audio ref={audioRef} src={backgroundSound} loop /> */}
 
       {/* Start Button Overlay */}
       {!started && (

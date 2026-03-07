@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import missionsData from "../data/missions.json";
-import InfoPanel from "./InfoPanel";
+import EventInfo from "./InfoPanels/EventInfo";
 import {
   playClickSound,
   playCameraFlashSound,
@@ -348,7 +348,7 @@ const Mission: React.FC<MissionProps> = ({
 
       {/* Mission Success Screen */}
       {showSuccess && missionResult?.mission && (
-        <InfoPanel
+        <EventInfo
           isVisible={showSuccess}
           title={missionResult.mission.title}
           description={missionResult.mission.description}
@@ -428,7 +428,7 @@ const Mission: React.FC<MissionProps> = ({
                     {t("CURRENT MISSION")}
                   </div>
                   <div className="text-sm text-cyan-200 leading-relaxed">
-                    {t(selectedMission.title) }
+                    {t(selectedMission.title)}
                   </div>
                 </div>
               )}

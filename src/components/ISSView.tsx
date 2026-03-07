@@ -54,7 +54,7 @@ const Scene: React.FC<{
         earthRef={earthRef}
         enableMissionRotation={missionState.isActive}
         missionTarget={missionTarget}
-        rotationSpeed={0.2}
+        rotationSpeed={0.5}
       />
 
       {/* Zero Gravity Physics System */}

@@ -32,7 +32,7 @@
   overflow-y: auto;
   display: none;
   pointer-events: all;
-  font-family: 'Consolas', 'Courier New', monospace;
+  font-family: "Consolas", "Courier New", monospace;
   transition: all 0.3s ease;
   z-index: 1000;
   position: relative;
@@ -134,7 +134,7 @@
   display: block;
   margin-left: auto;
   margin-right: auto;
-  font-family: 'Consolas', 'Courier New', monospace;
+  font-family: "Consolas", "Courier New", monospace;
 }
 
 #info-panel button:hover {
@@ -162,14 +162,14 @@
 
 #iss-info {
   position: absolute;
-  top: 20px;
+  top: 100px;
   left: 20px;
   color: white;
   background: rgba(0, 0, 0, 0.85);
   padding: 20px;
   border-radius: 8px;
   font-size: 14px;
-  min-width: 280px;
+  width: 25%;
   border: 1px solid rgba(0, 255, 255, 0.3);
 }
 
@@ -296,7 +296,8 @@
 }
 
 @keyframes pulse-dot {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
