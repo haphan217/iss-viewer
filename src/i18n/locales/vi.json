@@ -30,8 +30,8 @@
   "SELECT MISSION": "CHỌN NHIỆM VỤ",
   "Select a mission to start taking photos from ISS Cupola": "Chọn một nhiệm vụ để bắt đầu chụp ảnh từ ISS Cupola",
   "HOW TO PLAY": "CÁCH CHƠI",
-  "Use WASD-QE to rotate the Earth": "Sử dụng WASD-QE để xoay Trái Đất",
-  "Click the Camera to capture photos when your target colored in Red is in view": "Nhấp vào Máy ảnh để chụp ảnh khi mục tiêu được tô màu Đỏ của bạn xuất hiện trong tầm nhìn",
+  "Use WASD-QE to move around the ISS Cupola": "Sử dụng WASD-QE để di chuyển quanh ISS Cupola",
+  "Click the Camera to capture photos when your target colored in Red is in view": "Nhấp vào Máy ảnh để chụp ảnh khi mục tiêu được tô màu Đỏ xuất hiện trong tầm nhìn",
   "EASY": "DỄ",
   "MEDIUM": "TRUNG BÌNH",
   "HARD": "KHÓ",
@@ -54,6 +54,7 @@
   "ORBITAL": "QUỸ ĐẠO",
   "CURRENT MISSION": "NHIỆM VỤ HIỆN TẠI",
   "OTHER MISSIONS": "NHIỆM VỤ KHÁC",
+  "Satellite": "Vệ tinh",
   "Major Dust Storm over the Sahara": "Bão bụi lớn trên sa mạc Sahara",
   "The ISS routinely photographed massive dust storms sweeping across the Sahara Desert and out over the Atlantic Ocean. Images from 2001 highlighted the scale of this phenomenon, which transports vital minerals and dust across continents.": "ISS thường xuyên chụp ảnh những cơn bão bụi khổng lồ quét qua sa mạc Sahara và ra Đại Tây Dương. Hình ảnh từ năm 2001 làm nổi bật quy mô của hiện tượng này, vốn vận chuyển khoáng chất và bụi quan trọng xuyên lục địa.",
   "Cause: Strong seasonal winds, known as the Harmattan, lift vast quantities of sand and dust from dry lake beds like the Bodélé Depression in Chad.": "Nguyên nhân: Gió mùa mạnh, được gọi là Harmattan, nâng lượng lớn cát và bụi từ các lòng hồ khô như Vùng trũng Bodélé ở Chad.",
@@ -131,9 +132,40 @@
   "Significance: These projects are premier examples of mega-scale coastal engineering and serve as case studies for the significant environmental impact of such developments on marine ecosystems.": "Ý nghĩa: Các dự án này là những ví dụ hàng đầu về kỹ thuật ven biển quy mô lớn và phục vụ như nghiên cứu điển hình cho tác động môi trường đáng kể của các phát triển như vậy đối với các hệ sinh thái biển.",
   "Fun fact: The Palm Jumeirah is made of over 94 million cubic meters of sand and 7 million tons of rock, adding 72 kilometers of new coastline to Dubai.": "Sự thật thú vị: Palm Jumeirah được làm từ hơn 94 triệu mét khối cát và 7 triệu tấn đá, thêm 72 kilômét bờ biển mới vào Dubai.",
 
+  "Indian Ocean Tsunami Devastation": "Thảm họa sóng thần ở Ấn Độ Dương",
+  "The massive tsunami triggered by a 9.1 magnitude earthquake off Sumatra on December, 2004. It affected coastal regions across Asia, including Indonesia, Thailand, and India.": "Sóng thần khổng lồ do sự kiện động đất có cường độ 9.1 ở Sumatra vào ngày 26 tháng 12 năm 2004. Nó ảnh hưởng đến các khu vực ven biển ở châu Á, bao gồm Indonesia, Thái Lan và Ấn Độ.",
+  "Cause: Undersea megathrust earthquake displacing massive amounts of water, generating waves up to 30 meters high.": "Nguyên nhân: Động đất megathrust dưới đại dương di chuyển lượng lớn nước, tạo ra sóng lên đến 30 mét cao.",
+  "Result: Over 230,000 deaths across 14 countries; widespread destruction of coastlines, villages, and ecosystems.": "Kết quả: Hơn 230,000 người chết ở 14 quốc gia; phá hủy rộng lớn các bờ biển, thôn xóm và hệ sinh thái.",
+  "Significance: Satellite data helped map inundation and damage, aiding relief efforts and highlighting vulnerability of Asian coastal communities.": "Ý nghĩa: Dữ liệu vệ tinh giúp ánh xạ ngập lụt và thiệt hại, hỗ trợ các nỗ lực cứu hộ và làm nổi bật tính nhạy cảm của các khu vực ven biển châu Á.",
+  "Fun fact: Radar altimeters on Jason-1 and TOPEX/Poseidon satellites measured the tsunami wave height in the open ocean as about 60 cm.": "Sự thật thú vị: Các thiết bị đo độ cao sóng thần trên Jason-1 và TOPEX/Poseidon vệ tinh đo độ cao của sóng thần trong đại dương mở là khoảng 60 cm.",
+
+  "Super Typhoon Haiyan in the Philippines": "Siêu bão Haiyan ở Philippines",
+  "Super Typhoon Haiyan, one of the strongest tropical cyclones on record, made landfall in the Philippines in November 2013.": "Siêu bão Haiyan, một trong những bão thuỷ văn mạnh nhất trên thế giới, đổ bộ ở Philippines vào tháng 11 năm 2013.",
+  "Cause: Warm ocean waters fueling rapid intensification, with sustained winds up to 315 kph.": "Nguyên nhân: Nước biển ấm làm tăng tốc độ tăng cường của bão, với gió mạnh liên tục lên đến 315 km/h.",
+  "Result: Over 6,000 deaths, millions displaced; massive storm surge up to 5 meters in Tacloban.": "Kết quả: Hơn 6,000 người chết, hàng triệu người di cư; sóng thần lớn lên đến 5 mét ở Tacloban.",
+  "Significance: Highlighted the increasing intensity of typhoons in Asia due to climate change; spurred international aid and improved warning systems.": "Ý nghĩa: Làm nổi bật sự tăng cường của bão thuỷ văn ở châu Á do biến đổi khí hậu; kích thích sự hỗ trợ quốc tế và cải thiện các hệ thống cảnh báo.",
+  "Fun fact: Haiyan was the 24th tropical storm to hit the Philippines in 2013, a record year for the region.": "Sự thật thú vị: Haiyan là số 24 bão thuỷ văn đổ bộ ở Philippines vào năm 2013, là năm có nhiều bão nhất trong khu vực.",
+
+  "Fall Colors in Eastern Siberia": "Màu lá thu ở Đông Bắc Siberia",
+  "MODIS on NASA's Terra satellite captured the vibrant shift from green to reds, yellows, and browns in northeastern Siberian tundra and boreal forests as autumn arrives. The image shows deciduous larch trees turning golden amid evergreen conifers.": "MODIS trên vệ tinh Terra của NASA chụp được sự chuyển đổi sắc màu từ xanh lá cây sang đỏ, vàng và nâu trong tundra và rừng phương bắc Síbêria khi mùa thu đến. Hình ảnh cho thấy cây lá rụng lào đổi sang màu vàng trong khi cây thân cứng vẫn giữ màu xanh lá cây.",
+  "Cause: Cooler temperatures and shorter days trigger color change in larch-dominated forests.": "Nguyên nhân: Nhiệt độ lạnh hơn và ngày ngắn hơn kích thích sự thay đổi sắc màu trong rừng lá rụng chiếm ưu thế.",
+  "Result: Striking golden and red patterns across vast taiga landscapes.": "Kết quả: Vẻ đẹp vàng và đỏ trên các khu vực rừng taiga rộng lớn.",
+  "Significance: One of the largest seasonal color displays on Earth; helps monitor boreal forest response to climate.": "Ý nghĩa: Một trong những hiện tượng sắc màu lớn nhất trên Trái Đất; giúp giám sát phản ứng của rừng phương bắc đối với biến đổi khí hậu.",
+  "Fun fact: Larch needles turn bright gold before shedding, creating a 'golden wave' visible across thousands of kilometers.": "Sự thật thú vị: Lá lốt chuyển sang màu vàng sáng trước khi rụng, tạo ra một 'sóng vàng' có thể nhìn thấy trên hàng ngàn kilomet.",
+
+  "Severe Indonesian Forest Fires and Haze": "Cháy rừng nghiêm trọng ở Indonesia",
+  "Intense peatland fires in Sumatra and Kalimantan, Indonesia peaked in September-October 2019, captured by Aqua showing thick smoke plumes spreading across Southeast Asia to Malaysia, Singapore, and Thailand. VIIRS detected thousands of active fire hotspots.": "Cháy rừng mùn đất nghiêm trọng ở Sumatra và Kalimantan, Indonesia đạt đỉnh vào tháng 9-10 năm 2019, được Aqua chụp được khói mỏng lan rộng ra châu Á Đông, Malaysia, Singapore và Thái Lan. VIIRS phát hiện hàng ngàn điểm cháy hoạt động.",
+  "Cause: Prolonged dry season exacerbated by El Niño remnants and land-clearing practices.": "Nguyên nhân: Mùa khô kéo dài do lại El Niño và thực hiện cắt rừng.",
+  "Result: Hazardous air quality across borders; millions affected by haze, health impacts, and economic losses.": "Kết quả: Chất lượng không khí nguy hiểm ở các biên giới; hàng triệu người bị mù, tác động sức khỏe và thiệt hại kinh tế.",
+  "Significance: One of the worst haze events in years; satellite monitoring helped track transboundary pollution and enforce fire bans.": "Ý nghĩa: Một trong những sự kiện mù nghiêm trọng nhất trong nhiều năm; giám sát vệ tinh giúp theo dõi ô nhiễm quốc tế và thực hiện các quy định chống cháy rừng.",
+  "Fun fact: Smoke plumes were visible from space extending over 2,000 km, turning skies orange in neighboring countries.": "Sự thật thú vị: Khói mỏng có thể nhìn thấy từ không gian lan rộng ra hơn 2,000 km, làm màu đỏ cam trong các quốc gia láng giềng.",
+
+
+
+
   "Urban Night Photography": "Chụp ảnh đô thị ban đêm",
-  "Chicago, Illinois, USA": "Chicago, Illinois, Hoa Kỳ",
-  "Chicago, Illinois, is home to roughly three million people, but the wider metropolitan area includes nearly 10 million. By day, the cement-colored urban center blends into suburbs and farmland. By night, the region's ten million people cannot be missed. Study of urban growth, light pollution, and energy consumption.": "Chicago, Illinois, là nhà của khoảng ba triệu người, nhưng khu vực đô thị rộng lớn hơn bao gồm gần 10 triệu. Vào ban ngày, trung tâm đô thị màu xi măng hòa vào vùng ngoại ô và đất nông nghiệp. Vào ban đêm, mười triệu người của khu vực không thể bỏ qua. Nghiên cứu về tăng trưởng đô thị, ô nhiễm ánh sáng và tiêu thụ năng lượng.",
+  "Tokyo, Japan": "Tokyo, Nhật Bản",
+  "Japanese cities glow a cooler blue-green than other regions of the world. Newer developments along the shore of Tokyo Bay are characterized by orange sodium vapor lamps, while the majority of the urban area has light green mercury vapor lamps.": "Các thành phố Nhật Bản phát sáng một màu xanh lá cây lạnh hơn các khu vực khác trên thế giới. Các khu đô thị mới dọc bờ biển Tokyo Bay đặc trưng bởi đèn natri hơi màu cam, trong khi phần lớn khu đô thị có đèn thủy ngân hơi màu xanh lá cây nhạt.",
   "Purpose: Research urban growth patterns, light pollution levels, and energy consumption in densely populated areas": "Mục đích: Nghiên cứu các mô hình tăng trưởng đô thị, mức độ ô nhiễm ánh sáng và tiêu thụ năng lượng ở các khu vực đông dân cư",
   "Event & Cause: Development of electrical grid networks and urbanization driven by population growth and economic concentration": "Sự kiện & Nguyên nhân: Phát triển mạng lưới điện và đô thị hóa được thúc đẩy bởi tăng trưởng dân số và tập trung kinh tế",
   "Impact: Helps governments and planners assess lighting efficiency and resource management, reveals economic disparities through regional brightness": "Tác động: Giúp chính phủ và các nhà quy hoạch đánh giá hiệu quả chiếu sáng và quản lý tài nguyên, tiết lộ sự chênh lệch kinh tế thông qua độ sáng khu vực",
@@ -162,8 +194,6 @@
   "Significance: ISS provides unique vantage point to study space weather effects and atmospheric interactions in real-time": "Ý nghĩa: ISS cung cấp điểm quan sát độc đáo để nghiên cứu tác động thời tiết không gian và tương tác khí quyển trong thời gian thực",
   "Your mission is to photograph aurora displays in high latitude regions. Aurora activity areas will be marked in red on Earth's surface.": "Nhiệm vụ của bạn là chụp ảnh các màn trình diễn cực quang ở các khu vực vĩ độ cao. Các khu vực hoạt động cực quang sẽ được đánh dấu màu đỏ trên bề mặt Trái Đất.",
 
-  "_comment_disasters": "=== DISASTER DATA (mockDisasterData.ts) ===",
-
   "California Wildfires 2020": "Cháy rừng California 2020",
   "Massive wildfire outbreak across California, affecting millions of acres": "Đợt bùng phát cháy rừng khổng lồ trên khắp California, ảnh hưởng đến hàng triệu mẫu Anh",
   "Over 4 million acres burned, 33 fatalities, $10+ billion in damages": "Hơn 4 triệu mẫu Anh bị cháy, 33 người chết, thiệt hại hơn 10 tỷ đô la",
@@ -187,5 +217,43 @@
   "Hunga Tonga-Hunga Ha'apai Eruption 2022": "Vụ phun trào Hunga Tonga-Hunga Ha'apai 2022",
   "Massive underwater volcanic eruption in Tonga": "Vụ phun trào núi lửa dưới nước khổng lồ ở Tonga",
   "Largest volcanic eruption in 30 years, tsunami waves, ash cloud affecting global climate": "Vụ phun trào núi lửa lớn nhất trong 30 năm, sóng thần, đám mây tro ảnh hưởng đến khí hậu toàn cầu",
-  "ISS observations provided early warning of the tsunami threat, enabling evacuations across the Pacific. Satellite monitoring helped track the ash cloud's global impact on aviation and climate.": "Quan sát ISS cung cấp cảnh báo sớm về mối đe dọa sóng thần, cho phép sơ tán trên khắp Thái Bình Dương. Giám sát vệ tinh giúp theo dõi tác động toàn cầu của đám mây tro đối với hàng không và khí hậu."
+  "ISS observations provided early warning of the tsunami threat, enabling evacuations across the Pacific. Satellite monitoring helped track the ash cloud's global impact on aviation and climate.": "Quan sát ISS cung cấp cảnh báo sớm về mối đe dọa sóng thần, cho phép sơ tán trên khắp Thái Bình Dương. Giám sát vệ tinh giúp theo dõi tác động toàn cầu của đám mây tro đối với hàng không và khí hậu.",
+
+  "Aurora Australis over Southern Ocean and Australia": "Cực Quang Nam Cực trên Nam Đại Dương và Úc",
+  "Time-lapse photos from the International Space Station captured green and red aurora australis dancing along Earth's horizon, visible as shimmering curtains during a solar storm period.": "Các bức ảnh time-lapse từ Trạm Vũ trụ Quốc tế đã ghi lại cực quang Nam Cực màu xanh và đỏ nhảy múa dọc theo đường chân trời Trái Đất, hiện lên như những tấm rèm lấp lánh trong giai đoạn bão mặt trời.",
+  "Cause: Charged solar particles exciting atmospheric gases during active solar cycle.": "Nguyên nhân: Các hạt tích điện từ Mặt Trời kích thích khí quyển trong chu kỳ hoạt động mặt trời mạnh.",
+  "Result: Glowing green (oxygen) and red (nitrogen) ribbons rippling across the night side.": "Kết quả: Những dải sáng xanh (từ oxy) và đỏ (từ nitơ) lan tỏa gợn sóng trên phía đêm của Trái Đất.",
+  "Significance: Stunning views from orbit; increased aurora visibility at lower latitudes in recent years.": "Ý nghĩa: Những khung cảnh ngoạn mục từ quỹ đạo; cực quang dễ nhìn thấy hơn ở vĩ độ thấp trong những năm gần đây.",
+  "Fun fact: Astronauts often describe it as a 'cosmic light show' dancing along the planet's curve.": "Sự thật thú vị: Các phi hành gia thường mô tả nó như một 'buổi trình diễn ánh sáng vũ trụ' nhảy múa dọc theo đường cong hành tinh.",
+
+  "Typhoon Noru (Phong Nguyen) Landfall in Central Vietnam": "Bão Noru (Phong Nguyễn) đổ bộ vào miền Trung Việt Nam",
+  "Typhoon Noru made landfall near Da Nang in September 2022 as a strong storm, showing rapid intensification and eye structure.": "Bão Noru đổ bộ gần Đà Nẵng vào tháng 9 năm 2022 với sức mạnh lớn, thể hiện sự tăng cường nhanh chóng và cấu trúc mắt bão rõ nét.",
+  "Cause: Favorable conditions in the South China Sea led to quick strengthening before hitting Vietnam.": "Nguyên nhân: Điều kiện thuận lợi trên Biển Đông khiến bão tăng cường nhanh trước khi đổ bộ vào Việt Nam.",
+  "Result: Heavy rains, strong winds; evacuations and damage to homes, power lines in Quang Nam and Quang Ngai.": "Kết quả: Mưa lớn, gió mạnh; sơ tán dân cư và thiệt hại nhà cửa, đường dây điện ở Quảng Nam và Quảng Ngãi.",
+  
+  "View of Can Tho Rice Paddies": "Hình ảnh ruộng lúa Cần Thơ",
+  "A rare, almost completely cloud-free over the city of Can Tho in southwest Vietnam. The image reveals the vast patchwork of fertile rice paddy fields intersected by an intricate network of irrigation and drainage canals. Villages and cities hug the waterways, as roads are scarce and transport relies on canals.": "Một hình ảnh hiếm hoi gần như hoàn toàn không có mây bao phủ thành phố Cần Thơ ở miền Tây Nam Bộ Việt Nam. Hình ảnh cho thấy những mảng ruộng lúa màu mỡ rộng lớn được cắt ngang bởi mạng lưới kênh tưới tiêu và thoát nước chằng chịt. Các làng mạc và thành phố nằm sát dọc theo các tuyến thủy lộ, vì đường bộ ít và giao thông chủ yếu dựa vào kênh rạch.",
+  "Cause: Exceptional clear weather conditions allowing optical satellite capture of this frequently cloudy tropical region.": "Nguyên nhân: Điều kiện thời tiết quang đãng đặc biệt cho phép vệ tinh quang học ghi lại khu vực nhiệt đới thường xuyên có mây.",
+  "Result: Detailed view showcasing the 'rice bowl' of Vietnam – one of the world's most productive agricultural areas.": "Kết quả: Hình ảnh chi tiết thể hiện 'vựa lúa' của Việt Nam – một trong những vùng nông nghiệp sản xuất nhất thế giới.",
+  "Fun fact: The Mekong Delta produces enough rice to feed millions globally; the canal network forms a natural 'road system' longer than many highway networks, visible as blue veins threading through green fields.": "Sự thật thú vị: Đồng bằng sông Cửu Long sản xuất đủ gạo để nuôi sống hàng triệu người trên toàn cầu; mạng lưới kênh rạch tạo thành một 'hệ thống đường bộ tự nhiên' dài hơn nhiều mạng lưới cao tốc, hiện lên như những mạch máu xanh xuyên qua cánh đồng xanh.",
+  
+  "Super Typhoon Yagi Landfall in Northern Vietnam": "Siêu bão Yagi đổ bộ vào miền Bắc Việt Nam",
+  "Super Typhoon Yagi made landfall near Haiphong and Quang Ninh.": "Siêu bão Yagi đổ bộ gần Hải Phòng và Quảng Ninh.",
+  "Cause: Rapid intensification over warm South China Sea waters, reaching Category 5 equivalent twice.": "Nguyên nhân: Tăng cường nhanh chóng trên vùng nước ấm Biển Đông, đạt cấp 5 tương đương hai lần.",
+  "Result: Over 300 deaths, thousands injured; massive flooding, landslides, and infrastructure damage in northern provinces.": "Kết quả: Hơn 300 người chết, hàng ngàn người bị thương; lũ lụt lớn, sạt lở đất và thiệt hại cơ sở hạ tầng nghiêm trọng ở các tỉnh phía Bắc.",
+  "Fun fact: Yagi was the strongest typhoon to hit Vietnam in over 70 years, with winds up to 270 km/h recorded before landfall.": "Sự thật thú vị: Yagi là cơn bão mạnh nhất đổ bộ vào Việt Nam trong hơn 70 năm, với gió giật lên đến 270 km/h được ghi nhận trước khi đổ bộ.",
+  
+  "Devastating Flooding in Quảng Nam Province": "Lũ lụt nghiêm trọng tại tỉnh Quảng Nam",
+  "In late October 2025, severe flooding struck central Vietnam after days of intense rainfall, prompting thousands of residents to evacuate. The image shows flooded areas in blue tones along the Vu Gia and Thu Bồn rivers near Điện Bàn, and Hội An.": "Vào cuối tháng 10 năm 2025, lũ lụt nghiêm trọng xảy ra ở miền Trung Việt Nam sau nhiều ngày mưa lớn liên tục, buộc hàng ngàn cư dân phải sơ tán. Hình ảnh cho thấy các khu vực ngập lụt màu xanh lam dọc theo sông Vu Gia và Thu Bồn gần Điện Bàn và Hội An.",
+  "Cause: Prolonged intense rainfall leading to river overflows and widespread inundation in low-lying areas.": "Nguyên nhân: Mưa lớn kéo dài dẫn đến sông tràn bờ và ngập lụt rộng khắp ở vùng đất thấp.",
+  "Result: At least 37 deaths, thousands evacuated; major impacts on homes, infrastructure, and agriculture in Quảng Nam and surrounding provinces.": "Kết quả: Ít nhất 37 người thiệt mạng, hàng ngàn người phải sơ tán; tác động lớn đến nhà cửa, cơ sở hạ tầng và nông nghiệp ở Quảng Nam và các tỉnh lân cận.",
+  "Significance: Copernicus Sentinel-1's cloud-penetrating radar proved essential for real-time flood monitoring and disaster management in cloudy tropical conditions.": "Ý nghĩa: Radar xuyên mây của Copernicus Sentinel-1 đã chứng minh vai trò thiết yếu trong việc giám sát lũ lụt thời gian thực và quản lý thảm họa trong điều kiện thời tiết nhiệt đới nhiều mây.",
+  "Fun fact: Flooded zones appear distinctly blue in SAR imagery due to smooth water surfaces reflecting radar signals differently from land, allowing clear delineation even under persistent monsoon clouds.": "Sự thật thú vị: Các vùng ngập nước hiện lên rõ ràng màu xanh lam trong ảnh radar do bề mặt nước phẳng phản xạ tín hiệu radar khác biệt so với đất liền, cho phép phân định chính xác ngay cả dưới lớp mây mùa mưa dai dẳng.",
+  
+  "Green Aurora Rippling above the Mediterranean Sea": "Cực quang xanh lan tỏa trên Địa Trung Hải",
+  "ISS astronaut photos captured vibrant green and red aurora streams across Earth’s horizon above the city lights of Europe, which looks north across Italy toward Germany.": "Các bức ảnh của phi hành gia trên ISS đã ghi lại những dòng cực quang xanh và đỏ rực rỡ lan tỏa trên đường chân trời Trái Đất phía trên ánh đèn thành phố châu Âu, nhìn từ phía nam Ý hướng về Đức.",
+  "Cause: Intense solar activity ionizing upper atmosphere gases.": "Nguyên nhân: Hoạt động mặt trời mạnh mẽ ion hóa các khí tầng trên cao.",
+  "Result: Pulsating green curtains with occasional red/pink edges along the horizon.": "Kết quả: Những tấm rèm xanh nhấp nháy với viền đỏ/hồng thỉnh thoảng dọc theo đường chân trời.",
+  "Significance: Rare lower-latitude views from space; beauty of space weather interaction.": "Ý nghĩa: Những góc nhìn hiếm có ở vĩ độ thấp từ không gian; vẻ đẹp của sự tương tác thời tiết vũ trụ.",
+  "Fun fact: Green glow from excited oxygen at ~100 km altitude creates the dominant color.": "Sự thật thú vị: Ánh sáng xanh chủ đạo xuất phát từ oxy bị kích thích ở độ cao khoảng 100 km."
 }

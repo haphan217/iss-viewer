@@ -1,6 +1,6 @@
 import "../styles/ExploreMode.css";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -25,909 +25,651 @@ interface EventsByYear {
   [year: number]: Event[];
 }
 
+const SCALE = 100;
+const EARTH_RADIUS_KM = 6371;
+const ISS_ALTITUDE_KM = 408;
+const ISS_LENGTH_M = 109;
+const ISS_LENGTH_KM = ISS_LENGTH_M / 1000;
+const MAX_TRAIL_LENGTH = 50;
+
+const initialSceneScale = {
+  earthRadius: EARTH_RADIUS_KM / SCALE,
+  issAltitude: (ISS_ALTITUDE_KM / SCALE) * 5,
+  issRealSize: ISS_LENGTH_KM / SCALE,
+  issVisibleSize: 2.5 * 5,
+  issScaleFactor: 11470,
+};
+
+function latLonToVector3(
+  lat: number,
+  lon: number,
+  radius: number = initialSceneScale.earthRadius
+): THREE.Vector3 {
+  const phi = (90 - lat) * (Math.PI / 180);
+  const theta = (lon + 180) * (Math.PI / 180);
+  const x = -(radius * Math.sin(phi) * Math.cos(theta));
+  const z = radius * Math.sin(phi) * Math.sin(theta);
+  const y = radius * Math.cos(phi);
+  return new THREE.Vector3(x, y, z);
+}
+
+const TIMELINE_YEARS = Array.from({ length: 2026 - 2000 + 1 }, (_, i) => 2000 + i);
+
+interface SceneRef {
+  scene: THREE.Scene;
+  clock: THREE.Clock;
+  raycaster: THREE.Raycaster;
+  mouse: THREE.Vector2;
+  renderer: THREE.WebGLRenderer;
+  camera: THREE.PerspectiveCamera;
+  controls: OrbitControls;
+  earth: THREE.Mesh;
+  issModel: THREE.Object3D | null;
+  orbitLine: THREE.Line;
+  issTrail: THREE.Line;
+  trailPositions: THREE.Vector3[];
+  stars: THREE.Points;
+  issGlow: THREE.Mesh | null;
+  pinMarkers: THREE.Object3D[];
+  pinModelTemplate: THREE.Object3D | null;
+  sceneScale: typeof initialSceneScale;
+  issOrbit: {
+    radius: number;
+    inclination: number;
+    orbitalPeriod: number;
+    angle: number;
+  };
+  cameraAnimation: number | null;
+  isTransitioning: boolean;
+  getISSPositionAtAngle: (angle: number) => THREE.Vector3;
+  clearPins: () => void;
+  createPins: (events: Event[]) => void;
+  focusOnEvent: (event: Event) => void;
+  transitionToISSView: () => void;
+  transitionToEarthView: () => void;
+}
+
 const ExploreMode = () => {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
-  const eventMenuRef = useRef<HTMLDivElement>(null);
 
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [viewMode, setViewMode] = useState<"earth" | "iss">("earth");
+  const [selectedEventIndex, setSelectedEventIndex] = useState<number | null>(null);
   const [infoPanelData, setInfoPanelData] = useState<{
     isVisible: boolean;
     title: string;
     description: string;
     image: string;
     highlights: string[];
+    satellite?: string;
   }>({
     isVisible: false,
     title: "",
     description: "",
     image: "",
     highlights: [],
+    satellite: "",
   });
 
-  const handleCloseInfoPanel = () => {
-    setInfoPanelData({ ...infoPanelData, isVisible: false });
-  };
+  const eventsByYear = useMemo<EventsByYear>(() => {
+    return (eventsData as Event[]).reduce((acc, event) => {
+      if (!acc[event.year]) acc[event.year] = [];
+      acc[event.year].push(event);
+      return acc;
+    }, {} as EventsByYear);
+  }, []);
 
+  const sceneRef = useRef<SceneRef | null>(null);
+  const setInfoPanelDataRef = useRef(setInfoPanelData);
+  setInfoPanelDataRef.current = setInfoPanelData;
+
+  const handleCloseInfoPanel = useCallback(() => {
+    setInfoPanelData((prev) => ({ ...prev, isVisible: false }));
+  }, []);
+
+  const showInfoPanel = useCallback((data: {
+    title: string;
+    description: string;
+    issImage?: string;
+    highlights?: string[];
+    satellite?: string;
+  }) => {
+    setInfoPanelDataRef.current({
+      isVisible: true,
+      title: data.title,
+      description: data.description,
+      satellite: data.satellite,
+      image:
+        data.issImage ||
+        "https://via.placeholder.com/640x360/1a2a40/00ffc8?text=No+Image+Available",
+      highlights: data.highlights ?? [],
+    });
+  }, []);
+
+  // Initialize Three.js scene and animation loop
   useEffect(() => {
-    if (!containerRef.current) return;
+    const container = containerRef.current;
+    if (!container) return;
 
-    class EarthViewExplore {
-      scene: THREE.Scene;
-      clock: THREE.Clock;
-      raycaster: THREE.Raycaster;
-      mouse: THREE.Vector2;
-      pins: any[];
-      pinMarkers: THREE.Object3D[];
-      pinModelTemplate: THREE.Object3D | null;
-      autoRotate: boolean;
-      isAnimatingCamera: boolean;
-      cameraAnimation: number | null;
-      sceneScale: any;
-      issOrbit: any;
-      eventsByYear: EventsByYear;
-      selectedYear: number | null;
-      mockPinData: any[];
-      viewMode: string;
-      isTransitioning: boolean;
-      renderer: THREE.WebGLRenderer;
-      camera: THREE.PerspectiveCamera;
-      controls: OrbitControls;
-      ambientLight: THREE.AmbientLight;
-      sunLight: THREE.DirectionalLight;
-      earth: THREE.Mesh;
-      issModel?: THREE.Object3D;
-      orbitLine: THREE.Line;
-      trailPositions: THREE.Vector3[];
-      maxTrailLength: number;
-      issTrail: THREE.Line;
-      stars: THREE.Points;
-      issGlow?: THREE.Mesh;
-      voiceEnabled: boolean;
+    const scene = new THREE.Scene();
+    const clock = new THREE.Clock();
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
 
-      constructor() {
-        this.scene = new THREE.Scene();
-        this.clock = new THREE.Clock();
-        this.raycaster = new THREE.Raycaster();
-        this.mouse = new THREE.Vector2();
-        this.pins = [];
-        this.pinMarkers = [];
-        this.pinModelTemplate = null;
-        this.autoRotate = true;
-        this.isAnimatingCamera = false;
-        this.cameraAnimation = null;
+    const issOrbit = {
+      radius: initialSceneScale.earthRadius + initialSceneScale.issAltitude,
+      inclination: 51.6 * (Math.PI / 180),
+      orbitalPeriod: (92.68 * 60) / 10,
+      angle: 0,
+    };
 
-        const SCALE = 100;
-        const EARTH_RADIUS_KM = 6371;
-        const ISS_ALTITUDE_KM = 408;
-        const ISS_LENGTH_M = 109;
-        const ISS_LENGTH_KM = ISS_LENGTH_M / 1000;
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
+    container.appendChild(renderer.domElement);
 
-        this.sceneScale = {
-          earthRadius: EARTH_RADIUS_KM / SCALE,
-          issAltitude: (ISS_ALTITUDE_KM / SCALE) * 5,
-          issRealSize: ISS_LENGTH_KM / SCALE,
-          issVisibleSize: 2.5 * 5,
-          issScaleFactor: 11470,
-        };
+    const camera = new THREE.PerspectiveCamera(
+      45,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      10000
+    );
+    camera.position.set(0, 0, 250);
+    scene.add(camera);
 
-        this.issOrbit = {
-          altitude: ISS_ALTITUDE_KM,
-          radius: this.sceneScale.earthRadius + this.sceneScale.issAltitude,
-          speed: 27600,
-          inclination: 51.6 * (Math.PI / 180),
-          orbitalPeriod: (92.68 * 60) / 100, // 100x faster orbit
-          angle: 0,
-        };
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.minDistance = 100;
+    controls.maxDistance = 500;
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 0.5;
 
-        // Group events by year from imported data
-        this.eventsByYear = (eventsData as Event[]).reduce((acc, event) => {
-          if (!acc[event.year]) {
-            acc[event.year] = [];
-          }
-          acc[event.year].push(event);
-          return acc;
-        }, {} as EventsByYear);
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0x404060, 0.5);
+    scene.add(ambientLight);
+    const sunLight = new THREE.DirectionalLight(0xfff8e7, 3.0);
+    sunLight.position.set(100, 50, 50);
+    camera.add(sunLight);
+    const fillLight = new THREE.DirectionalLight(0x5599ff, 1.0);
+    fillLight.position.set(-100, -50, -50);
+    camera.add(fillLight);
 
-        this.selectedYear = null;
-        this.mockPinData = [];
-        this.viewMode = "earth";
-        this.isTransitioning = false;
-        this.trailPositions = [];
-        this.maxTrailLength = 50;
-        this.voiceEnabled = true;
+    // Earth
+    const earthGeometry = new THREE.SphereGeometry(
+      initialSceneScale.earthRadius,
+      64,
+      64
+    );
+    const textureLoader = new THREE.TextureLoader();
+    const earthTexture = textureLoader.load(
+      "/earth_texture.jpg",
+      () => console.log("Earth texture loaded successfully"),
+      undefined,
+      (error) => console.error("Error loading Earth texture:", error)
+    );
+    const earthMaterial = new THREE.MeshStandardMaterial({
+      map: earthTexture,
+      roughness: 0.9,
+      metalness: 0.1,
+    });
+    const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+    scene.add(earth);
 
-        this.renderer = null as any;
-        this.camera = null as any;
-        this.controls = null as any;
-        this.ambientLight = null as any;
-        this.sunLight = null as any;
-        this.earth = null as any;
-        this.orbitLine = null as any;
-        this.issTrail = null as any;
-        this.stars = null as any;
+    // Orbit path
+    const getISSPositionAtAngle = (angle: number) => {
+      const x = issOrbit.radius * Math.cos(angle);
+      const y =
+        issOrbit.radius * Math.sin(angle) * Math.sin(issOrbit.inclination);
+      const z =
+        issOrbit.radius * Math.sin(angle) * Math.cos(issOrbit.inclination);
+      return new THREE.Vector3(x, y, z);
+    };
 
-        this.init();
-        this.setupEventListeners();
-        this.animate();
+    const orbitPoints: THREE.Vector3[] = [];
+    for (let i = 0; i <= 128; i++) {
+      orbitPoints.push(getISSPositionAtAngle((i / 128) * Math.PI * 2));
+    }
+    const orbitGeometry = new THREE.BufferGeometry().setFromPoints(orbitPoints);
+    const orbitLine = new THREE.Line(
+      orbitGeometry,
+      new THREE.LineBasicMaterial({
+        color: 0x00ffff,
+        opacity: 0.5,
+        transparent: true,
+      })
+    );
+    scene.add(orbitLine);
+
+    // ISS trail
+    const trailPositions: THREE.Vector3[] = [];
+    const trailGeometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(MAX_TRAIL_LENGTH * 3);
+    trailGeometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    const issTrail = new THREE.Line(
+      trailGeometry,
+      new THREE.LineBasicMaterial({
+        color: 0xffffff,
+        opacity: 0.8,
+        transparent: true,
+      })
+    );
+    scene.add(issTrail);
+
+    // Stars
+    const starCount = 3000;
+    const starPositions = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount * 3; i += 3) {
+      const radius = 3000 + Math.random() * 2000;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      starPositions[i] = radius * Math.sin(phi) * Math.cos(theta);
+      starPositions[i + 1] = radius * Math.sin(phi) * Math.sin(theta);
+      starPositions[i + 2] = radius * Math.cos(phi);
+    }
+    const starsGeometry = new THREE.BufferGeometry();
+    starsGeometry.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
+    const stars = new THREE.Points(
+      starsGeometry,
+      new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 2,
+        sizeAttenuation: false,
+      })
+    );
+    scene.add(stars);
+
+    let issModel: THREE.Object3D | null = null;
+    let issGlow: THREE.Mesh | null = null;
+    const pinMarkers: THREE.Object3D[] = [];
+    let pinModelTemplate: THREE.Object3D | null = null;
+
+    const updateISSPosition = () => {
+      if (!issModel) return;
+      const position = getISSPositionAtAngle(issOrbit.angle);
+      issModel.position.copy(position);
+      const nextAngle = issOrbit.angle + 0.01;
+      const nextPosition = getISSPositionAtAngle(nextAngle);
+      const up = position.clone().normalize();
+      const matrix = new THREE.Matrix4().lookAt(position, nextPosition, up);
+      issModel.quaternion.setFromRotationMatrix(matrix);
+      issModel.rotateX(Math.PI / 2);
+      issModel.rotateZ(Math.PI / 2);
+    };
+
+    const updateISSTrail = () => {
+      if (!issModel) return;
+      trailPositions.push(issModel.position.clone());
+      if (trailPositions.length > MAX_TRAIL_LENGTH) trailPositions.shift();
+      const posAttr = issTrail.geometry.attributes.position.array as Float32Array;
+      for (let i = 0; i < MAX_TRAIL_LENGTH; i++) {
+        const pos = i < trailPositions.length
+          ? trailPositions[i]
+          : trailPositions[trailPositions.length - 1] ?? new THREE.Vector3();
+        posAttr[i * 3] = pos.x;
+        posAttr[i * 3 + 1] = pos.y;
+        posAttr[i * 3 + 2] = pos.z;
       }
+      issTrail.geometry.attributes.position.needsUpdate = true;
+    };
 
-      init() {
-        this.renderer = new THREE.WebGLRenderer({ antialias: true });
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        this.renderer.toneMappingExposure = 1.2;
-        containerRef.current?.appendChild(this.renderer.domElement);
+    const clearPins = () => {
+      pinMarkers.forEach((pin) => earth.remove(pin));
+      pinMarkers.length = 0;
+    };
 
-        this.camera = new THREE.PerspectiveCamera(
-          45,
-          window.innerWidth / window.innerHeight,
-          0.1,
-          10000
-        );
-        this.camera.position.set(0, 0, 250);
-        this.scene.add(this.camera);
-
-        this.controls = new OrbitControls(
-          this.camera,
-          this.renderer.domElement
-        );
-        this.controls.enableDamping = true;
-        this.controls.dampingFactor = 0.05;
-        this.controls.minDistance = 100;
-        this.controls.maxDistance = 500;
-        this.controls.autoRotate = this.autoRotate;
-        this.controls.autoRotateSpeed = 0.5;
-
-        this.setupLighting();
-        this.createEarth();
-        this.loadISSModel();
-        this.loadPinModel();
-        this.createOrbitPath();
-        this.createISSTrail();
-        this.createStars();
-        this.initializeTimeline();
-      }
-
-      setupLighting() {
-        this.ambientLight = new THREE.AmbientLight(0x404060, 0.5);
-        this.scene.add(this.ambientLight);
-
-        this.sunLight = new THREE.DirectionalLight(0xfff8e7, 3.0);
-        this.sunLight.position.set(100, 50, 50);
-        this.camera.add(this.sunLight);
-
-        const fillLight = new THREE.DirectionalLight(0x5599ff, 1.0);
-        fillLight.position.set(-100, -50, -50);
-        this.camera.add(fillLight);
-      }
-
-      createEarth() {
-        const earthGeometry = new THREE.SphereGeometry(
-          this.sceneScale.earthRadius,
-          64,
-          64
-        );
-
-        const textureLoader = new THREE.TextureLoader();
-        const earthTexture = textureLoader.load(
-          "/earth_texture.jpg",
-          () => console.log("Earth texture loaded successfully"),
-          undefined,
-          (error) => console.error("Error loading Earth texture:", error)
-        );
-
-        const earthMaterial = new THREE.MeshStandardMaterial({
-          map: earthTexture,
-          roughness: 0.9,
-          metalness: 0.1,
-        });
-
-        this.earth = new THREE.Mesh(earthGeometry, earthMaterial);
-        this.scene.add(this.earth);
-      }
-
-      loadISSModel() {
-        const loader = new GLTFLoader();
-
-        loader.load(
-          "/ISS_stationary.glb",
-          (gltf) => {
-            this.issModel = gltf.scene;
-
-            const issScale = this.sceneScale.issVisibleSize / 40;
-            this.issModel.scale.set(issScale, issScale, issScale);
-
-            this.updateISSPosition();
-
-            this.issModel.traverse((child) => {
-              if ((child as THREE.Mesh).isMesh) {
-                child.castShadow = true;
-                child.receiveShadow = true;
-              }
-            });
-
-            const glowGeometry = new THREE.SphereGeometry(1.2, 16, 16);
-            const glowMaterial = new THREE.MeshBasicMaterial({
-              color: 0x00ffff,
-              transparent: true,
-              opacity: 0.3,
-            });
-            this.issGlow = new THREE.Mesh(glowGeometry, glowMaterial);
-            this.issModel.add(this.issGlow);
-
-            this.scene.add(this.issModel);
-          },
-          undefined,
-          (error) => {
-            console.error("Error loading ISS model:", error);
-          }
-        );
-      }
-
-      createOrbitPath() {
-        const orbitPoints = [];
-        const segments = 128;
-
-        for (let i = 0; i <= segments; i++) {
-          const angle = (i / segments) * Math.PI * 2;
-          const position = this.getISSPositionAtAngle(angle);
-          orbitPoints.push(position);
+    const createPins = (events: Event[]) => {
+      events.forEach((data) => {
+        const position = latLonToVector3(data.lat, data.lon);
+        let pinGroup: THREE.Object3D;
+        if (pinModelTemplate) {
+          pinGroup = pinModelTemplate.clone();
+          const pinScale = 20;
+          pinGroup.scale.set(pinScale, pinScale, pinScale);
+        } else {
+          pinGroup = new THREE.Group();
+          const head = new THREE.Mesh(
+            new THREE.SphereGeometry(2, 16, 16),
+            new THREE.MeshBasicMaterial({ color: 0xff4444 })
+          );
+          pinGroup.add(head);
+          const stick = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.3, 0.3, 5, 8),
+            new THREE.MeshBasicMaterial({ color: 0xff4444 })
+          );
+          stick.position.y = -2.5;
+          pinGroup.add(stick);
         }
-
-        const orbitGeometry = new THREE.BufferGeometry().setFromPoints(
-          orbitPoints
-        );
-        const orbitMaterial = new THREE.LineBasicMaterial({
-          color: 0x00ffff,
-          opacity: 0.5,
-          transparent: true,
-        });
-
-        this.orbitLine = new THREE.Line(orbitGeometry, orbitMaterial);
-        this.scene.add(this.orbitLine);
-      }
-
-      createISSTrail() {
-        const trailGeometry = new THREE.BufferGeometry();
-        const positions = new Float32Array(this.maxTrailLength * 3);
-        trailGeometry.setAttribute(
-          "position",
-          new THREE.BufferAttribute(positions, 3)
-        );
-
-        const trailMaterial = new THREE.LineBasicMaterial({
-          color: 0xffffff,
-          opacity: 0.8,
-          transparent: true,
-        });
-
-        this.issTrail = new THREE.Line(trailGeometry, trailMaterial);
-        this.scene.add(this.issTrail);
-      }
-
-      updateISSTrail() {
-        if (!this.issModel) return;
-
-        this.trailPositions.push(this.issModel.position.clone());
-
-        if (this.trailPositions.length > this.maxTrailLength) {
-          this.trailPositions.shift();
-        }
-
-        const positions = this.issTrail.geometry.attributes.position
-          .array as Float32Array;
-        for (let i = 0; i < this.maxTrailLength; i++) {
-          if (i < this.trailPositions.length) {
-            const pos = this.trailPositions[i];
-            positions[i * 3] = pos.x;
-            positions[i * 3 + 1] = pos.y;
-            positions[i * 3 + 2] = pos.z;
-          } else {
-            const lastPos =
-              this.trailPositions[this.trailPositions.length - 1] ||
-              new THREE.Vector3();
-            positions[i * 3] = lastPos.x;
-            positions[i * 3 + 1] = lastPos.y;
-            positions[i * 3 + 2] = lastPos.z;
-          }
-        }
-        this.issTrail.geometry.attributes.position.needsUpdate = true;
-      }
-
-      getISSPositionAtAngle(angle: number) {
-        const x = this.issOrbit.radius * Math.cos(angle);
-        const y =
-          this.issOrbit.radius *
-          Math.sin(angle) *
-          Math.sin(this.issOrbit.inclination);
-        const z =
-          this.issOrbit.radius *
-          Math.sin(angle) *
-          Math.cos(this.issOrbit.inclination);
-
-        return new THREE.Vector3(x, y, z);
-      }
-
-      updateISSPosition() {
-        if (!this.issModel) return;
-
-        const position = this.getISSPositionAtAngle(this.issOrbit.angle);
-        this.issModel.position.copy(position);
-
-        const nextAngle = this.issOrbit.angle + 0.01;
-        const nextPosition = this.getISSPositionAtAngle(nextAngle);
-
+        pinGroup.position.copy(position);
         const up = position.clone().normalize();
-
-        const matrix = new THREE.Matrix4().lookAt(position, nextPosition, up);
-        this.issModel.quaternion.setFromRotationMatrix(matrix);
-
-        this.issModel.rotateX(Math.PI / 2);
-        this.issModel.rotateZ(Math.PI / 2);
-      }
-
-      createStars() {
-        const starsGeometry = new THREE.BufferGeometry();
-        const starCount = 3000;
-        const positions = new Float32Array(starCount * 3);
-
-        for (let i = 0; i < starCount * 3; i += 3) {
-          const radius = 3000 + Math.random() * 2000;
-          const theta = Math.random() * Math.PI * 2;
-          const phi = Math.acos(2 * Math.random() - 1);
-
-          positions[i] = radius * Math.sin(phi) * Math.cos(theta);
-          positions[i + 1] = radius * Math.sin(phi) * Math.sin(theta);
-          positions[i + 2] = radius * Math.cos(phi);
-        }
-
-        starsGeometry.setAttribute(
-          "position",
-          new THREE.BufferAttribute(positions, 3)
-        );
-
-        const starsMaterial = new THREE.PointsMaterial({
-          color: 0xffffff,
-          size: 2,
-          sizeAttenuation: false,
-        });
-
-        this.stars = new THREE.Points(starsGeometry, starsMaterial);
-        this.scene.add(this.stars);
-      }
-
-      latLonToVector3(
-        lat: number,
-        lon: number,
-        radius = this.sceneScale.earthRadius
-      ) {
-        const phi = (90 - lat) * (Math.PI / 180);
-        const theta = (lon + 180) * (Math.PI / 180);
-
-        const x = -(radius * Math.sin(phi) * Math.cos(theta));
-        const z = radius * Math.sin(phi) * Math.sin(theta);
-        const y = radius * Math.cos(phi);
-
-        return new THREE.Vector3(x, y, z);
-      }
-
-      initializeTimeline() {
-        const timeline = document.getElementById("timeline");
-        if (!timeline) {
-          return;
-        }
-
-        for (let year = 2000; year <= 2025; year++) {
-          const button = document.createElement("button");
-          button.className = "year-button";
-          button.textContent = year.toString();
-          button.dataset.year = year.toString();
-
-          // Add visual indicator if year has events
-          const yearEvents = this.eventsByYear[year];
-          if (yearEvents && yearEvents.length > 0) {
-            button.classList.add("has-events");
-            button.title = `${yearEvents.length} event${
-              yearEvents.length > 1 ? "s" : ""
-            }`;
-
-            // Add a small dot indicator
-            const dot = document.createElement("span");
-            dot.className = "event-dot";
-            button.appendChild(dot);
-          }
-
-          button.addEventListener("click", () => {
-            playClickSound();
-            this.selectYear(year);
-          });
-
-          timeline.appendChild(button);
-        }
-      }
-
-      selectYear(year: number) {
-        this.selectedYear = year;
-
-        const buttons = document.querySelectorAll(".year-button");
-        buttons.forEach((btn) => {
-          if (parseInt((btn as HTMLElement).dataset.year || "0") === year) {
-            btn.classList.add("active");
-          } else {
-            btn.classList.remove("active");
-          }
-        });
-
-        this.clearPins();
-
-        const yearEvents = this.eventsByYear[year] || [];
-        this.createPins(yearEvents);
-
-        this.displayEventMenu(year, yearEvents);
-      }
-
-      displayEventMenu(year: number, events: Event[]) {
-        const eventMenu = document.getElementById("event-menu");
-        const eventList = document.getElementById("event-list");
-        const eventMenuTitle = document.getElementById("event-menu-title");
-
-        if (!eventMenu || !eventList || !eventMenuTitle) {
-          console.log("Event menu elements not found:", {
-            eventMenu,
-            eventList,
-            eventMenuTitle,
-          });
-          return;
-        }
-
-        eventList.innerHTML = "";
-
-        if (events.length === 0) {
-          eventMenuTitle.textContent = `${year} - No Events`;
-          eventMenu.classList.remove("visible");
-          return;
-        }
-
-        eventMenuTitle.textContent = `${year} ${t("Events")} (${
-          events.length
-        })`;
-
-        events.forEach((event, index) => {
-          const eventItem = document.createElement("div");
-          eventItem.className = "event-item";
-          eventItem.dataset.index = index.toString();
-
-          const title = document.createElement("h4");
-          title.textContent = t(event.title);
-
-          const description = document.createElement("p");
-          description.textContent = t(event.description);
-
-          const location = document.createElement("div");
-          location.className = "event-location";
-          location.textContent = `📍 ${event.lat.toFixed(
-            2
-          )}°, ${event.lon.toFixed(2)}°`;
-
-          eventItem.appendChild(title);
-          eventItem.appendChild(description);
-          eventItem.appendChild(location);
-
-          eventItem.addEventListener("click", () => {
-            playClickSound();
-            this.selectEvent(index, event);
-          });
-
-          eventList.appendChild(eventItem);
-        });
-
-        eventMenu.classList.add("visible");
-      }
-
-      selectEvent(index: number, event: Event) {
-        const eventItems = document.querySelectorAll(".event-item");
-        eventItems.forEach((item, i) => {
-          if (i === index) {
-            item.classList.add("selected");
-          } else {
-            item.classList.remove("selected");
-          }
-        });
-
-        this.focusOnEvent(event);
-      }
-
-      focusOnEvent(event: Event) {
-        const targetPosition = this.latLonToVector3(event.lat, event.lon);
-
-        const distance = 120;
-        const cameraTargetPosition = targetPosition
-          .clone()
-          .normalize()
-          .multiplyScalar(this.sceneScale.earthRadius + distance);
-
-        this.controls.autoRotate = false;
-        this.autoRotate = false;
-
-        const startPosition = this.camera.position.clone();
-        const startTarget = this.controls.target.clone();
-        const endTarget = targetPosition.clone();
-
-        let startTime: number | null = null;
-        const duration = 2000;
-
-        if (this.cameraAnimation) {
-          cancelAnimationFrame(this.cameraAnimation);
-        }
-
-        this.isAnimatingCamera = true;
-
-        const animateCamera = (timestamp: number) => {
-          if (!startTime) startTime = timestamp;
-          const elapsed = timestamp - startTime;
-          const progress = Math.min(elapsed / duration, 1);
-
-          const eased =
-            progress < 0.5
-              ? 2 * progress * progress
-              : -1 + (4 - 2 * progress) * progress;
-
-          this.camera.position.lerpVectors(
-            startPosition,
-            cameraTargetPosition,
-            eased
-          );
-          this.controls.target.lerpVectors(startTarget, endTarget, eased);
-
-          this.controls.update();
-
-          if (progress < 1) {
-            this.cameraAnimation = requestAnimationFrame(animateCamera);
-          } else {
-            this.isAnimatingCamera = false;
-            this.cameraAnimation = null;
-          }
-        };
-
-        this.cameraAnimation = requestAnimationFrame(animateCamera);
-      }
-
-      clearPins() {
-        this.pinMarkers.forEach((pin) => {
-          this.earth.remove(pin);
-        });
-        this.pinMarkers = [];
-      }
-
-      loadPinModel() {
-        const loader = new GLTFLoader();
-
-        loader.load(
-          "/map_pin.glb",
-          (gltf) => {
-            this.pinModelTemplate = gltf.scene;
-          },
-          undefined,
-          (error) => {
-            console.error("Error loading pin model:", error);
-          }
-        );
-      }
-
-      createPins(events: Event[]) {
-        events.forEach((data) => {
-          const position = this.latLonToVector3(data.lat, data.lon);
-
-          let pinGroup: THREE.Object3D;
-
-          if (this.pinModelTemplate) {
-            pinGroup = this.pinModelTemplate.clone();
-            const pinScale = 20;
-            pinGroup.scale.set(pinScale, pinScale, pinScale);
-          } else {
-            pinGroup = new THREE.Group();
-
-            const headGeometry = new THREE.SphereGeometry(2, 16, 16);
-            const headMaterial = new THREE.MeshBasicMaterial({
-              color: 0xff4444,
-            });
-            const head = new THREE.Mesh(headGeometry, headMaterial);
-            pinGroup.add(head);
-
-            const stickGeometry = new THREE.CylinderGeometry(0.3, 0.3, 5, 8);
-            const stickMaterial = new THREE.MeshBasicMaterial({
-              color: 0xff4444,
-            });
-            const stick = new THREE.Mesh(stickGeometry, stickMaterial);
-            stick.position.y = -2.5;
-            pinGroup.add(stick);
-          }
-
-          pinGroup.position.copy(position);
-
-          const up = position.clone().normalize();
-          pinGroup.quaternion.setFromUnitVectors(
-            new THREE.Vector3(0, 1, 0),
-            up
-          );
-
-          pinGroup.userData = {
-            title: data.title,
-            description: data.description,
-            issImage: data.issImage,
-            highlights: data.highlights,
-            isPinMarker: true,
-          };
-
-          this.earth.add(pinGroup);
-          this.pinMarkers.push(pinGroup);
-        });
-      }
-
-      setupEventListeners() {
-        window.addEventListener("resize", () => this.onWindowResize());
-
-        this.renderer.domElement.addEventListener("click", (event) => {
-          this.onMouseClick(event);
-        });
-
-        const viewModeButtons = document.querySelectorAll(".view-mode-btn");
-        viewModeButtons.forEach((btn) => {
-          btn.addEventListener("click", () => {
-            const mode = (btn as HTMLElement).dataset.mode;
-            if (mode && mode !== this.viewMode && !this.isTransitioning) {
-              playClickSound();
-              this.switchViewMode(mode);
-            }
-          });
-        });
-      }
-
-      onWindowResize() {
-        this.camera.aspect = window.innerWidth / window.innerHeight;
-        this.camera.updateProjectionMatrix();
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-      }
-
-      onMouseClick(event: MouseEvent) {
-        this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-        this.raycaster.setFromCamera(this.mouse, this.camera);
-        const intersects = this.raycaster.intersectObjects(
-          this.pinMarkers,
-          true
-        );
-
-        if (intersects.length > 0) {
-          let pinObject: any = intersects[0].object;
-          while (pinObject && !pinObject.userData.isPinMarker) {
-            pinObject = pinObject.parent;
-          }
-
-          if (pinObject && pinObject.userData.isPinMarker) {
-            this.showInfoPanel(pinObject.userData);
-            // Mark that we clicked on a pin to prevent outside click from closing
-            event.stopPropagation();
-          }
-        }
-      }
-
-      showInfoPanel(data: any) {
-        setInfoPanelData({
-          isVisible: true,
+        pinGroup.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), up);
+        pinGroup.userData = {
           title: data.title,
           description: data.description,
-          image:
-            data.issImage ||
-            "https://via.placeholder.com/640x360/1a2a40/00ffc8?text=No+Image+Available",
-          highlights: data.highlights || [],
-        });
-      }
-
-      closeInfoPanel() {
-        setInfoPanelData((prev) => ({ ...prev, isVisible: false }));
-      }
-
-      switchViewMode(mode: string) {
-        if (this.isTransitioning || mode === this.viewMode) return;
-
-        this.viewMode = mode;
-        this.isTransitioning = true;
-
-        const viewModeButtons = document.querySelectorAll(".view-mode-btn");
-        viewModeButtons.forEach((btn) => {
-          if ((btn as HTMLElement).dataset.mode === mode) {
-            btn.classList.add("active");
-          } else {
-            btn.classList.remove("active");
-          }
-        });
-
-        if (mode === "iss") {
-          this.transitionToISSView();
-        } else {
-          this.transitionToEarthView();
-        }
-      }
-
-      transitionToISSView() {
-        if (!this.issModel) {
-          this.isTransitioning = false;
-          return;
-        }
-
-        this.controls.autoRotate = false;
-        this.autoRotate = false;
-
-        const issPosition = this.issModel.position.clone();
-
-        const offset = new THREE.Vector3(1.5, 0.8, 1.5);
-        const cameraTargetPosition = issPosition.clone().add(offset);
-
-        const startPosition = this.camera.position.clone();
-        const startTarget = this.controls.target.clone();
-        const endTarget = issPosition.clone();
-
-        let startTime: number | null = null;
-        const duration = 2000;
-
-        if (this.cameraAnimation) {
-          cancelAnimationFrame(this.cameraAnimation);
-        }
-
-        const animateCamera = (timestamp: number) => {
-          if (!startTime) startTime = timestamp;
-          const elapsed = timestamp - startTime;
-          const progress = Math.min(elapsed / duration, 1);
-
-          const eased =
-            progress < 0.5
-              ? 2 * progress * progress
-              : -1 + (4 - 2 * progress) * progress;
-
-          this.camera.position.lerpVectors(
-            startPosition,
-            cameraTargetPosition,
-            eased
-          );
-          this.controls.target.lerpVectors(startTarget, endTarget, eased);
-
-          this.controls.update();
-
-          if (progress < 1) {
-            this.cameraAnimation = requestAnimationFrame(animateCamera);
-          } else {
-            this.isTransitioning = false;
-            this.cameraAnimation = null;
-            this.updateUIForViewMode();
-          }
+          issImage: data.issImage,
+          highlights: data.highlights,
+          isPinMarker: true,
         };
+        earth.add(pinGroup);
+        pinMarkers.push(pinGroup);
+      });
+    };
 
-        this.cameraAnimation = requestAnimationFrame(animateCamera);
-      }
+    let cameraAnimation: number | null = null;
 
-      transitionToEarthView() {
-        this.controls.autoRotate = false;
-        this.autoRotate = false;
-
-        const cameraTargetPosition = new THREE.Vector3(0, 0, 250);
-        const endTarget = new THREE.Vector3(0, 0, 0);
-
-        const startPosition = this.camera.position.clone();
-        const startTarget = this.controls.target.clone();
-
-        let startTime: number | null = null;
-        const duration = 2000;
-
-        if (this.cameraAnimation) {
-          cancelAnimationFrame(this.cameraAnimation);
-        }
-
-        const animateCamera = (timestamp: number) => {
-          if (!startTime) startTime = timestamp;
-          const elapsed = timestamp - startTime;
-          const progress = Math.min(elapsed / duration, 1);
-
-          const eased =
-            progress < 0.5
-              ? 2 * progress * progress
-              : -1 + (4 - 2 * progress) * progress;
-
-          this.camera.position.lerpVectors(
-            startPosition,
-            cameraTargetPosition,
-            eased
-          );
-          this.controls.target.lerpVectors(startTarget, endTarget, eased);
-
-          this.controls.update();
-
-          if (progress < 1) {
-            this.cameraAnimation = requestAnimationFrame(animateCamera);
-          } else {
-            this.isTransitioning = false;
-            this.cameraAnimation = null;
-            this.controls.autoRotate = true;
-            this.autoRotate = true;
-            this.updateUIForViewMode();
-          }
-        };
-
-        this.cameraAnimation = requestAnimationFrame(animateCamera);
-      }
-
-      updateUIForViewMode() {
-        const issInfo = document.getElementById("iss-info");
-        const timelineContainer = document.getElementById("timeline-container");
-        const eventMenu = document.getElementById("event-menu");
-
-        if (this.viewMode === "iss") {
-          if (issInfo) issInfo.style.display = "block";
-          if (timelineContainer) timelineContainer.style.display = "none";
-          if (eventMenu) eventMenu.style.display = "none";
+    const focusOnEvent = (event: Event) => {
+      const targetPosition = latLonToVector3(event.lat, event.lon);
+      const distance = 120;
+      const cameraTargetPosition = targetPosition
+        .clone()
+        .normalize()
+        .multiplyScalar(initialSceneScale.earthRadius + distance);
+      controls.autoRotate = false;
+      const startPosition = camera.position.clone();
+      const startTarget = controls.target.clone();
+      const endTarget = targetPosition.clone();
+      let startTime: number | null = null;
+      const duration = 2000;
+      if (cameraAnimation) cancelAnimationFrame(cameraAnimation);
+      const animateCamera = (timestamp: number) => {
+        if (!startTime) startTime = timestamp;
+        const elapsed = timestamp - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased =
+          progress < 0.5
+            ? 2 * progress * progress
+            : -1 + (4 - 2 * progress) * progress;
+        camera.position.lerpVectors(startPosition, cameraTargetPosition, eased);
+        controls.target.lerpVectors(startTarget, endTarget, eased);
+        controls.update();
+        if (progress < 1) {
+          cameraAnimation = requestAnimationFrame(animateCamera);
         } else {
-          if (issInfo) issInfo.style.display = "none";
-          if (timelineContainer) timelineContainer.style.display = "block";
+          cameraAnimation = null;
         }
+      };
+      cameraAnimation = requestAnimationFrame(animateCamera);
+    };
+
+    const transitionToISSView = () => {
+      if (!issModel) {
+        if (sceneRef.current) sceneRef.current.isTransitioning = false;
+        return;
       }
-
-      animate() {
-        requestAnimationFrame(() => this.animate());
-
-        const delta = this.clock.getDelta();
-
-        this.controls.update();
-
-        const angularVelocity = (Math.PI * 2) / this.issOrbit.orbitalPeriod;
-        this.issOrbit.angle += angularVelocity * delta;
-
-        if (this.issOrbit.angle > Math.PI * 2) {
-          this.issOrbit.angle -= Math.PI * 2;
+      controls.autoRotate = false;
+      const issPosition = issModel.position.clone();
+      const offset = new THREE.Vector3(1.5, 0.8, 1.5);
+      const cameraTargetPosition = issPosition.clone().add(offset);
+      const startPosition = camera.position.clone();
+      const startTarget = controls.target.clone();
+      const endTarget = issPosition.clone();
+      let startTime: number | null = null;
+      const duration = 2000;
+      if (cameraAnimation) cancelAnimationFrame(cameraAnimation);
+      if (sceneRef.current) sceneRef.current.isTransitioning = true;
+      const animateCamera = (timestamp: number) => {
+        if (!startTime) startTime = timestamp;
+        const elapsed = timestamp - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased =
+          progress < 0.5
+            ? 2 * progress * progress
+            : -1 + (4 - 2 * progress) * progress;
+        camera.position.lerpVectors(startPosition, cameraTargetPosition, eased);
+        controls.target.lerpVectors(startTarget, endTarget, eased);
+        controls.update();
+        if (progress < 1) {
+          cameraAnimation = requestAnimationFrame(animateCamera);
+        } else {
+          cameraAnimation = null;
+          if (sceneRef.current) sceneRef.current.isTransitioning = false;
         }
+      };
+      cameraAnimation = requestAnimationFrame(animateCamera);
+    };
 
-        this.updateISSPosition();
-
-        if (this.issModel && Math.random() < 0.3) {
-          this.updateISSTrail();
+    const transitionToEarthView = () => {
+      controls.autoRotate = false;
+      const cameraTargetPosition = new THREE.Vector3(0, 0, 250);
+      const endTarget = new THREE.Vector3(0, 0, 0);
+      const startPosition = camera.position.clone();
+      const startTarget = controls.target.clone();
+      let startTime: number | null = null;
+      const duration = 2000;
+      if (cameraAnimation) cancelAnimationFrame(cameraAnimation);
+      if (sceneRef.current) sceneRef.current.isTransitioning = true;
+      const animateCamera = (timestamp: number) => {
+        if (!startTime) startTime = timestamp;
+        const elapsed = timestamp - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased =
+          progress < 0.5
+            ? 2 * progress * progress
+            : -1 + (4 - 2 * progress) * progress;
+        camera.position.lerpVectors(startPosition, cameraTargetPosition, eased);
+        controls.target.lerpVectors(startTarget, endTarget, eased);
+        controls.update();
+        if (progress < 1) {
+          cameraAnimation = requestAnimationFrame(animateCamera);
+        } else {
+          cameraAnimation = null;
+          if (sceneRef.current) sceneRef.current.isTransitioning = false;
+          controls.autoRotate = true;
         }
+      };
+      cameraAnimation = requestAnimationFrame(animateCamera);
+    };
 
-        if (this.issGlow) {
-          const glowScale = 1.0 + Math.sin(Date.now() * 0.005) * 0.3;
-          this.issGlow.scale.setScalar(glowScale);
-        }
+    sceneRef.current = {
+      scene,
+      clock,
+      raycaster,
+      mouse,
+      renderer,
+      camera,
+      controls,
+      earth,
+      issModel: null,
+      orbitLine,
+      issTrail,
+      trailPositions,
+      stars,
+      issGlow: null,
+      pinMarkers,
+      pinModelTemplate: null,
+      sceneScale: initialSceneScale,
+      issOrbit,
+      cameraAnimation: null,
+      isTransitioning: false,
+      getISSPositionAtAngle,
+      clearPins,
+      createPins,
+      focusOnEvent,
+      transitionToISSView,
+      transitionToEarthView,
+    };
 
-        this.pinMarkers.forEach((pin) => {
-          if (pin.children[0]) {
-            const scale = 1.0 + Math.sin(Date.now() * 0.003) * 0.2;
-            pin.children[0].scale.setScalar(scale);
+    // Load ISS model
+    const gltfLoader = new GLTFLoader();
+    gltfLoader.load(
+      "/ISS_stationary.glb",
+      (gltf) => {
+        issModel = gltf.scene;
+        const issScale = initialSceneScale.issVisibleSize / 40;
+        issModel.scale.set(issScale, issScale, issScale);
+        updateISSPosition();
+        issModel.traverse((child) => {
+          if ((child as THREE.Mesh).isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
           }
         });
-
-        this.renderer.render(this.scene, this.camera);
-      }
-
-      cleanup() {
-        if (this.cameraAnimation) {
-          cancelAnimationFrame(this.cameraAnimation);
+        const glowGeometry = new THREE.SphereGeometry(1.2, 16, 16);
+        issGlow = new THREE.Mesh(
+          glowGeometry,
+          new THREE.MeshBasicMaterial({
+            color: 0x00ffff,
+            transparent: true,
+            opacity: 0.3,
+          })
+        );
+        issModel.add(issGlow);
+        scene.add(issModel);
+        if (sceneRef.current) {
+          sceneRef.current.issModel = issModel;
+          sceneRef.current.issGlow = issGlow;
         }
-        this.renderer.dispose();
-        this.controls.dispose();
-      }
-    }
+      },
+      undefined,
+      (error) => console.error("Error loading ISS model:", error)
+    );
 
-    const app = new EarthViewExplore();
+    gltfLoader.load(
+      "/map_pin.glb",
+      (gltf) => {
+        pinModelTemplate = gltf.scene;
+        if (sceneRef.current) sceneRef.current.pinModelTemplate = gltf.scene;
+      },
+      undefined,
+      (error) => console.error("Error loading pin model:", error)
+    );
+
+    const onWindowResize = () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    };
+
+    const onMouseClick = (event: MouseEvent) => {
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(pinMarkers, true);
+      if (intersects.length > 0) {
+        let pinObject: THREE.Object3D | null = intersects[0].object;
+        const ud = (o: THREE.Object3D) => (o as THREE.Object3D & { userData: { isPinMarker?: boolean; title?: string; description?: string; issImage?: string; highlights?: string[] } }).userData;
+        while (pinObject && !ud(pinObject).isPinMarker) {
+          pinObject = pinObject.parent;
+        }
+        if (pinObject && ud(pinObject).isPinMarker) {
+          const data = ud(pinObject);
+          showInfoPanel({
+            title: data.title ?? "",
+            description: data.description ?? "",
+            issImage: data.issImage,
+            highlights: data.highlights,
+            satellite: data.satellite,
+          });
+          event.stopPropagation();
+        }
+      }
+    };
+
+    window.addEventListener("resize", onWindowResize);
+    renderer.domElement.addEventListener("click", onMouseClick);
+
+    let animationId: number;
+    const animate = () => {
+      animationId = requestAnimationFrame(animate);
+      const delta = clock.getDelta();
+      controls.update();
+      const angularVelocity = (Math.PI * 2) / issOrbit.orbitalPeriod;
+      issOrbit.angle += angularVelocity * delta;
+      if (issOrbit.angle > Math.PI * 2) issOrbit.angle -= Math.PI * 2;
+      updateISSPosition();
+      if (issModel && Math.random() < 0.3) updateISSTrail();
+      if (issGlow) {
+        const glowScale = 1.0 + Math.sin(Date.now() * 0.005) * 0.3;
+        issGlow.scale.setScalar(glowScale);
+      }
+      pinMarkers.forEach((pin) => {
+        if (pin.children[0]) {
+          const scale = 1.0 + Math.sin(Date.now() * 0.003) * 0.2;
+          pin.children[0].scale.setScalar(scale);
+        }
+      });
+      renderer.render(scene, camera);
+    };
+    animate();
 
     return () => {
-      app.cleanup();
-      containerRef.current?.removeChild(app.renderer.domElement);
+      cancelAnimationFrame(animationId);
+      if (cameraAnimation) cancelAnimationFrame(cameraAnimation);
+      window.removeEventListener("resize", onWindowResize);
+      renderer.domElement.removeEventListener("click", onMouseClick);
+      renderer.dispose();
+      controls.dispose();
+      if (container.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement);
+      }
+      sceneRef.current = null;
     };
-  }, [setInfoPanelData, t]);
+  }, [showInfoPanel]);
+
+  // Sync selected year to scene: clear pins and create new ones
+  useEffect(() => {
+    const ref = sceneRef.current;
+    if (selectedYear === null || !ref) return;
+    ref.clearPins();
+    const yearEvents = eventsByYear[selectedYear] ?? [];
+    ref.createPins(yearEvents);
+  }, [selectedYear, eventsByYear]);
+
+  // Sync view mode: run camera transition when user switches mode (skip initial mount)
+  const prevViewModeRef = useRef<"earth" | "iss" | null>(null);
+  useEffect(() => {
+    const ref = sceneRef.current;
+    if (!ref || ref.isTransitioning) return;
+    if (prevViewModeRef.current === null) {
+      prevViewModeRef.current = viewMode;
+      return;
+    }
+    if (prevViewModeRef.current === viewMode) return;
+    prevViewModeRef.current = viewMode;
+    if (viewMode === "iss") ref.transitionToISSView();
+    else ref.transitionToEarthView();
+  }, [viewMode]);
+
+  // Focus camera on selected event when user clicks an event item
+  const prevSelectedEventRef = useRef<{ year: number; index: number } | null>(null);
+  useEffect(() => {
+    const ref = sceneRef.current;
+    if (selectedYear === null || selectedEventIndex === null || !ref) return;
+    const events = eventsByYear[selectedYear] ?? [];
+    const event = events[selectedEventIndex];
+    if (!event) return;
+    const prev = prevSelectedEventRef.current;
+    const sameSelection = prev?.year === selectedYear && prev?.index === selectedEventIndex;
+    prevSelectedEventRef.current = { year: selectedYear, index: selectedEventIndex };
+    if (!sameSelection) ref.focusOnEvent(event);
+  }, [selectedYear, selectedEventIndex, eventsByYear]);
+
+  const handleYearSelect = useCallback((year: number) => {
+    playClickSound();
+    setSelectedYear(year);
+    setSelectedEventIndex(null);
+  }, []);
+
+  const handleEventSelect = useCallback((index: number) => {
+    playClickSound();
+    setSelectedEventIndex(index);
+  }, []);
+
+  const handleViewModeChange = useCallback((mode: "earth" | "iss") => {
+    if (mode === viewMode || sceneRef.current?.isTransitioning) return;
+    playClickSound();
+    setViewMode(mode);
+  }, [viewMode]);
+
+  const eventsForYear = selectedYear !== null ? (eventsByYear[selectedYear] ?? []) : [];
+  const showEventMenu = selectedYear !== null;
 
   return (
     <>
-      <div ref={containerRef} className="canvas-container"></div>
+      <div ref={containerRef} className="canvas-container" />
 
       <EventInfo
         isVisible={infoPanelData.isVisible}
@@ -939,7 +681,7 @@ const ExploreMode = () => {
         buttonText={t("Close")}
       />
 
-      <ISSInfo />
+      <ISSInfo visible={viewMode === "iss"} />
 
       <div className="ui-overlay">
         <div className="top-right-controls">
@@ -952,25 +694,87 @@ const ExploreMode = () => {
             <div className="instructions-toggle">❓</div>
           </div>
           <div className="view-mode-toggle">
-            <button className="view-mode-btn active" data-mode="earth">
+            <button
+              type="button"
+              className={`view-mode-btn ${viewMode === "earth" ? "active" : ""}`}
+              data-mode="earth"
+              onClick={() => handleViewModeChange("earth")}
+            >
               <span>🌍</span>
               <span>{t("Earth")}</span>
             </button>
-            <button className="view-mode-btn" data-mode="iss">
+            <button
+              type="button"
+              className={`view-mode-btn ${viewMode === "iss" ? "active" : ""}`}
+              data-mode="iss"
+              onClick={() => handleViewModeChange("iss")}
+            >
               <span>🛰️</span>
               <span>{t("ISS")}</span>
             </button>
           </div>
         </div>
 
-        <div id="event-menu" ref={eventMenuRef}>
-          <h3 id="event-menu-title">{t("Events")}</h3>
-          <div id="event-list"></div>
+        <div
+          id="event-menu"
+          className={showEventMenu && eventsForYear.length > 0 ? "visible" : ""}
+          style={{
+            display: viewMode === "iss" ? "none" : undefined,
+          }}
+        >
+          <h3 id="event-menu-title">
+            {selectedYear !== null
+              ? eventsForYear.length === 0
+                ? `${selectedYear} - No Events`
+                : `${selectedYear} ${t("Events")} (${eventsForYear.length})`
+              : t("Events")}
+          </h3>
+          <div id="event-list">
+            {eventsForYear.map((event, index) => (
+              <div
+                key={`${event.title}-${index}`}
+                role="button"
+                tabIndex={0}
+                className={`event-item ${selectedEventIndex === index ? "selected" : ""}`}
+                onClick={() => handleEventSelect(index)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") handleEventSelect(index);
+                }}
+              >
+                <h4>{t(event.title)}</h4>
+                <p>{t(event.description)}</p>
+                <div className="event-location">
+                  📍 {event.lat.toFixed(2)}°, {event.lon.toFixed(2)}°
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <div id="timeline-container">
+        <div
+          id="timeline-container"
+          style={{ display: viewMode === "iss" ? "none" : "block" }}
+        >
           <h3>🌍 {t("25 years of ISS (2000-2025)")}</h3>
-          <div id="timeline"></div>
+          <div id="timeline">
+            {TIMELINE_YEARS.map((year) => {
+              const yearEvents = eventsByYear[year];
+              const hasEvents = yearEvents && yearEvents.length > 0;
+              return (
+                <button
+                  key={year}
+                  type="button"
+                  className={`year-button ${selectedYear === year ? "active" : ""} ${hasEvents ? "has-events" : ""}`}
+                  data-year={year}
+                  title={hasEvents ? `${yearEvents!.length} event${yearEvents!.length > 1 ? "s" : ""}` : undefined}
+                  onClick={() => handleYearSelect(year)}
+                >
+                  {year}
+                  {hasEvents && <span className="event-dot" />}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </>

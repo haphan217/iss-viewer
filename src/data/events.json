@@ -42,6 +42,21 @@
     ]
   },
   {
+    "year": 2004,
+    "lat": 5.5,
+    "lon": 95.3,
+    "title": "Indian Ocean Tsunami Devastation",
+    "description": "The massive tsunami triggered by a 9.1 magnitude earthquake off Sumatra on December, 2004. It affected coastal regions across Asia, including Indonesia, Thailand, and India.",
+    "issImage": "https://i.natgeofe.com/n/6ae1dea1-a1c0-4acf-b845-b1c561d4ce93/h_27.RTXN5ZY.jpg",
+    "satellite": "Landsat 7",
+    "highlights": [
+    "Cause: Undersea megathrust earthquake displacing massive amounts of water, generating waves up to 30 meters high.",
+    "Result: Over 230,000 deaths across 14 countries; widespread destruction of coastlines, villages, and ecosystems.",
+    "Significance: Satellite data helped map inundation and damage, aiding relief efforts and highlighting vulnerability of Asian coastal communities.",
+    "Fun fact: Radar altimeters on Jason-1 and TOPEX/Poseidon satellites measured the tsunami wave height in the open ocean as about 60 cm."
+    ]
+  },
+  {
     "year": 2006,
     "lat": 29.3,
     "lon": -94.79,
@@ -126,6 +141,21 @@
     ]
   },
   {
+    "year": 2013,
+    "lat": 11.2,
+    "lon": 125.0,
+    "title": "Super Typhoon Haiyan in the Philippines",
+    "description": "Super Typhoon Haiyan, one of the strongest tropical cyclones on record, made landfall in the Philippines in November 2013.",
+    "issImage": "https://assets.science.nasa.gov/dynamicimage/assets/science/esd/eo/images/imagerecords/82000/82372/Haiyan_tmo_2013314.jpg",
+    "satellite": "Aqua",
+    "highlights": [
+      "Cause: Warm ocean waters fueling rapid intensification, with sustained winds up to 315 kph.",
+      "Result: Over 6,000 deaths, millions displaced; massive storm surge up to 5 meters in Tacloban.",
+      "Significance: Highlighted the increasing intensity of typhoons in Asia due to climate change; spurred international aid and improved warning systems.",
+      "Fun fact: Haiyan was the 24th tropical storm to hit the Philippines in 2013, a record year for the region."
+    ]
+  },
+  {
     "year": 2014,
     "lat": 26.5,
     "lon": 128.0,
@@ -151,6 +181,120 @@
       "Result: The creation of several large-scale artificial archipelagos, including the Palm Jumeirah and The World Islands, visible from space.",
       "Significance: These projects are premier examples of mega-scale coastal engineering and serve as case studies for the significant environmental impact of such developments on marine ecosystems.",
       "Fun fact: The Palm Jumeirah is made of over 94 million cubic meters of sand and 7 million tons of rock, adding 72 kilometers of new coastline to Dubai."
+    ]
+  },
+  {
+    "year": 2016,
+    "lat": 60.0,
+    "lon": 150.0,
+    "title": "Fall Colors in Eastern Siberia",
+    "description": "MODIS on NASA's Terra satellite captured the vibrant shift from green to reds, yellows, and browns in northeastern Siberian tundra and boreal forests as autumn arrives. The image shows deciduous larch trees turning golden amid evergreen conifers.",
+    "issImage": "https://assets.science.nasa.gov/dynamicimage/assets/science/esd/eo/images/imagerecords/86000/86579/russia_amo_2015252.jpg",
+    "satellite": "Terra",
+    "highlights": [
+      "Cause: Cooler temperatures and shorter days trigger color change in larch-dominated forests.",
+      "Result: Striking golden and red patterns across vast taiga landscapes.",
+      "Significance: One of the largest seasonal color displays on Earth; helps monitor boreal forest response to climate.",
+      "Fun fact: Larch needles turn bright gold before shedding, creating a 'golden wave' visible across thousands of kilometers."
+    ]
+  },
+  {
+    "year": 2019,
+    "lat": -3.5,
+    "lon": 114.0,
+    "title": "Severe Indonesian Forest Fires and Haze",
+    "description": "Intense peatland fires in Sumatra and Kalimantan, Indonesia peaked in September-October 2019, captured by Aqua showing thick smoke plumes spreading across Southeast Asia to Malaysia, Singapore, and Thailand. VIIRS detected thousands of active fire hotspots.",
+    "issImage": "https://science.nasa.gov/wp-content/uploads/2025/10/indonesia_oli_2019258.jpg",
+    "satellite": "Aqua/VIIRS",
+    "highlights": [
+      "Cause: Prolonged dry season exacerbated by El Niño remnants and land-clearing practices.",
+      "Result: Hazardous air quality across borders; millions affected by haze, health impacts, and economic losses.",
+      "Significance: One of the worst haze events in years; satellite monitoring helped track transboundary pollution and enforce fire bans.",
+      "Fun fact: Smoke plumes were visible from space extending over 2,000 km, turning skies orange in neighboring countries."
+    ]
+  },
+  {
+    "year": 2022,
+    "lat": -30.0,
+    "lon": 130.0,
+    "title": "Aurora Australis over Southern Ocean and Australia",
+    "description": "Time-lapse photos from the International Space Station captured green and red aurora australis dancing along Earth's horizon, visible as shimmering curtains during a solar storm period.",
+    "issImage": "https://svs.gsfc.nasa.gov/vis/a030000/a031200/a031281/ISS067_20220817_192407_aurora_print.jpg",
+    "highlights": [
+      "Cause: Charged solar particles exciting atmospheric gases during active solar cycle.",
+      "Result: Glowing green (oxygen) and red (nitrogen) ribbons rippling across the night side.",
+      "Significance: Stunning views from orbit; increased aurora visibility at lower latitudes in recent years.",
+      "Fun fact: Astronauts often describe it as a 'cosmic light show' dancing along the planet's curve."
+    ]
+  },
+  {
+    "year": 2022,
+    "lat": 16.0,
+    "lon": 114.0,
+    "title": "Typhoon Noru (Phong Nguyen) Landfall in Central Vietnam",
+    "description": "Typhoon Noru made landfall near Da Nang in September 2022 as a strong storm, showing rapid intensification and eye structure.",
+    "issImage": "https://photo.znews.vn/w960/Uploaded/yqdlcqrwq/2022_09_26/20526092022.jpg",
+    "satellite": "Himawari-8",
+    "highlights": [
+      "Cause: Favorable conditions in the South China Sea led to quick strengthening before hitting Vietnam.",
+      "Result: Heavy rains, strong winds; evacuations and damage to homes, power lines in Quang Nam and Quang Ngai."
+    ]
+  },
+  {
+    "year": 2024,
+    "lat": 10.03,
+    "lon": 105.78,
+    "title": "View of Can Tho Rice Paddies",
+    "description": "A rare, almost completely cloud-free over the city of Can Tho in southwest Vietnam. The image reveals the vast patchwork of fertile rice paddy fields intersected by an intricate network of irrigation and drainage canals. Villages and cities hug the waterways, as roads are scarce and transport relies on canals.",
+    "issImage": "https://www.esa.int/var/esa/storage/images/esa_multimedia/images/2024/04/earth_from_space_the_mekong_delta/26037485-1-eng-GB/Earth_from_Space_The_Mekong_Delta.jpg",
+    "satellite": "Sentinel-2",
+    "highlights": [
+      "Cause: Exceptional clear weather conditions allowing optical satellite capture of this frequently cloudy tropical region.",
+      "Result: Detailed view showcasing the 'rice bowl' of Vietnam – one of the world's most productive agricultural areas.",
+      "Fun fact: The Mekong Delta produces enough rice to feed millions globally; the canal network forms a natural 'road system' longer than many highway networks, visible as blue veins threading through green fields."
+    ]
+  },
+  {
+    "year": 2024,
+    "lat": 30,
+    "lon": 107.7,
+    "title": "Super Typhoon Yagi Landfall in Northern Vietnam",
+    "description": "Super Typhoon Yagi made landfall near Haiphong and Quang Ninh.",
+    "issImage": "https://satlib.cira.colostate.edu/wp-content/uploads/sites/23/2024/09/20240907000000-20240909100000_gk2a_fd_geocolor_Yagi-makes-landfall-in-northern-Vietnam_nolabels0.png",
+    "satellite": "CIRAS",
+    "highlights": [
+      "Cause: Rapid intensification over warm South China Sea waters, reaching Category 5 equivalent twice.",
+      "Result: Over 300 deaths, thousands injured; massive flooding, landslides, and infrastructure damage in northern provinces.",
+      "Fun fact: Yagi was the strongest typhoon to hit Vietnam in over 70 years, with winds up to 270 km/h recorded before landfall."
+    ]
+  },
+  {
+    "year": 2025,
+    "lat": 15.88,
+    "lon": 108.34,
+    "title": "Devastating Flooding in Quảng Nam Province",
+    "description": "In late October 2025, severe flooding struck central Vietnam after days of intense rainfall, prompting thousands of residents to evacuate. The image shows flooded areas in blue tones along the Vu Gia and Thu Bồn rivers near Điện Bàn, and Hội An.",
+    "issImage": "https://www.copernicus.eu/system/files/styles/image_of_the_day/private/2025-11/image_day/20251107_Vietnam%20floods.png?itok=zZngN6nU",
+    "satellite": "Sentinel-1",
+    "highlights": [
+      "Cause: Prolonged intense rainfall leading to river overflows and widespread inundation in low-lying areas.",
+      "Result: At least 37 deaths, thousands evacuated; major impacts on homes, infrastructure, and agriculture in Quảng Nam and surrounding provinces.",
+      "Significance: Copernicus Sentinel-1's cloud-penetrating radar proved essential for real-time flood monitoring and disaster management in cloudy tropical conditions.",
+      "Fun fact: Flooded zones appear distinctly blue in SAR imagery due to smooth water surfaces reflecting radar signals differently from land, allowing clear delineation even under persistent monsoon clouds."
+    ]
+  },
+  {
+    "year": 2026,
+    "lat": 36.0,
+    "lon": 18.0,
+    "title": "Green Aurora Rippling above the Mediterranean Sea",
+    "description": "ISS astronaut photos captured vibrant green and red aurora streams across Earth’s horizon above the city lights of Europe, which looks north across Italy toward Germany.",
+    "issImage": "https://www.nasa.gov/wp-content/uploads/2026/01/iss074e0150285orig.jpg?resize=2000,1333",
+    "highlights": [
+      "Cause: Intense solar activity ionizing upper atmosphere gases.",
+      "Result: Pulsating green curtains with occasional red/pink edges along the horizon.",
+      "Significance: Rare lower-latitude views from space; beauty of space weather interaction.",
+      "Fun fact: Green glow from excited oxygen at ~100 km altitude creates the dominant color."
     ]
   }
 ]

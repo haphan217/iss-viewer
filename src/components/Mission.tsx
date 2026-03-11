@@ -21,6 +21,7 @@ export interface MissionData {
   highlights: string[];
   difficulty: string;
   briefing: string;
+  satellite?: string;
 }
 
 interface MissionState {
@@ -219,10 +220,10 @@ const Mission: React.FC<MissionProps> = ({
         <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
           <div className="mission-briefing-panel rounded-xl p-8 max-w-4xl mx-4 fade-in">
             <div className="panel-header mb-6">
-              <h2 className="text-5xl font-bold text-cyan-400 text-center mb-4 uppercase tracking-wider text-shadow-glow">
+              <h2 className="text-5xl font-bold text-cyan-400 text-center uppercase tracking-wider text-shadow-glow">
                 {t(selectedMission.title)}
               </h2>
-              <div className="flex items-center justify-center gap-4 mb-4">
+              <div className="flex items-center justify-center gap-4 mb-4 mt-2">
                 <span
                   className={`px-4 py-2 text-sm rounded font-mono font-bold ${
                     selectedMission.difficulty === "easy"
@@ -250,15 +251,6 @@ const Mission: React.FC<MissionProps> = ({
               </h3>
               <p className="text-lg text-cyan-100 leading-relaxed font-mono">
                 {t(selectedMission.briefing)}
-              </p>
-            </div>
-
-            <div className="bg-slate-800 bg-opacity-50 rounded-lg p-6 mb-8 border border-cyan-400 border-opacity-20">
-              <h3 className="text-xl font-bold text-cyan-400 mb-3 font-mono">
-                {t(selectedMission.briefing)}
-              </h3>
-              <p className="text-gray-300 leading-relaxed">
-                {t(selectedMission.description)}
               </p>
             </div>
 

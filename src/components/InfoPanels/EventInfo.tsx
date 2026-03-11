@@ -11,6 +11,7 @@ interface InfoPanelProps {
   description: string;
   image: string;
   highlights?: string[];
+  satellite?: string;
   onClose: () => void;
   buttonText?: string;
 }
@@ -21,6 +22,7 @@ const EventInfo: React.FC<InfoPanelProps> = ({
   description,
   image,
   highlights = [],
+  satellite,
   onClose,
   buttonText,
 }) => {
@@ -95,6 +97,7 @@ const EventInfo: React.FC<InfoPanelProps> = ({
               ))}
             </ul>
           )}
+          {satellite && <p>{t("Satellite")}: {satellite}</p>}
         </div>
         <button
           onClick={() => {

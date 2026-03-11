@@ -1,9 +1,13 @@
 import { useTranslation } from "react-i18next";
 
-const ISSInfo = () => {
+interface ISSInfoProps {
+  visible?: boolean;
+}
+
+const ISSInfo = ({ visible = false }: ISSInfoProps) => {
   const { t } = useTranslation();
   return (
-    <div id="iss-info" style={{ display: "none" }}>
+    <div id="iss-info" style={{ display: visible ? "block" : "none" }}>
       <h3>🛰️ {t("ISS Orbit")}</h3>
       <div className="info-row">
         <span className="info-label">{t("Speed:")}</span>

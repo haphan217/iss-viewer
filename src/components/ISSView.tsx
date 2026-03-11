@@ -1,5 +1,5 @@
 import { useRef, useState, useCallback } from "react";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import { Mesh } from "three";
 import EarthModel, { type MissionTarget } from "./EarthModel";
 import ISSTunnelModel from "./ISSTunnelModel";
@@ -54,7 +54,7 @@ const Scene: React.FC<{
         earthRef={earthRef}
         enableMissionRotation={missionState.isActive}
         missionTarget={missionTarget}
-        rotationSpeed={0.5}
+        rotationSpeed={selectedMission?.difficulty === "easy" ? 0.2 : selectedMission?.difficulty === "medium" ? 0.35 : 0.5}
       />
 
       {/* Zero Gravity Physics System */}

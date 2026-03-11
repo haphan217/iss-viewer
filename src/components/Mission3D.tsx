@@ -125,6 +125,11 @@ const Mission3D = forwardRef<Mission3DRef, Mission3DProps>(
       return target;
     }, [earthRef, selectedMission, latLonToVector3]);
 
+    const resetCamera = useCallback(() =>{
+      camera.position.set(0, 0, 5);
+      camera.quaternion.set(0, 0, 0, 1);
+    },[])
+
     // Start mission
     const startMission = useCallback(() => {
       if (!selectedMission) {
@@ -137,12 +142,13 @@ const Mission3D = forwardRef<Mission3DRef, Mission3DProps>(
         target: selectedMission,
         isCapturing: false,
       };
+      resetCamera()
       onMissionStateChange(newState);
-    }, [createMissionTarget, onMissionStateChange, selectedMission]);
+    }, [createMissionTarget, onMissionStateChange, selectedMission, resetCamera]);
 
-    // Reset mission state
     const resetMissionState = useCallback(() => {
-      const newState = {
+        resetCamera()
+        const newState = {
         isActive: false,
         target: null,
         isCapturing: false,
@@ -159,7 +165,7 @@ const Mission3D = forwardRef<Mission3DRef, Mission3DProps>(
         }
         targetRef.current = null;
       }
-    }, [earthRef, onMissionStateChange]);
+    }, [earthRef, onMissionStateChange, resetCamera]);
 
     // Capture photo
     const capturePhoto = useCallback(() => {
@@ -174,28 +180,29 @@ const Mission3D = forwardRef<Mission3DRef, Mission3DProps>(
       const newState = { ...missionState, isCapturing: true };
       onMissionStateChange(newState);
 
-      // Get target position in world coordinates
       const targetWorldPos = new THREE.Vector3();
       targetRef.current.getWorldPosition(targetWorldPos);
 
-      // Get camera direction
+      // Get where the camera is looking
       const cameraDirection = new THREE.Vector3();
       camera.getWorldDirection(cameraDirection);
 
-      // Get direction from camera to target
       const cameraPosition = camera.position.clone();
-      const directionToTarget = targetWorldPos.clone().sub(cameraPosition).normalize();
+      const targetVisibleFromCamera = Math.abs(targetWorldPos.z) < 13
+      const directionToTarget = new THREE.Vector3(targetWorldPos.clone().subScalar(cameraPosition.x).normalize().x,
+       targetWorldPos.clone().subScalar(cameraPosition.y).normalize().y, targetWorldPos.clone().subScalar(cameraPosition.z).normalize().z);
 
-      // Calculate angle between camera direction and target direction
+      // Angle between camera view direction and direction to target (0° = target at center)
       const angle = cameraDirection.angleTo(directionToTarget);
-
-      // Convert angle to degrees
       const angleDegrees = THREE.MathUtils.radToDeg(angle);
+      console.log({angleDegrees, directionToTarget});
 
-      // Success if target is within 12 degrees of center (expanded capture area)
-      const toleranceDegrees = 12;
-      const targetHit = angleDegrees <= toleranceDegrees;
-
+      // Success only if target is within 30° of center
+      const toleranceDegrees = 30;
+      const targetHit =
+        angleDegrees <= toleranceDegrees && targetVisibleFromCamera;
+      console.log({cameraDirection, targetWorldPos, targetVisibleFromCamera });
+      
       setTimeout(() => {
         onTargetHit(targetHit, missionState.target || undefined);
 
