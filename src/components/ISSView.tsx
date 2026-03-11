@@ -1,5 +1,5 @@
 import { useRef, useState, useCallback } from "react";
-import { Canvas, useThree } from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import { Mesh } from "three";
 import EarthModel, { type MissionTarget } from "./EarthModel";
 import ISSTunnelModel from "./ISSTunnelModel";

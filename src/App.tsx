@@ -3,7 +3,6 @@ import { useTranslation } from "react-i18next";
 import ISSView from "./components/ISSView";
 import ExploreMode from "./components/ExploreMode";
 import LanguageSwitcher from "./components/LanguageSwitcher";
-import backgroundSound from "./assets/soundspace.mp3";
 import {
   playClickSound,
   playExploreEnSound,
