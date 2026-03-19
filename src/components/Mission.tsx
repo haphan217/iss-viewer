@@ -159,7 +159,7 @@ const Mission: React.FC<MissionProps> = ({
                 <ul className="text-cyan-100 space-y-2 font-mono text-sm text-left">
                   <li className="flex items-start">
                     <span className="text-cyan-400 mr-2">▸</span>
-                    <span>{t("Use WASD-QE to rotate the Earth")}</span>
+                    <span>{t("Use WASD-QE to move around the ISS Cupola")}</span>
                   </li>
                   <li className="flex items-start">
                     <span className="text-cyan-400 mr-2">▸</span>
