@@ -1,13 +1,12 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { useTranslation } from "react-i18next";
-import missionsData from "../data/missions.json";
-import EventInfo from "./InfoPanels/EventInfo";
+import confetti from 'canvas-confetti'
+import React, { useCallback, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import missionsData from '../data/missions.json'
 import {
-  playClickSound,
-  playCameraFlashSound,
-  playNoLuckSound,
-  playCongratulationsSound,
-} from "../utils/clickSound";
+    playCameraFlashSound, playClickSound, playCongratulationsSound, playNoLuckSound
+} from '../utils/clickSound'
+import EventInfo from './InfoPanels/EventInfo'
 
 export interface MissionData {
   id: string;
@@ -41,6 +40,15 @@ interface MissionProps {
   onClearResult: () => void;
 }
 
+const confettiColors = [
+  "#fff",
+  "#ffb900",
+  "#ff8800b6",
+  "#00d3f3",
+  "#4ac5db",
+  "#4adb84",
+];
+
 const Mission: React.FC<MissionProps> = ({
   missionState,
   onStartMission,
@@ -62,29 +70,35 @@ const Mission: React.FC<MissionProps> = ({
 
   // Handle mission results
   useEffect(() => {
-    if (missionResult) {
-      if (missionResult.success) {
-        // Play congratulations sound
-        playCongratulationsSound();
+    if(!missionResult) return;
 
-        // Show success animation first
-        setShowSuccessAnimation(true);
-        setShowWasted(false);
+    if (missionResult.success) {
+      // Play congratulations sound
+      playCongratulationsSound();
 
-        // After 1.5 seconds, hide animation and show info panel
-        setTimeout(() => {
-          setShowSuccessAnimation(false);
-          setShowSuccess(true);
-        }, 1500);
-      } else {
-        // Play no luck sound
-        playNoLuckSound();
+      // Show success animation first
+      setShowSuccessAnimation(true);
+      confetti({
+        particleCount: 300,
+        spread: 150,
+        colors: confettiColors,
+      });
+      setShowWasted(false);
 
-        setShowWasted(true);
-        setShowSuccess(false);
+      // After 5 seconds, hide animation and show info panel
+      setTimeout(() => {
         setShowSuccessAnimation(false);
-      }
+        setShowSuccess(true);
+      }, 5000);
+    } else {
+      // Play no luck sound
+      playNoLuckSound();
+
+      setShowWasted(true);
+      setShowSuccess(false);
+      setShowSuccessAnimation(false);
     }
+    
   }, [missionResult]);
 
   // Select a mission
