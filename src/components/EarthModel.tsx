@@ -10,44 +10,82 @@ export interface MissionTarget {
 }
 
 interface EarthModelProps {
-  enableMissionRotation?: boolean;
   earthRef: React.RefObject<Mesh | null>;
   missionTarget?: MissionTarget | null;
-  rotationSpeed?: number;
 }
 
 const EarthModel: React.FC<EarthModelProps> = ({
-  enableMissionRotation = false,
   earthRef,
   missionTarget = null,
-  rotationSpeed = 0.2,
 }) => {
-  const textureLoader = new THREE.TextureLoader();
+  const textureLoader = useMemo(() => new THREE.TextureLoader(), []);
   const targetMarkerRef = useRef<THREE.Mesh | null>(null);
 
-  // Create Earth geometry
-  const earthGeometry = useMemo(() => {
-    return new THREE.SphereGeometry(4, 64, 32);
-  }, []);
+  const earthGeometry = useMemo(
+    () => new THREE.SphereGeometry(4, 64, 32),
+    []
+  );
 
-  // Create Earth material with texture (matching ExploreMode)
-  const earthMaterial = useMemo(() => {
-    const earthTexture = textureLoader.load(
+  const { earthMaterial, earthMap } = useMemo(() => {
+    const earthMap = textureLoader.load(
       "/earth_texture.jpg",
       () => console.log("Earth texture loaded successfully"),
       undefined,
       (error) => console.error("Error loading Earth texture:", error)
     );
-
-    return new THREE.MeshStandardMaterial({
-      map: earthTexture,
+    const earthMaterial = new THREE.MeshStandardMaterial({
+      map: earthMap,
       roughness: 0.9,
       metalness: 0.1,
     });
+    return { earthMaterial, earthMap };
+  }, [textureLoader]);
+
+  const starsGeometry = useMemo(() => {
+    const geo = new THREE.BufferGeometry();
+    const positions = new Float32Array(200 * 3);
+    for (let i = 0; i < 200; i++) {
+      const radius = 50;
+      const theta = Math.random() * Math.PI * 2;
+      const phi = Math.acos(2 * Math.random() - 1);
+      positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+      positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+      positions[i * 3 + 2] = radius * Math.cos(phi);
+    }
+    geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    return geo;
   }, []);
 
-  // Convert lat/lon to 3D position on sphere
-  const latLonToVector3 = (lat: number, lon: number, radius: number = 2) => {
+  const starsMaterial = useMemo(
+    () =>
+      new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 0.14,
+        sizeAttenuation: true,
+        transparent: true,
+        opacity: 0.95,
+        depthWrite: false,
+      }),
+    []
+  );
+
+  useEffect(() => {
+    return () => {
+      earthGeometry.dispose();
+      earthMap.dispose();
+      earthMaterial.dispose();
+      starsGeometry.dispose();
+      starsMaterial.dispose();
+    };
+  }, [
+    earthGeometry,
+    earthMap,
+    earthMaterial,
+    starsGeometry,
+    starsMaterial,
+  ]);
+
+  const latLonToVector3 = (lat: number, lon: number, radius: number) => {
     const phi = (90 - lat) * (Math.PI / 180);
     const theta = (lon + 180) * (Math.PI / 180);
 
@@ -58,13 +96,12 @@ const EarthModel: React.FC<EarthModelProps> = ({
     return new THREE.Vector3(x, y, z);
   };
 
-  // Create or update target marker
   useEffect(() => {
-    if (!earthRef.current) return;
+    const earth = earthRef.current;
+    if (!earth) return;
 
-    // Remove old marker
     if (targetMarkerRef.current) {
-      earthRef.current.remove(targetMarkerRef.current);
+      earth.remove(targetMarkerRef.current);
       targetMarkerRef.current.geometry.dispose();
       if (Array.isArray(targetMarkerRef.current.material)) {
         targetMarkerRef.current.material.forEach((m) => m.dispose());
@@ -74,12 +111,11 @@ const EarthModel: React.FC<EarthModelProps> = ({
       targetMarkerRef.current = null;
     }
 
-    // Create new marker if mission target exists
     if (missionTarget) {
       const position = latLonToVector3(
         missionTarget.lat,
         missionTarget.lon,
-        2.05
+        4.05
       );
 
       const markerGeometry = new THREE.SphereGeometry(0.08, 16, 16);
@@ -92,47 +128,29 @@ const EarthModel: React.FC<EarthModelProps> = ({
       marker.position.copy(position);
       marker.userData.isMissionTarget = true;
 
-      earthRef.current.add(marker);
+      earth.add(marker);
       targetMarkerRef.current = marker;
     }
+
+    return () => {
+      const marker = targetMarkerRef.current;
+      if (marker) {
+        earth.remove(marker);
+        marker.geometry.dispose();
+        if (Array.isArray(marker.material)) {
+          marker.material.forEach((m) => m.dispose());
+        } else {
+          marker.material.dispose();
+        }
+        targetMarkerRef.current = null;
+      }
+    };
   }, [missionTarget, earthRef]);
-
-  // Animation
-  useFrame((_, delta) => {
-    // Rotate Earth for mission simulation (90-minute orbit)
-    if (earthRef.current && enableMissionRotation) {
-      earthRef.current.rotation.y -= rotationSpeed * delta;
-    }
-
-    // Animate target marker (pulsing effect)
-    if (targetMarkerRef.current && targetMarkerRef.current.material) {
-      const material = targetMarkerRef.current
-        .material as THREE.MeshBasicMaterial;
-      material.opacity = 0.3 + 0.5 * Math.sin(Date.now() * 0.005);
-    }
-  });
 
   return (
     <group position={[0, 0, -20]} rotation={[0, 0, 0]} scale={[3, 3, 3]}>
-      {/* Earth */}
       <mesh ref={earthRef} geometry={earthGeometry} material={earthMaterial} />
-
-      {/* Add some stars in the background */}
-      {Array.from({ length: 200 }).map((_, i) => {
-        const radius = 50;
-        const theta = Math.random() * Math.PI * 2;
-        const phi = Math.acos(2 * Math.random() - 1);
-        const x = radius * Math.sin(phi) * Math.cos(theta);
-        const y = radius * Math.sin(phi) * Math.sin(theta);
-        const z = radius * Math.cos(phi);
-
-        return (
-          <mesh key={i} position={[x, y, z]}>
-            <sphereGeometry args={[0.02, 4, 4]} />
-            <meshBasicMaterial color="#FFFFFF" />
-          </mesh>
-        );
-      })}
+      <points geometry={starsGeometry} material={starsMaterial} frustumCulled={false} />
     </group>
   );
 };

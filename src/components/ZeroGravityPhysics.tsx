@@ -15,6 +15,10 @@ const ZeroGravityPhysics: React.FC<ZeroGravityPhysicsProps> = ({
 }) => {
   const { camera } = useThree();
 
+  const directionRef = useRef(new THREE.Vector3());
+  const rightVectorRef = useRef(new THREE.Vector3());
+  const accelerationRef = useRef(new THREE.Vector3());
+
   // Physics state
   const physicsRef = useRef({
     velocity: new THREE.Vector3(),
@@ -158,30 +162,26 @@ const ZeroGravityPhysics: React.FC<ZeroGravityPhysicsProps> = ({
   // Physics update
   useFrame((_, delta) => {
     const physics = physicsRef.current;
-
-    // Calculate movement direction based on camera rotation
-    const direction = new THREE.Vector3(0, 0, -1).applyQuaternion(
+    const direction = directionRef.current.set(0, 0, -1).applyQuaternion(
       camera.quaternion
     );
-    const rightVector = new THREE.Vector3(1, 0, 0).applyQuaternion(
+    const rightVector = rightVectorRef.current.set(1, 0, 0).applyQuaternion(
       camera.quaternion
     );
-
-    // Calculate acceleration
-    const acceleration = new THREE.Vector3();
+    const acceleration = accelerationRef.current.set(0, 0, 0);
     const accelFactor = movementSpeed * delta * 50;
 
     if (physics.moveState.forward) {
-      acceleration.add(direction.clone().multiplyScalar(accelFactor));
+      acceleration.addScaledVector(direction, accelFactor);
     }
     if (physics.moveState.backward) {
-      acceleration.add(direction.clone().multiplyScalar(-accelFactor));
+      acceleration.addScaledVector(direction, -accelFactor);
     }
     if (physics.moveState.right) {
-      acceleration.add(rightVector.clone().multiplyScalar(accelFactor));
+      acceleration.addScaledVector(rightVector, accelFactor);
     }
     if (physics.moveState.left) {
-      acceleration.add(rightVector.clone().multiplyScalar(-accelFactor));
+      acceleration.addScaledVector(rightVector, -accelFactor);
     }
     if (physics.moveState.up) {
       acceleration.y += accelFactor;
@@ -190,7 +190,6 @@ const ZeroGravityPhysics: React.FC<ZeroGravityPhysicsProps> = ({
       acceleration.y -= accelFactor;
     }
 
-    // Apply acceleration to velocity
     physics.velocity.add(acceleration);
 
     // Apply drag (zero-gravity simulation) - this creates the floating feeling

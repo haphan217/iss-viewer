@@ -29,7 +29,6 @@ const Scene: React.FC<{
 }) => {
   const earthRef = useRef<Mesh>(null);
 
-  // Convert MissionData to MissionTarget for EarthModel
   const missionTarget: MissionTarget | null = selectedMission
     ? {
         lat: selectedMission.lat,
@@ -37,6 +36,16 @@ const Scene: React.FC<{
         title: selectedMission.title,
       }
     : null;
+
+  const previewMissionTarget =
+    missionState.isActive ? null : missionTarget;
+
+  const baseOrbitSpeed =
+    selectedMission?.difficulty === "easy"
+      ? 0.2
+      : selectedMission?.difficulty === "medium"
+        ? 0.35
+        : 0.5;
 
   return (
     <>
@@ -52,9 +61,7 @@ const Scene: React.FC<{
       {/* Earth - positioned at the end of the cylinder, visible through the curved cupola window */}
       <EarthModel
         earthRef={earthRef}
-        enableMissionRotation={missionState.isActive}
-        missionTarget={missionTarget}
-        rotationSpeed={selectedMission?.difficulty === "easy" ? 0.2 : selectedMission?.difficulty === "medium" ? 0.35 : 0.5}
+        missionTarget={previewMissionTarget}
       />
 
       {/* Zero Gravity Physics System */}
@@ -68,6 +75,7 @@ const Scene: React.FC<{
         onMissionStateChange={onMissionStateChange}
         onTargetHit={onTargetHit}
         selectedMission={selectedMission}
+        baseOrbitSpeed={baseOrbitSpeed}
       />
     </>
   );
@@ -134,6 +142,13 @@ const ISSView: React.FC = () => {
       }}
     >
       <Canvas
+        dpr={[1, 2]}
+        gl={{
+          antialias: true,
+          powerPreference: "high-performance",
+          stencil: false,
+          depth: true,
+        }}
         camera={{
           position: [0, 0, 5], // Start in tunnel
           fov: 75, // Good FOV for both views

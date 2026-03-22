@@ -55,6 +55,53 @@ function latLonToVector3(
 
 const TIMELINE_YEARS = Array.from({ length: 2026 - 2000 + 1 }, (_, i) => 2000 + i);
 
+function disposeMaterialTextures(material: THREE.Material) {
+  const texKeys = [
+    "map",
+    "lightMap",
+    "bumpMap",
+    "normalMap",
+    "specularMap",
+    "envMap",
+    "alphaMap",
+    "aoMap",
+    "displacementMap",
+    "emissiveMap",
+    "gradientMap",
+    "metalnessMap",
+    "roughnessMap",
+  ] as const;
+  const m = material as unknown as Record<string, unknown>;
+  for (const key of texKeys) {
+    const tex = m[key];
+    if (tex && typeof tex === "object" && "dispose" in tex) {
+      (tex as THREE.Texture).dispose();
+    }
+  }
+}
+
+function disposeSceneResources(root: THREE.Object3D) {
+  root.traverse((child) => {
+    if (
+      child instanceof THREE.Mesh ||
+      child instanceof THREE.Line ||
+      child instanceof THREE.Points
+    ) {
+      child.geometry?.dispose();
+      const mat = child.material;
+      if (Array.isArray(mat)) {
+        mat.forEach((m) => {
+          disposeMaterialTextures(m);
+          m.dispose();
+        });
+      } else if (mat) {
+        disposeMaterialTextures(mat);
+        mat.dispose();
+      }
+    }
+  });
+}
+
 interface SceneRef {
   scene: THREE.Scene;
   clock: THREE.Clock;
@@ -600,6 +647,7 @@ const ExploreMode = () => {
       if (cameraAnimation) cancelAnimationFrame(cameraAnimation);
       window.removeEventListener("resize", onWindowResize);
       renderer.domElement.removeEventListener("click", onMouseClick);
+      disposeSceneResources(scene);
       renderer.dispose();
       controls.dispose();
       if (container.contains(renderer.domElement)) {

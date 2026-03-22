@@ -34,6 +34,7 @@ interface Mission3DProps {
   onMissionStateChange: (state: MissionState) => void;
   onTargetHit: (hit: boolean, mission?: MissionData) => void;
   selectedMission: MissionData | null;
+  baseOrbitSpeed: number;
 }
 
 export interface Mission3DRef {
@@ -43,12 +44,24 @@ export interface Mission3DRef {
 }
 
 const Mission3D = forwardRef<Mission3DRef, Mission3DProps>(
-  ({ earthRef, missionState, onMissionStateChange, onTargetHit, selectedMission }, ref) => {
+  (
+    {
+      earthRef,
+      missionState,
+      onMissionStateChange,
+      onTargetHit,
+      selectedMission,
+      baseOrbitSpeed,
+    },
+    ref
+  ) => {
     const { camera } = useThree();
 
     const targetRef = useRef<THREE.Mesh>(null);
-    const orbitSpeedRef = useRef(0.02); // Base orbit speed
     const userSpeedModifierRef = useRef(0);
+    const targetWorldPosRef = useRef(new THREE.Vector3());
+    const cameraDirectionRef = useRef(new THREE.Vector3());
+    const directionToTargetRef = useRef(new THREE.Vector3());
     const dampingRef = useRef(0.95);
     const keysPressedRef = useRef<Record<string, boolean>>({});
 
@@ -125,10 +138,10 @@ const Mission3D = forwardRef<Mission3DRef, Mission3DProps>(
       return target;
     }, [earthRef, selectedMission, latLonToVector3]);
 
-    const resetCamera = useCallback(() =>{
+    const resetCamera = useCallback(() => {
       camera.position.set(0, 0, 5);
       camera.quaternion.set(0, 0, 0, 1);
-    },[])
+    }, [camera]);
 
     // Start mission
     const startMission = useCallback(() => {
@@ -180,28 +193,31 @@ const Mission3D = forwardRef<Mission3DRef, Mission3DProps>(
       const newState = { ...missionState, isCapturing: true };
       onMissionStateChange(newState);
 
-      const targetWorldPos = new THREE.Vector3();
+      const targetWorldPos = targetWorldPosRef.current;
       targetRef.current.getWorldPosition(targetWorldPos);
 
-      // Get where the camera is looking
-      const cameraDirection = new THREE.Vector3();
+      const cameraDirection = cameraDirectionRef.current;
       camera.getWorldDirection(cameraDirection);
 
-      const cameraPosition = camera.position.clone();
-      const targetVisibleFromCamera = Math.abs(targetWorldPos.z) < 13
-      const directionToTarget = new THREE.Vector3(targetWorldPos.clone().subScalar(cameraPosition.x).normalize().x,
-       targetWorldPos.clone().subScalar(cameraPosition.y).normalize().y, targetWorldPos.clone().subScalar(cameraPosition.z).normalize().z);
+      const directionToTarget = directionToTargetRef.current.subVectors(
+        targetWorldPos,
+        camera.position
+      );
+      if (directionToTarget.lengthSq() < 1e-10) {
+        onTargetHit(false, missionState.target || undefined);
+        onMissionStateChange({ ...missionState, isCapturing: false });
+        return;
+      }
+      directionToTarget.normalize();
 
-      // Angle between camera view direction and direction to target (0° = target at center)
       const angle = cameraDirection.angleTo(directionToTarget);
       const angleDegrees = THREE.MathUtils.radToDeg(angle);
-      console.log({angleDegrees, directionToTarget});
 
-      // Success only if target is within 30° of center
+      const targetVisibleFromCamera = Math.abs(targetWorldPos.z) < 13;
+
       const toleranceDegrees = 30;
       const targetHit =
         angleDegrees <= toleranceDegrees && targetVisibleFromCamera;
-      console.log({cameraDirection, targetWorldPos, targetVisibleFromCamera });
       
       setTimeout(() => {
         onTargetHit(targetHit, missionState.target || undefined);
@@ -209,41 +225,31 @@ const Mission3D = forwardRef<Mission3DRef, Mission3DProps>(
         const finalState = { ...missionState, isCapturing: false };
         onMissionStateChange(finalState);
       }, 100);
-    }, [
-      camera,
-      earthRef,
-      onTargetHit,
-      onMissionStateChange,
-      missionState,
-    ]);
+    }, [camera, onTargetHit, onMissionStateChange, missionState]);
 
-    // Animation loop for orbit simulation and target animation
     useFrame((_, delta) => {
       if (!earthRef.current) return;
 
-      // Handle speed controls
-      if (keysPressedRef.current["KeyW"]) {
-        userSpeedModifierRef.current += 0.03;
+      if (missionState.isActive) {
+        if (keysPressedRef.current["KeyW"]) {
+          userSpeedModifierRef.current += 0.03;
+        }
+        if (keysPressedRef.current["KeyS"]) {
+          userSpeedModifierRef.current -= 0.03;
+        }
+
+        userSpeedModifierRef.current *= dampingRef.current;
+        const totalOrbitSpeed = baseOrbitSpeed + userSpeedModifierRef.current;
+        earthRef.current.rotation.y -= totalOrbitSpeed * delta;
       }
-      if (keysPressedRef.current["KeyS"]) {
-        userSpeedModifierRef.current -= 0.03;
-      }
 
-      userSpeedModifierRef.current *= dampingRef.current;
-      const totalOrbitSpeed =
-        orbitSpeedRef.current + userSpeedModifierRef.current;
-
-      // Rotate Earth to simulate ISS orbit (90 minutes = 0.02 rad/s)
-      earthRef.current.rotation.y += totalOrbitSpeed * delta;
-
-      // Animate target marker (pulsing effect)
       if (targetRef.current && targetRef.current.material) {
         const material = targetRef.current.material as THREE.MeshBasicMaterial;
-        material.opacity = 0.3 + 0.5 * Math.sin(Date.now() * 0.005);
+        material.opacity =
+          0.3 + 0.5 * Math.sin(performance.now() * 0.005);
       }
     });
 
-    // Expose methods to parent component through ref
     useImperativeHandle(
       ref,
       () => ({
